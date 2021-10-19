@@ -1,0 +1,25 @@
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  mtlsConfig:
+    autoRestartPods: true
+    shared:
+      intermediateCertificateAuthority:
+        vault:
+          caPath: "pki/root/sign-intermediate"
+          csrPath: "pki_int/intermediate/generate/exported"
+          server: "http://<vault-server-address>:8200"
+          tokenSecretRef: 
+            name: vault-token
+            namespace: gloo-mesh
+  federation:
+    selectors:
+    - {}
+  meshes:
+  - name: istiod-istio-system-cluster1
+    namespace: gloo-mesh
+  - name: istiod-istio-system-cluster2
+    namespace: gloo-mesh
