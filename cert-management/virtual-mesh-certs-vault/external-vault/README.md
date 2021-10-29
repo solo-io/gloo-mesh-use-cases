@@ -59,7 +59,9 @@ Edit virtual-mesh.yaml and replace `"http://<vault-server-address>:8200"` with y
 
 ## Update Istio deployments in remote clusters
 
-This will patch the enteprise-agent deployment with a role binding for the istio sidecar and inject a vault agent container into istiod to enable certificate retrieval and rotation.
+This will patch the enteprise-agent deployment with a role binding for the istio sidecar and inject a vault agent container into istiod to enable certificate retrieval and rotation.  
+
+Copy `rb-values.yaml` to `cluster1-values.yaml` and `cluster2-values.yaml` and modify your relay address with the value from ENDPOINT_GLOO_MESH.
 
 ```
 ./scripts/06-update-rbac.sh
@@ -72,3 +74,14 @@ Now, test access to Bookinfo on cluster1.  You should see an error in the browse
 ```
 ./scripts/07-restart-workloads.sh
 ```
+
+## Test the application
+
+Refresh the browser to make sure you can still access bookinfo.  You can also check the workload certs.
+
+```
+kubectl --context ${CLUSTER1} exec -t deploy/reviews-v1 -c istio-proxy \
+-- openssl s_client -showcerts -connect ratings:9080
+```
+
+You should now see the `issuer=CN = Istio` along with `CN = gloo-mesh-roota` in the resulting output.

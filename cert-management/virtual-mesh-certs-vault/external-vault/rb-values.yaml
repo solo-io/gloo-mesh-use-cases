@@ -1,0 +1,5 @@
+relay:
+  serverAddress: ENDPOINT_GLOO_MESH # change this value
+  cluster: cluster  # either cluster1 or cluster2
+istiodSidecar:
+  createRoleBinding: true
