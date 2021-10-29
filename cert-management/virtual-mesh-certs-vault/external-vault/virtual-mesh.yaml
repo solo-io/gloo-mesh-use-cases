@@ -11,7 +11,7 @@ spec:
         vault:
           caPath: "pki/root/sign-intermediate"
           csrPath: "pki_int/intermediate/generate/exported"
-          server: "http://<vault-server-address>:8200"
+          server: "http://${VAULT_ADDR}:8200"
           tokenSecretRef: 
             name: vault-token
             namespace: gloo-mesh

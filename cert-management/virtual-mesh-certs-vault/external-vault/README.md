@@ -8,8 +8,8 @@ This example assumes that you are running Vault as an external server. To follow
 vault server -dev -dev-listen-address=0.0.0.0:8200
 ```
 
-For the rest of the commands, make sure you have the VAULT_SERVER env variable set to your host ip (e.g. "http://<host-ip>:8200").
-Grab the VAULT_TOKEN from the Vault server output.  
+For the rest of the commands, make sure you have the VAULT_ADDR env variable set to your host ip (e.g. "http://host-ip:8200").
+Grab the VAULT_TOKEN from the Vault server output and set that as an environment variable named VAULT_TOKEN.
 
 ## Pre-requisites
 
@@ -36,6 +36,13 @@ Create the first root cert.
 ./scripts/03-init-vault.sh
 ```
 
+If you check the terminal window where you started the dev server, you should see the following output.
+
+```
+2021-10-29T15:41:16.380Z [INFO]  core: successful mount: namespace="" path=pki/ type=pki
+2021-10-29T15:41:16.526Z [INFO]  core: successful mount: namespace="" path=pki_int/ type=pki
+```
+
 ## Install root A into Vault
 
 ```
@@ -44,6 +51,24 @@ Create the first root cert.
 
 ## Create secrets and Virtual Mesh
 
+Edit virtual-mesh.yaml and replace `"http://<vault-server-address>:8200"` with your vault server address.
+
 ```
 ./scripts/05-create-virtual-mesh.sh
+```
+
+## Update Istio deployments in remote clusters
+
+This will patch the enteprise-agent deployment with a role binding for the istio sidecar and inject a vault agent container into istiod to enable certificate retrieval and rotation.
+
+```
+./scripts/06-update-rbac.sh
+```
+
+Now, test access to Bookinfo on cluster1.  You should see an error in the browser complaining about the certificates.  To fix that, we need to restart the pods in istio-system and the workloads.
+
+## Restart workloads
+
+```
+./scripts/07-restart-workloads.sh
 ```
