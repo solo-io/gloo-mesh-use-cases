@@ -1,5 +1,15 @@
 # Virtual Gateway Use Cases
 
+Unless otherwise specified, these scenarios will assume the typical 3-cluster setup (mgmt, cluster1, cluster2) so that it will work in any environment.  This also assumes the following pre-requisites:
+
+- Gloo Mesh Management Plane is installed 
+- Remote Clusters are registered
+- Istio is installed with at least version 1.10
+- Bookinfo is deployed to clusters 1 and 2 as stated in the Gloo Mesh workshop
+- Bookinfo Gateway and VirtualService are not installed 
+
+If there are any deviations from the above, then a README should be supplied along with scripts to take care of the changes.
+
 ## Gloo Mesh Enterprise 1.x
 
 ### Ingress Gateway Scenarios

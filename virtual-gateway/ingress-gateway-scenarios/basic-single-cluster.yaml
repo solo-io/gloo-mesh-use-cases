@@ -1,0 +1,66 @@
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: bookinfo-virtualgateway
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:          # Select one or more ingress gateways to bind to
+    - portName: http2               # Select HTTP/2 for support that is backward compatible
+      destinationSelectors:         # Destination selector is required to tie this to the ingress gateway of Istio
+      - kubeServiceMatcher:         # Match on the kubernetes service
+          labels:
+            istio: ingressgateway   # The default Istio label for ingressgateway
+          namespaces:
+          - istio-system            # Specify the location of the ingressgateway
+  connectionHandlers:
+    - http:                         # Use insecure HTTP protocol
+        routeConfig:                
+        - virtualHostSelector:      # Virtual Host selection
+            namespaces:
+            - "gloo-mesh"           # Bind to any VirtualHost in the gloo-mesh namespace
+
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualHost
+metadata:
+  name: bookinfo-virtualhost
+  namespace: gloo-mesh
+spec:
+  domains:
+  - '*'                             # Use a catch-all domain
+  routes:
+  - matchers:
+    - uri:
+        prefix: /                   # All paths
+    delegateAction:
+      selector:
+        namespaces:
+        - "gloo-mesh"               # Delegate the route action to all RouteTables found in gloo-mesh namespace
+
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: RouteTable 
+metadata:
+  name: bookinfo-routetable
+  namespace: gloo-mesh
+spec:
+  routes:
+  - matchers:
+    - uri:
+        exact: /productpage          # Exact path match
+    - uri:
+        prefix: /static              # Prefix matching will catch everything
+    - uri:
+        exact: /login
+    - uri:
+        exact: /logout
+    - uri:
+        prefix: /api/v1/products     # Backend API route
+    name: productpage 
+    routeAction:
+      destinations:
+      - kubeService:
+          clusterName: cluster1      # Restrict this route to first cluster
+          name: productpage          # Kube service name
+          namespace: default
