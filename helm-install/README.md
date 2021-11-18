@@ -1,6 +1,6 @@
 # Gloo Mesh production installation resources
 
-This directory contains example Helm values files to customize the Gloo Mesh Enterprise Helm charts for production setups.
+These directories contain example Helm values files to customize the Gloo Mesh Enterprise Helm charts for production setups. Be sure to select the directory for the version of Gloo Mesh Enterprise that you want to install.
 
 - The [values-mgmt-plane.yaml](./values-mgmt-plane.yaml) values file provides example production-level settings for the `gloo-mesh-enterprise` Helm chart, which you can use to install Gloo Mesh Enterprise. You can edit this file to provide your own details for settings that are recommended for a production installation of Gloo Mesh, including custom certificates, OIDC authorization for the Gloo Mesh dashboard, and RBAC enablement.
   - For instructions on how to install Gloo Mesh Enterprise with Helm, see [Install Gloo Mesh Enterprise](https://docs.solo.io/gloo-mesh-enterprise/latest/setup/installation/enterprise_installation/).

@@ -1,0 +1,55 @@
+# Gloo Mesh Enterprise data plane plane configuration
+relay:
+  # SNI name used to connect to relay forwarding server, which must match server certificate CommonName (DO NOT CHANGE)
+  authority: enterprise-networking.gloo-mesh
+  # Name of the remote cluster by which cluster is referenced in all Gloo Mesh configurations
+  cluster: <REMOTE_CLUSTER_NAME>
+  # Address and port by which the enterprise-networking service in Gloo Mesh management plane can be accessed
+  serverAddress: <ENTERPISE_NETWORKING_ADDRESS>:<PORT>
+  # Allow unencrypted and unauthenticated communication between management and data planes. Do not use in production.
+  insecure: false
+  # Reference to a secret containing a root TLS cert used to verify the relay server cert. 
+  # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
+  rootTlsSecret:
+    name: relay-root-tls-secret
+    namespace: gloo-mesh
+  # Custom certs: Reference to a secret containing TLS certs used to secure the networking gRPC server with TLS.
+  clientCertSecret:
+    name: <REMOTE_CLUSTER_NAME>-relay-certs
+    namespace: gloo-mesh
+  # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
+  # tokenSecret:
+  #   key: token
+  #   name: relay-identity-token-secret
+  #   namespace: gloo-mesh
+enterpriseAgent:
+  enabled: true
+  image:
+    registry: gcr.io/gloo-mesh
+    repository: enterprise-agent
+    # Gloo Mesh Enterprise version. Must match the enterprise-networking version.
+    tag: 1.2.3
+    # if pulling from a private registry
+    # imagePullSecret:
+  ports:
+    grpc: 9977
+    http: 9988
+
+  # enterprise-agent pod resources
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Install rate limiting service in the gloo-mesh namespace.
+# Do not use in production; install in gloo-mesh-addons namespace after registration time.
+rate-limiter:
+  enabled: false
+
+# Install external authentication service in the gloo-mesh namespace.
+# Do not use in production; install in gloo-mesh-addons namespace after registration time.
+ext-auth-service:
+  enabled: false
