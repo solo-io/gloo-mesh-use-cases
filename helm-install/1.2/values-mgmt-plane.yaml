@@ -69,7 +69,7 @@ enterprise-networking:
       registry: gcr.io/gloo-mesh
       repository: enterprise-networking
       # Gloo Mesh Enterprise version
-      # tag: 
+      tag: 1.2.3
       # if pulling from a private registry
       # imagePullSecret:
 
@@ -145,7 +145,7 @@ gloo-mesh-ui:
       registry: gcr.io/gloo-mesh
       repository: gloo-mesh-apiserver
       # Gloo Mesh Enterprise version
-      # tag:
+      tag: 1.2.3
       # if pulling from a private registry
       # imagePullSecret:
 
@@ -186,7 +186,7 @@ rbac-webhook:
       registry: gcr.io/gloo-mesh
       repository: rbac-webhook
       # Gloo Mesh Enterprise version
-      # tag:
+      tag: 1.2.3
     ports:
       webhook: 8443
     # rbac-webhook pod resources
