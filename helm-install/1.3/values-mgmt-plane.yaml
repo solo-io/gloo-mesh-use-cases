@@ -1,0 +1,201 @@
+# Gloo Mesh Enterprise management plane configuration
+enterprise-networking:
+  # Detect and report errors when outputting service mesh configuration that overlaps with existing config not managed by Gloo Mesh
+  disallowIntersectingConfig: true
+  # Port on which to serve internal Prometheus metrics for the Gloo Mesh application. Set to 0 to disable.
+  defaultMetricsPort: 9091
+  # Enable verbose/debug logging
+  verbose: false
+
+  global:
+    # Allow unencrypted and unauthenticated communication between management and data planes. Do not use in production.
+    insecure: false
+    # Set the logger to development mode, which can cause panics. Do not use in production.
+    devMode: false
+  
+  # Name of the management cluster
+  cluster: <MGMT_CLUSTER_NAME>
+
+  # Required for routing to non-Istio services behind a gateway
+  settings:
+    mtls:
+      istio:
+        tlsMode: DISABLE
+
+  forwardingTokenSecret:
+    name: relay-forwarding-identity-token-secret
+    namespace: gloo-mesh
+  # Custom certs: Reference to a secret containing TLS certificates used to secure the networking gRPC server with TLS
+  relayTlsSecret:
+    name: enterprise-networking-server-certs
+    namespace: gloo-mesh
+  # (NOT needed with ACM certs) Secret containing a shared token for authenticating relay agents when they first communicate with the management plane
+  # tokenSecret:
+  #   name: relay-identity-token-secret
+  #   namespace: gloo-mesh
+  #   # Key value of the data within the Kubernetes secret
+  #   key: token
+  
+  # Metrics backend for persisting and querying aggregated metrics
+  metricsBackend:
+    prometheus:
+      enabled: false
+      url: http://prometheus-server
+
+  # Override prometheus deployment settings for this chart https://github.com/prometheus-community/helm-charts
+  # prometheus:
+
+  # Create self-signed CA certificate and bootstrap token secrets for the relay server
+  selfSigned: false
+  
+  # Disable default relay CA functionality only when supplying custom client certs to the agents for relay mTLS
+  disableRelayCa: true
+
+  # Create the enterprise-networking-admin debugging service to expose metrics and debug information
+  admin:
+    # Expose pod metrics via this port (must match pod port)
+    metricsPort:
+      name: http
+      port: 9091
+    # Admin port (must match pod port)
+    port:
+      name: admin
+      port: 11100
+
+  # Deployment configuration for enterprise-networking app
+  enterpriseNetworking:
+    enabled: true
+    image:
+      registry: gcr.io/gloo-mesh
+      repository: enterprise-networking
+      # Gloo Mesh Enterprise version
+      # tag: 
+      # if pulling from a private registry
+      # imagePullSecret:
+
+    # enterprise-networking pod resources
+    resources:
+      requests:
+        cpu: 125m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+
+    # Kubernetes service type load balancer
+    serviceType: LoadBalancer
+    # Port for data planes to connect to
+    ports:
+      grpc: 9900
+    # Additional settings to add to the load balancer service
+    serviceOverrides:
+      metadata:
+        annotations:
+          # AWS-specific annotations
+          service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "2"
+          service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "2"
+          service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "10"
+          service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "9900"
+          service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "tcp"
+
+          service.beta.kubernetes.io/aws-load-balancer-type: external
+          service.beta.kubernetes.io/aws-load-balancer-scheme: internal
+          service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+          service.beta.kubernetes.io/aws-load-balancer-backend-protocol: TCP
+          service.beta.kubernetes.io/aws-load-balancer-private-ipv4-addresses: 10.0.50.50, 10.0.64.50
+          service.beta.kubernetes.io/aws-load-balancer-subnets: subnet-0478784f04c486de5, subnet-09d0cf74c0117fcf3
+          service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: deregistration_delay.connection_termination.enabled=true,deregistration_delay.timeout_seconds=1
+
+
+# Gloo Mesh dashboard configuration 
+gloo-mesh-ui:
+  enabled: true
+  # Allow unencrypted and unauthenticated communication between management and data planes
+  # enterprise-networking.global.insecure must also be set
+  global:
+    insecure: false
+  # Address for enterprise-networking-admin service, used for debug page loading
+  networkingAdminAddress: enterprise-networking-admin.gloo-mesh.svc.cluster.local:11100
+  # SNI name used to connect to relay forwarding server, which must match server certificate CommonName (DO NOT CHANGE)
+  relayClientAuthority: enterprise-networking.gloo-mesh
+  # Name of the dashboard settings object to use
+  settingsName: settings
+
+  auth:
+    enabled: true
+    backend: oidc
+    oidc:
+      clientId: # From the OIDC provider
+      clientSecret: # From the OIDC provider (will be stored in secret)
+      clientSecretRef:
+        name: dashboard
+        namespace: gloo-mesh
+      issuerUrl: # The issuer URL from the OIDC provider, such as https://<domain>.<provider url>/
+      appUrl: # URL the dashboard is available at from DNS and other ingress settings that expose the dashboard service
+  
+  # Redis instance configuration, optionally used for auth session storage
+  redis:
+    enabled: false
+
+  # Deployment configuration for dashboard app
+  dashboard:
+    enabled: true
+
+    image:
+      registry: gcr.io/gloo-mesh
+      repository: gloo-mesh-apiserver
+      # Gloo Mesh Enterprise version
+      # tag:
+      # if pulling from a private registry
+      # imagePullSecret:
+
+    # dashboard pod resources
+    resources:
+      requests:
+        cpu: 125m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Gi
+    # Kubernetes service type
+    serviceType: ClusterIP
+    # Ports for dashboard service
+    ports:
+      grpc: 10101
+      healthCheck: 8081
+      console: 8090
+    # Additional settings to add to Kubernetes service
+    # serviceOverrides:
+
+
+# RBAC webhook configuration
+rbac-webhook:
+  enabled: true
+  # Assign users or groups to the admin role
+  adminSubjects:
+  - kind: User
+    name: kubernetes-admin
+  # Create a Kubernetes role for Gloo Mesh admins
+  createAdminRole: true
+
+  # Deployment configuration for rbac-webhook app
+  rbacWebhook:
+    enabled: true
+    image:
+      pullPolicy: IfNotPresent
+      registry: gcr.io/gloo-mesh
+      repository: rbac-webhook
+      # Gloo Mesh Enterprise version
+      # tag:
+    ports:
+      webhook: 8443
+    # rbac-webhook pod resources
+    resources:
+      requests:
+        cpu: 125m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Gi
+    # Kubernetes service type
+    serviceType: ClusterIP
