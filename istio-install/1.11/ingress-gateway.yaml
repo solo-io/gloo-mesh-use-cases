@@ -133,28 +133,3 @@ spec:
       # Must match the trustDomain and GLOO_MESH_CLUSTER_NAME
       multiCluster:
         clusterName: <CLUSTER_NAME>
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: istio-ingressgateway
-  # Deploy to gateways namespace. If using individual namespaces for gateways, specify 'istio-ingress' instead.
-  namespace: istio-gateways
-spec:
-  type: LoadBalancer
-  selector:
-    istio: ingressgateway
-    version: 1-11-4
-  ports:
-  # Health check port. For AWS ELBs, this port must be listed first.
-  - name: status-port
-    port: 15021
-    targetPort: 15021
-  # Main HTTP ingress port
-  - port: 80
-    targetPort: 8080
-    name: http2
-  # Main HTTPS ingress port
-  - port: 443
-    targetPort: 8443
-    name: https

@@ -14,11 +14,7 @@ For more information about the content of the provided `IstioOperator` examples,
 These resources are configured with production-level settings; however, depending on your environment, you might need to edit settings to achieve specific Istio functionality. For instructions on how to install Istio for use with Gloo Mesh Enterprise, see [Install Istio](https://docs.solo.io/gloo-mesh-enterprise/latest/setup/istio/).
 
 - The `istiod-kubernetes.yaml` and `istiod-openshift.yaml` files provide example production-level settings for the `IstioOperator` resource to install the istiod control plane in a cluster. Choose the resource for your cluster's container orchestration platform.
-- The `ingress-gateway.yaml` file provides the following resources for the Istio ingress gateway. Note that these gateway resources are deployed to the `istio-gateways` namespace. If you use individual namespaces for each gateway, be sure to specify `istio-ingress` for the resource namespaces instead.
-  - A service account for the ingress gateway deployment to use
-  - An `IstioOperator` resource for the ingress gateway deployment
-  - A separate load balancer service to expose the ingress gateway
-- The `eastwest-gateway.yaml` file provides the following resources for the Istio east-west gateway. Note that these gateway resources are deployed to the `istio-gateways` namespace. If you use individual namespaces for each gateway, be sure to specify `istio-eastwest` for the resource namespaces instead.
-  - A service account for the east-west gateway deployment to use
-  - An `IstioOperator` resource for the east-west gateway deployment
-  - A separate load balancer service to expose the east-west gateway
+- The `ingress-gateway.yaml` file provides an `IstioOperator` resource for the ingress gateway deployment and a service account for the ingress gateway deployment to use. Note that these gateway resources are deployed to the `istio-gateways` namespace. If you use individual namespaces for each gateway, be sure to specify `istio-ingress` for the resource namespaces instead.
+- The `ingress-gateway-lb.yaml` file provisions a separate load balancer service to expose the ingress gateway.
+- The `eastwest-gateway.yaml` file provides an `IstioOperator` resource for the east-west gateway deployment and a service account for the east-west gateway deployment to use. Note that these gateway resources are deployed to the `istio-gateways` namespace. If you use individual namespaces for each gateway, be sure to specify `istio-eastwest` for the resource namespaces instead.
+- The `eastwest-gateway-lb.yaml` file provisions a separate load balancer service to expose the east-west gateway.

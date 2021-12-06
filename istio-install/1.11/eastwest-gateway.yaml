@@ -130,25 +130,3 @@ spec:
       # Must match the trustDomain and GLOO_MESH_CLUSTER_NAME
       multiCluster:
         clusterName: <CLUSTER_NAME>
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: istio-eastwestgateway
-  # Deploy to gateways namespace. If using individual namespaces for gateways, specify 'istio-eastwest' instead.
-  namespace: istio-gateways
-spec:
-  type: LoadBalancer
-  selector:
-    istio: eastwestgateway
-    version: 1-11-4
-  ports:
-  # Health check port. For AWS ELBs, this port must be listed first.
-  - name: status-port
-    port: 15021
-    targetPort: 15021
-  # Port for multicluster mTLS passthrough; required for Gloo Mesh east/west routing
-  - port: 15443
-    targetPort: 15443
-    # Gloo Mesh looks for this default name 'tls' on an ingress gateway
-    name: tls
