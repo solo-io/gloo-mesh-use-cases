@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: istio-eastwestgateway
-  # Deploy to gateways namespace. If using individual namespaces for gateways, specify 'istio-eastwest' instead.
-  namespace: istio-gateways
+  # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
+  namespace: istio-eastwest
 spec:
   type: LoadBalancer
   selector:
