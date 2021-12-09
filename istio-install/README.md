@@ -2,7 +2,7 @@
 
 These directories contain example resource files for installing Istio in your workload clusters for production-level setups. Be sure to select the directory for the version of Istio that you want to install.
 
-Note that several resources include a `revision` label that matches the Istio version of the resource to facilitate [canary-based upgrades](https://istio.io/latest/blog/2017/0.1-canary/). This revision label helps you upgrade the version of the Istio control plane more easily, as documented in the [Istio upgrade guide]({{% versioned_link_path fromRoot="/setup/istio/upgrade/" %}}).
+Note that several resources include a `revision` label that matches the Istio version of the resource to facilitate [canary-based upgrades](https://istio.io/latest/blog/2017/0.1-canary/). This revision label helps you upgrade the version of the Istio control plane more easily, as documented in the [Istio upgrade guide](https://docs.solo.io/gloo-mesh-enterprise/main/setup/istio/upgrade/).
 
 For more information about the content of the provided `IstioOperator` examples, check these resources:
 * [Istio default profiles](https://github.com/istio/istio/tree/master/manifests/profiles)
