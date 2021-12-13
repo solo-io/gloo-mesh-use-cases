@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Prefix Path Route Matching
-# Test Number: 4.1.1
+# Test Name: Simple Destination Routing
+# Test Number: 5.1
 # Test Description:
-#   - Route /frontend to frontend application
+#   - Route all requests to frontend application in cluster-1
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -45,10 +45,7 @@ spec:
           domains:
           - "*"
           routes:
-          - matchers:                    # match on path prefix /frontend
-            - uri:
-                prefix: /frontend
-            name: frontend
+          - name: frontend
             routeAction:
               destinations:
               - kubeService:

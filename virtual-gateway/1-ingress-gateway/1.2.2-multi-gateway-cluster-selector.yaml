@@ -11,7 +11,12 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  federation:
+  mtlsConfig:
+    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
+    shared:
+      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
+        generated: {}
+  federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
   meshes:
@@ -27,14 +32,14 @@ metadata:
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2                  # match on port name http2
+  - portName: http2                      # match on port name http2
     destinationSelectors:
-    - kubeServiceRefs:               # select single specific kubernetes services
+    - kubeServiceRefs:                   # select single specific kubernetes services
         services:
-        - name: istio-ingressgateway # select cluster-1 ingress gateway service
+        - name: istio-ingressgateway     # select cluster-1 ingress gateway service
           namespace: istio-system
           clusterName: cluster-1
-        - name: istio-ingressgateway # select cluster-2 ingress gateway service
+        - name: istio-ingressgateway     # select cluster-2 ingress gateway service
           namespace: istio-system
           clusterName: cluster-2
   connectionHandlers:
