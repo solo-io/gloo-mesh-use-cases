@@ -53,14 +53,23 @@ This is the multi-cluster setup we will be utilizing.
 
 ### 3 Virtual Hosts
 - 3.1 VirtualGateway selection
-- 3.2 Inline VirtualHost definition
 
 ### 4 Route matching
 - 4.1 Path-based matching
-- 4.2 Regex path-based matching
-- 4.3 Header-based matching
-- 4.4 Query parameter matching
-- 4.5 HTTP method matching
+  - 4.1.1 Prefix
+  - 4.1.2 Exact
+  - 4.1.3 Regex
+  - 4.1.4 Suffix
+  - 4.1.5 Prefix Ignore Case
+- 4.2 Header-based matching
+  - 4.2.1 Name Match
+  - 4.2.2 Name/Value Match
+  - 4.2.3 Name/Regex Match
+  - 4.2.4 Invert Match
+- 4.3 Query parameter matching
+  - 4.3.1 Key/Value match
+  - 4.3.2 Regex Match
+- 4.4 HTTP method matching
 
 ### 5 Routing to Destination
 - 5.1 Single destination

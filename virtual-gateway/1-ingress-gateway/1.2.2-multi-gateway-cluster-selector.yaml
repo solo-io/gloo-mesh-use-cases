@@ -1,9 +1,9 @@
 ##################################################
 # Test Name: Multi Gateway Using Cluster Selector
-# Test Number: 1.2.3
+# Test Number: 1.2.2
 # Test Description: 
 #   - Select multiple ingress gateways
-#   - Using multiple kubeServiceRefs selector
+#   - Using multiple kubeServiceRefs.services selector
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -23,20 +23,18 @@ spec:
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
 metadata:
-  name: gateway
+  name: ingress
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2                      # match on port name http2
-    destinationSelectors:                # select single specific kubernetes services
-    - kubeServiceRefs:
+  - portName: http2                  # match on port name http2
+    destinationSelectors:
+    - kubeServiceRefs:               # select single specific kubernetes services
         services:
-        - name: istio-ingressgateway     # select cluster-1 ingress gateway service
+        - name: istio-ingressgateway # select cluster-1 ingress gateway service
           namespace: istio-system
           clusterName: cluster-1
-    - kubeServiceRefs:                   # select single specific kubernetes services
-        services: 
-        - name: istio-ingressgateway     # select cluster-2 ingress gateway service
+        - name: istio-ingressgateway # select cluster-2 ingress gateway service
           namespace: istio-system
           clusterName: cluster-2
   connectionHandlers:
@@ -50,7 +48,7 @@ spec:
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-1 # route to cluster-1 frontend application
+                  clusterName: cluster-1
                   name: frontend
                   namespace: app
                   port: 8080

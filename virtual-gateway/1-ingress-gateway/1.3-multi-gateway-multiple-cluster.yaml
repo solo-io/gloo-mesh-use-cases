@@ -23,7 +23,7 @@ spec:
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
 metadata:
-  name: gateway-cluster-1
+  name: ingress-cluster-1
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
@@ -53,7 +53,7 @@ spec:
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
 metadata:
-  name: gateway-cluster-2
+  name: ingress-cluster-2
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:

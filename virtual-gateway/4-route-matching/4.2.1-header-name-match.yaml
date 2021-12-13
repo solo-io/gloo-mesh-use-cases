@@ -1,9 +1,8 @@
 ##################################################
-# Test Name: Multi Gateway Using Cluster Selector
-# Test Number: 1.2.1
-# Test Description: 
-#   - Select multiple ingress gateways
-#   - Using kubeServiceMatcher label selector
+# Test Name: Header Name Match
+# Test Number: 4.2.1
+# Test Description:
+#   - Route X-frontend-app header to frontend application
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -23,7 +22,7 @@ spec:
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
 metadata:
-  name: gateway
+  name: ingress
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
@@ -39,9 +38,12 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"                     # Use a catch-all domain
+          - "*"
           routes:
-          - name: frontend
+          - matchers:                    # match on header X-frontend-app existing
+            - headers:
+              - name: X-frontend-app
+            name: frontend
             routeAction:
               destinations:
               - kubeService:

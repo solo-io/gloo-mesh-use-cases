@@ -1,0 +1,53 @@
+##################################################
+# Test Name: Prefix Path Route Matching
+# Test Number: 4.1.1
+# Test Description:
+#   - Route /frontend to frontend application
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2               # match on port name http2
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway  # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system            # only include istio-system namespace
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - "*"
+          routes:
+          - matchers:                    # match on path prefix /frontend
+            - uri:
+                prefix: /frontend
+            name: frontend
+            routeAction:
+              destinations:
+              - kubeService:
+                  clusterName: cluster-1
+                  name: frontend
+                  namespace: app
+                  port: 8080

@@ -1,8 +1,9 @@
 ##################################################
-# Test Name: Gateway in different namespace
-# Test Number: 1.4
+# Test Name: Multi Gateway Using Cluster Selector
+# Test Number: 1.2.1
 # Test Description: 
-#   - Gateway is deployed to istio-gateways namespace
+#   - Select multiple ingress gateways
+#   - Using kubeServiceMatcher label selector
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -22,29 +23,29 @@ spec:
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
 metadata:
-  name: gateway
+  name: ingress
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2                      # match on port name http2
+  - portName: http2               # match on port name http2
     destinationSelectors:
     - kubeServiceMatcher:
         labels:
-          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+          istio: ingressgateway  # select all gateways with istio=ingressgateway label
         namespaces:
-        - istio-system                   # only include istio-system namespace
+        - istio-system            # only include istio-system namespace
   connectionHandlers:
   - http:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"                          # Use a catch-all domain
+          - "*"                     # Use a catch-all domain
           routes:
           - name: frontend
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-1 # route to cluster-1 frontend application
+                  clusterName: cluster-1
                   name: frontend
                   namespace: app
                   port: 8080
