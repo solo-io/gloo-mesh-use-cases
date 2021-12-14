@@ -50,6 +50,7 @@ This is the multi-cluster setup we will be utilizing.
 - 2.4 Restricting Envoy filters
 - 2.5 SNI matching
 - 2.6 Wildcard domains
+- 2.7 Proxy Protocol
 
 ### 3 Virtual Hosts
 - 3.1 VirtualGateway selection
