@@ -81,9 +81,20 @@ This is the multi-cluster setup we will be utilizing.
 - 5.6 Subset routing
 - 5.7 Route to VirtualDestination
 - 5.8 Route to Static Destination
-- 5.9 Request transformation (add/remove headers)
-- 5.10 Response transformation (add/remove headers)
-- 5.11 Path rewrite
+- 5.9 Per Destination Request Headers
+  - 5.9.1 Add Request Header
+  - 5.9.2 Remove Request Header
+- 5.10 Per Destination Response Headers
+  - 5.10.1 Add Response Header
+  - 5.10.2 Remove Response Header
+- 5.11 Per Route Request Headers
+  - 5.11.1 Add Request Header
+  - 5.11.2 Remove Request Header
+- 5.12 Per Route Response Headers
+  - 5.12.1 Add Response Header
+  - 5.12.2 Remove Response Header
+
+- 5.13 Path rewrite
 
 ### 6 Redirects
 - 6.1 Host Redirect

@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Multi Cluster Destination Routing
-# Test Number: 5.4
+# Test Name: Remove Route Response Header
+# Test Number: 5.12.2
 # Test Description:
-#   - Route all requests to frontend application in cluster-1 and cluster-2
+#   - Remove response header on requests meant for frontend
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -31,13 +31,13 @@ metadata:
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2                      # match on port name http2
+  - portName: http2               # match on port name http2
     destinationSelectors:
     - kubeServiceMatcher:
         labels:
-          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+          istio: ingressgateway  # select all gateways with istio=ingressgateway label
         namespaces:
-        - istio-system                   # only include istio-system namespace
+        - istio-system            # only include istio-system namespace
   connectionHandlers:
   - http:
       routeConfig:
@@ -47,16 +47,13 @@ spec:
           routes:
           - name: frontend
             routeAction:
-              destinations:              # route to both cluster-1 and cluster-2 frontend
-              - clusterHeader: X-SOLO-CLUSTER  # 
-                kubeService:
+              destinations:
+              - kubeService:
                   clusterName: cluster-1
                   name: frontend
                   namespace: app
                   port: 8080
-              - clusterHeader: X-SOLO-CLUSTER
-                kubeService:
-                  clusterName: cluster-2
-                  name: frontend
-                  namespace: app
-                  port: 8080
+            options:
+              headerManipulation:
+                removeResponseHeaders:
+                  - X-my-response-header
