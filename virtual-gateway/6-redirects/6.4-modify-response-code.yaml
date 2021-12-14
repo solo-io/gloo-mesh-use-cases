@@ -1,5 +1,5 @@
 ##################################################
-# Test Name: Modify Response Code
+# Test Name: Modify Response Code (TODO Missing redirect catch)
 # Test Number: 6.4
 # Test Description:
 #   - Rewrite one.solo.io to another.solo.io using 302 status code
@@ -48,10 +48,3 @@ spec:
             redirectAction:
               hostRedirect: another.solo.io
               responseCode: 302
-            routeAction:
-              destinations:
-              - kubeService:
-                  clusterName: cluster-1
-                  name: frontend
-                  namespace: app
-                  port: 8080

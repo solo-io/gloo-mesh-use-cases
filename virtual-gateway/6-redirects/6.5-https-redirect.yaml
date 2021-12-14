@@ -1,5 +1,5 @@
 ##################################################
-# Test Name: HTTPS Redirect
+# Test Name: HTTPS Redirect (TODO Missing redirect catch)
 # Test Number: 6.5
 # Test Description:
 #   - Redirect http://one.solo.io to https://another.solo.io
@@ -49,10 +49,3 @@ spec:
             redirectAction:
               hostRedirect: another.solo.io
               httpsRedirect: true
-            routeAction:
-              destinations:
-              - kubeService:
-                  clusterName: cluster-1
-                  name: frontend
-                  namespace: app
-                  port: 8080

@@ -1,5 +1,5 @@
 ##################################################
-# Test Name: Path Redirect
+# Test Name: Path Redirect (TODO Missing redirect catch)
 # Test Number: 6.2
 # Test Description:
 #   - Redirect all paths to /another

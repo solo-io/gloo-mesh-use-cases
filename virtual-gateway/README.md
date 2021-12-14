@@ -144,50 +144,46 @@ This is the multi-cluster setup we will be utilizing.
 # 13 Mirroring Traffic
 - 13.1 Send percentage of traffic to mirrored destination (kubeService only)
 
-# 14 Header Manipulation
-- 14.1 Request Transformation on TrafficPolicy (add/remove headers)
-- 14.1 Response Transformation on TrafficPolicy (add/remove headers)
+# 14 Outlier Detection
+- 14.1 Outlier Detection for failover routing to a global destination
 
-# 15 Outlier Detection
-- 15.1 Outlier Detection for failover routing to a global destination
+# 15 Istio mTLS Settings
+- 15.1 Setting mTLS settings per destination
 
-# 16 Istio mTLS Settings
-- 16.1 Setting mTLS settings per destination
+# 16 Cross-Site Request Forgery
+- 16.1 Setting CSRF Policy
 
-# 17 Cross-Site Request Forgery
-- 17.1 Setting CSRF Policy
+# 17 Rate Limiting
+- 17.1 Using raw Rate Limit definition
+- 17.2 Rate Limit on source cluster
+- 17.3 Rate Limit on destination cluster
+- 17.4 Rate Limit on request headers
+- 17.5 Rate Limit on remote address
+- 17.6 Rate Limit on generic key
+- 17.7 Rate Limit on the existence of a requst header
+- 17.8 Rate Limit on metadata
+- 17.9 Using separate Rate Limit config
 
-# 18 Rate Limiting
-- 18.1 Using raw Rate Limit definition
-- 18.2 Rate Limit on source cluster
-- 18.3 Rate Limit on destination cluster
-- 18.4 Rate Limit on request headers
-- 18.5 Rate Limit on remote address
-- 18.6 Rate Limit on generic key
-- 18.7 Rate Limit on the existence of a requst header
-- 18.8 Rate Limit on metadata
-- 18.9 Using separate Rate Limit config
+# 18 External Auth
+- 18.1 Using a custom auth server
+- 18.2 OIDC with AuthConfig
+- 18.3 Using an API token
 
-# 19 External Auth
-- 19.1 Using a custom auth server
-- 19.2 OIDC with AuthConfig
-- 19.3 Using an API token
+# 19 Labeled routes
+- 19.1 Specifying route labels for a TrafficPolicy
 
-# 20 Labeled routes
-- 20.1 Specifying route labels for a TrafficPolicy
+# 20 TCP Destinations
+- 20.1 Configuring a static TCP Destination
+- 20.2 Configuring a virtual TCP Destination
+- 20.3 Configuring a kube TCP Destination
+- 20.4 Forwarding SNI
+- 20.5 Weighted routing
 
-# 21 TCP Destinations
-- 21.1 Configuring a static TCP Destination
-- 21.2 Configuring a virtual TCP Destination
-- 21.3 Configuring a kube TCP Destination
-- 21.4 Forwarding SNI
-- 21.5 Weighted routing
+# 21 TCP Options
+- 21.1 Setting max connection attempts
+- 21.2 Setting idle timeout
+- 21.3 Using a TCP tunnel
 
-# 22 TCP Options
-- 22.1 Setting max connection attempts
-- 22.2 Setting idle timeout
-- 22.3 Using a TCP tunnel
-
-# 24 Global Virtual Gateway options
-- 24.1 Setting a limit on connection buffers
-- 24.2 Setting the bind address
+# 22 Global Virtual Gateway options
+- 22.1 Setting a limit on connection buffers
+- 22.2 Setting the bind address

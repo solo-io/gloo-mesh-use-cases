@@ -1,5 +1,5 @@
 ##################################################
-# Test Name: Host Redirect
+# Test Name: Host Redirect (TODO Missing redirect catch)
 # Test Number: 6.1
 # Test Description:
 #   - Redirect from one.solo.io host to another.solo.io
