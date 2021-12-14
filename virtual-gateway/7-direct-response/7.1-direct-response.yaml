@@ -1,6 +1,6 @@
 ##################################################
 # Test Name: Direct Response
-# Test Number: 6.6
+# Test Number: 7.1
 # Test Description:
 #   - Do not call destination, instead immediately return status and message
 ##################################################
