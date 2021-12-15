@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Fault Injection Delay 50%
-# Test Number: 10.3
+# Test Name: Request Timeout + Retries
+# Test Number: 11.2
 # Test Description:
-#   - abort requests and return 401 status
+#   - timeout after 1s but retry 3 times
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -55,4 +55,5 @@ spec:
                   port: 8080
             options:
               trafficPolicy:
-                requestTimeout: 1s
+                requestTimeout: 1s           # delay requests 15s
+                  fixedDelay: 15s

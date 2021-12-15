@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Fault Injection Delay 50%
-# Test Number: 10.3
+# Test Name: Fault Injection Delay
+# Test Number: 10.1
 # Test Description:
-#   - abort requests and return 401 status
+#   - inject 15s delay to requests
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -55,4 +55,5 @@ spec:
                   port: 8080
             options:
               trafficPolicy:
-                requestTimeout: 1s
+                faultInjection:          # delay requests 15s
+                  fixedDelay: 15s
