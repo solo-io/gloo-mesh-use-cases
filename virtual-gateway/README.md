@@ -145,6 +145,7 @@ This is the multi-cluster setup we will be utilizing.
 
 # 16 Cross-Site Request Forgery
 - 16.1 Setting CSRF Policy
+- 16.2 Setting CSRF Policy
 
 # 17 Rate Limiting
 - 17.1 Using raw Rate Limit definition
