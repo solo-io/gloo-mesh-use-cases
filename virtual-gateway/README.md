@@ -143,14 +143,14 @@ This is the multi-cluster setup we will be utilizing.
 # 15 Istio mTLS Settings
 - 15.1 Setting mTLS settings per destination
 
-# 16 Cross-Site Request Forgery
+# 16 Cross-Site Request Forgery (TrafficPolicy)
 - 16.1 Setting CSRF Policy
 - 16.2 Setting CSRF Policy
 
-# 17 Rate Limiting
+# 17 Rate Limiting (TrafficPolicy)
 - 17.1 Using raw Rate Limit definition
-- 17.2 Rate Limit on source cluster
-- 17.3 Rate Limit on destination cluster
+- 17.2 Rate Limit on source cluster  (TODO does this make sense)
+- 17.3 Rate Limit on destination cluster (TODO use istio cluster name?)
 - 17.4 Rate Limit on request headers
 - 17.5 Rate Limit on remote address
 - 17.6 Rate Limit on generic key
@@ -158,26 +158,46 @@ This is the multi-cluster setup we will be utilizing.
 - 17.8 Rate Limit on metadata
 - 17.9 Using separate Rate Limit config
 
-# 18 External Auth
+# 18 External Auth (TrafficPolicy)
 - 18.1 Using a custom auth server
 - 18.2 OIDC with AuthConfig
 - 18.3 Using an API token
 
-# 19 Labeled routes
+# 19 Labeled routes (TrafficPolicy)
 - 19.1 Specifying route labels for a TrafficPolicy
 
-# 20 TCP Destinations
-- 20.1 Configuring a static TCP Destination
-- 20.2 Configuring a virtual TCP Destination
-- 20.3 Configuring a kube TCP Destination
-- 20.4 Forwarding SNI
-- 20.5 Weighted routing
+# 20 Rate Limiting (RouteTable)
+- 20.1 Using raw Rate Limit definition
+- 20.2 Rate Limit on source cluster
+- 20.3 Rate Limit on destination cluster
+- 20.4 Rate Limit on request headers
+- 20.5 Rate Limit on remote address
+- 20.6 Rate Limit on generic key
+- 20.7 Rate Limit on the existence of a requst header
+- 20.8 Rate Limit on metadata
+- 20.9 Using separate Rate Limit config
 
-# 21 TCP Options
-- 21.1 Setting max connection attempts
-- 21.2 Setting idle timeout
-- 21.3 Using a TCP tunnel
+# 21 External Auth (RouteTable)
+- 21.1 Using a custom auth server
+- 21.2 OIDC with AuthConfig
+- 21.3 Using an API token
 
-# 22 Global Virtual Gateway options
-- 22.1 Setting a limit on connection buffers
-- 22.2 Setting the bind address
+# 22 Cross-Site Request Forgery (RouteTable)
+- 22.1 Setting CSRF Policy
+- 22.2 Setting CSRF Policy
+
+# 23 TCP Destinations
+- 23.1 Configuring a static TCP Destination
+- 23.2 Configuring a virtual TCP Destination
+- 23.3 Configuring a kube TCP Destination
+- 23.4 Forwarding SNI
+- 23.5 Weighted routing
+
+# 24 TCP Options
+- 24.1 Setting max connection attempts
+- 24.2 Setting idle timeout
+- 24.3 Using a TCP tunnel
+
+# 25 Global Virtual Gateway options
+- 25.1 Setting a limit on connection buffers
+- 25.2 Setting the bind address
