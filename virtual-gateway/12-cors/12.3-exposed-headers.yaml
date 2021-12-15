@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Request Timeout + Retries
-# Test Number: 11.2
+# Test Name: Cors exposed headers
+# Test Number: 12.3
 # Test Description:
-#   - timeout after 1s but retry 3 times
+#   - Setting of Access-Control-Expose-Headers
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -43,7 +43,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"                          # all requests to frontend application 
+          - "frontend.solo.io"           # listen on frontend.solo.io
           routes:
           - name: frontend
             routeAction:
@@ -55,7 +55,7 @@ spec:
                   port: 8080
             options:
               trafficPolicy:
-                requestTimeout: 15s      # total request timeout at 15s
-                retries:
-                  attempts: 5            # retry a total of 5 times
-                  perTryTimeout: 5s      # 5s timeout per retry
+                corsPolicy:
+                  exposeHeaders:         # would allow the X-My-Custom-Header and X-Another-Custom-Header headers to be exposed to the browser.
+                  - X-My-Custom-Header
+                  - X-Another-Custom-Header
