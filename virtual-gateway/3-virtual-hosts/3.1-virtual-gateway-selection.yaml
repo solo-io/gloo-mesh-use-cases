@@ -54,11 +54,11 @@ metadata:
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2                     # match on port name http2
-    destinationSelectors:               # select single specific kubernetes services
+  - portName: http2                      # match on port name http2
+    destinationSelectors:                # select single specific kubernetes services
     - kubeServiceRefs:
         services:
-        - name: istio-ingressgateway    # select cluster-1 ingress gateway service
+        - name: istio-ingressgateway     # select cluster-1 ingress gateway service
           namespace: istio-system
           clusterName: cluster-2
   connectionHandlers:

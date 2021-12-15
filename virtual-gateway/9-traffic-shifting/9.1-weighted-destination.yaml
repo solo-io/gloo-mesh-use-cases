@@ -1,10 +1,8 @@
 ##################################################
-# Test Name: Suffix Path Route Matching
-# Test Number: 4.1.4
+# Test Name: Weighted Destination
+# Test Number: 9.1
 # Test Description:
-#   - Route /.*/frontend to frontend application
-# Issues
-#  - https://github.com/solo-io/gloo-mesh-enterprise/issues/2053
+#   - Route /frontend to frontend application
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -49,7 +47,7 @@ spec:
           routes:
           - matchers:                    # match on path prefix /frontend
             - uri:
-                suffix: /frontend
+                prefix: /frontend
             name: frontend
             routeAction:
               destinations:
@@ -58,3 +56,6 @@ spec:
                   name: frontend
                   namespace: app
                   port: 8080
+            options:
+              trafficPolicy:
+                

@@ -31,13 +31,13 @@ metadata:
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2               # match on port name http2
+  - portName: http2                      # match on port name http2
     destinationSelectors:
     - kubeServiceMatcher:
         labels:
-          istio: ingressgateway  # select all gateways with istio=ingressgateway label
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
         namespaces:
-        - istio-system            # only include istio-system namespace
+        - istio-system                   # only include istio-system namespace
   connectionHandlers:
   - http:
       routeConfig:

@@ -114,16 +114,9 @@ This is the multi-cluster setup we will be utilizing.
 - 8.4 Sort RouteTables by specificity
 
 # 9 Traffic Shifting
-- 9.1 Weighted via subsets
-- 9.2 Routing to service with multiple ports (kubeService only)
-- 9.3 Multi-cluster routing (kubeService only)
-- 9.4 Using cluster_header
-- 9.5 Subset routing
-- 9.6 Route to VirtualDestination
-- 9.7 Route to Static Destination
-- 9.8 Request transformation (add/remove headers)
-- 9.9 Response transformation (add/remove headers)
-- 9.10 Path rewrite
+- 9.1 Traffic Shift
+- 9.2 
+
 
 # 10 Fault Injection
 - 10.1 Delaying requests
