@@ -15,7 +15,7 @@ relay:
     namespace: gloo-mesh
   # Custom certs: Reference to a secret containing TLS certs used to secure the networking gRPC server with TLS.
   clientCertSecret:
-    name: <REMOTE_CLUSTER_NAME>-relay-certs
+    name: enterprise-agent-<REMOTE_CLUSTER_NAME>-tls-cert
     namespace: gloo-mesh
   # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
   # tokenSecret:
