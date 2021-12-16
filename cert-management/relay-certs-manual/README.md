@@ -1,6 +1,6 @@
 # Managing Relay Certs with Separate Root of Trust from Management Plane
 
-This example builds on top of the [Gloo Mesh Documentation](https://docs.solo.io/gloo-mesh-enterprise/latest/guides/certificate_management/generate_relay_certs/) for generating relay certificates, but does so in a way that the remote clusters can have a separate root of trust from the management plane.
+This example builds on top of the [Gloo Mesh Documentation](https://docs.solo.io/gloo-mesh-enterprise/latest/setup/certs/) for generating relay certificates, but does so in a way that the remote clusters can have a separate root of trust from the management plane.
 
 # Create a root cert and tls secret for the management plane
 
