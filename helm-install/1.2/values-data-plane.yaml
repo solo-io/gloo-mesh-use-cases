@@ -6,7 +6,7 @@ relay:
   cluster: <REMOTE_CLUSTER_NAME>
   # Address and port by which the enterprise-networking service in Gloo Mesh management plane can be accessed
   serverAddress: <ENTERPISE_NETWORKING_ADDRESS>:<PORT>
-  # Set to true to permit unencrypted and unauthenticated communication between management plane and control planes. Do not use in production.
+  # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
   insecure: false
   # Reference to a secret containing a root TLS cert used to verify the relay server cert. 
   # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
