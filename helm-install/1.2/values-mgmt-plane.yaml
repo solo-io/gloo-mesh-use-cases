@@ -8,7 +8,7 @@ enterprise-networking:
   verbose: false
 
   global:
-    # Allow unencrypted and unauthenticated communication between management and data planes. Do not use in production.
+    # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
     insecure: false
     # Set the logger to development mode, which can cause panics. Do not use in production.
     devMode: false
@@ -110,8 +110,8 @@ enterprise-networking:
 # Gloo Mesh dashboard configuration 
 gloo-mesh-ui:
   enabled: true
-  # Allow unencrypted and unauthenticated communication between management and data planes
-  # enterprise-networking.global.insecure must also be set
+  # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes.
+  # This value must match enterprise-networking.global.insecure.
   global:
     insecure: false
   # Address for enterprise-networking-admin service, used for debug page loading
