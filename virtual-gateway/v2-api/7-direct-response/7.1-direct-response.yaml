@@ -1,0 +1,56 @@
+##################################################
+# Test Name: Direct Response
+# Test Number: 7.1
+# API Version: 2
+# Test Description:
+#   - Do not call destination, instead immediately return status and message
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: RootTrustPolicy
+metadata:
+  name: auto-mtls
+  namespace: gloo-mesh
+spec:
+  applyToMeshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+  config:
+    rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
+      generated:  {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress                          # applies to all gateways in the mesh 
+  namespace: global
+spec:
+  listeners:
+    - port:
+        name: http2                      # apply configuration to ingress gateways http port
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: redirect
+  namespace: global
+spec:
+  hosts:
+    - 'frontend.solo.io'
+  virtualGateways:
+    - name: ingress
+  http:
+  - name: not-supported
+    directResponse:                      # immediately return 510 response that this is not longer supported
+      body: '{"message": "no longer supported"}'
+      status: 510
