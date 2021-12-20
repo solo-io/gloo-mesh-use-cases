@@ -1,5 +1,5 @@
 ##################################################
-# Test Name: HTTPS Redirect (TODO Missing redirect catch)
+# Test Name: HTTPS Redirect
 # Test Number: 6.5
 # Test Description:
 #   - Redirect http://one.solo.io to https://another.solo.io
@@ -31,13 +31,13 @@ metadata:
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2               # match on port name http2
+  - portName: http2                      # match on port name http2
     destinationSelectors:
     - kubeServiceMatcher:
         labels:
-          istio: ingressgateway  # select all gateways with istio=ingressgateway label
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
         namespaces:
-        - istio-system            # only include istio-system namespace
+        - istio-system                   # only include istio-system namespace
   connectionHandlers:
   - http:
       routeConfig:
@@ -49,3 +49,40 @@ spec:
             redirectAction:
               hostRedirect: another.solo.io
               httpsRedirect: true
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: https                      # match on port name https
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system                   # only include istio-system namespace
+  connectionHandlers:
+  - connectionOptions:                   # TLS Termination settings
+      sslConfig:
+        secretName: frontend-cert        # This kubernetes tls secret must be located on the same cluster in the same namespace as each gateway deployment
+        tlsMode: SIMPLE
+    connectionMatch:
+      serverNames:
+      - another.solo.io                      # This SNI should match the DNS name your cert is using
+    http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - another.solo.io
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:
+              - kubeService:
+                  clusterName: cluster-1
+                  name: frontend
+                  namespace: app
+                  port: 8080

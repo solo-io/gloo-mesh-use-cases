@@ -1,5 +1,5 @@
 ##################################################
-# Test Name: Modify Response Code (TODO Missing redirect catch)
+# Test Name: Modify Response Code
 # Test Number: 6.4
 # Test Description:
 #   - Rewrite one.solo.io to another.solo.io using 302 status code
@@ -31,13 +31,13 @@ metadata:
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2               # match on port name http2
+  - portName: http2                      # match on port name http2
     destinationSelectors:
     - kubeServiceMatcher:
         labels:
-          istio: ingressgateway  # select all gateways with istio=ingressgateway label
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
         namespaces:
-        - istio-system            # only include istio-system namespace
+        - istio-system                   # only include istio-system namespace
   connectionHandlers:
   - http:
       - virtualHost:
@@ -47,4 +47,16 @@ spec:
           - name: frontend
             redirectAction:
               hostRedirect: another.solo.io
-              responseCode: 302
+              responseCode: 307          # Temporary Redirect HTTP Status Code
+      - virtualHost:
+          domains:
+          - "another.solo.io"
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:
+              - kubeService:
+                  clusterName: cluster-1
+                  name: frontend
+                  namespace: app
+                  port: 8080

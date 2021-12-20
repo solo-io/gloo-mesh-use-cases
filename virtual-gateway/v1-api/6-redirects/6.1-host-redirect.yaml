@@ -1,5 +1,5 @@
 ##################################################
-# Test Name: Host Redirect (TODO Missing redirect catch)
+# Test Name: Host Redirect
 # Test Number: 6.1
 # Test Description:
 #   - Redirect from one.solo.io host to another.solo.io
@@ -31,13 +31,13 @@ metadata:
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2               # match on port name http2
+  - portName: http2                      # match on port name http2
     destinationSelectors:
     - kubeServiceMatcher:
         labels:
-          istio: ingressgateway  # select all gateways with istio=ingressgateway label
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
         namespaces:
-        - istio-system            # only include istio-system namespace
+        - istio-system                   # only include istio-system namespace
   connectionHandlers:
   - http:
       routeConfig:
@@ -48,6 +48,11 @@ spec:
           - name: frontend
             redirectAction:
               hostRedirect: another.solo.io
+      - virtualHost:
+          domains:
+          - "another.solo.io"
+          routes:
+          - name: frontend
             routeAction:
               destinations:
               - kubeService:

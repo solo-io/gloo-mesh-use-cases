@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Path Redirect (TODO Missing redirect catch)
+# Test Name: Path Redirect
 # Test Number: 6.2
 # Test Description:
-#   - Redirect all paths to /another
+#   - Redirect /one to /another
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -31,13 +31,13 @@ metadata:
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: http2               # match on port name http2
+  - portName: http2                      # match on port name http2
     destinationSelectors:
     - kubeServiceMatcher:
         labels:
-          istio: ingressgateway  # select all gateways with istio=ingressgateway label
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
         namespaces:
-        - istio-system            # only include istio-system namespace
+        - istio-system                   # only include istio-system namespace
   connectionHandlers:
   - http:
       routeConfig:
@@ -45,9 +45,16 @@ spec:
           domains:
           - "one.solo.io"
           routes:
-          - name: frontend
+          - matchers:                    # match on path prefix /one and redirect to /another
+            - uri:
+                prefix: /one
+            name: redirect
             redirectAction:
               pathRedirect: /another
+          - matchers:                    # match on path prefix /frontend
+            - uri:
+                prefix: /another
+            name: frontend
             routeAction:
               destinations:
               - kubeService:
