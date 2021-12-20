@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Fault Injection Delay
-# Test Number: 10.1
+# Test Name: Request Timeout
+# Test Number: 11.1
 # Test Description:
-#   - inject 15s delay to requests
+#   - 3s request timeout
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -55,5 +55,4 @@ spec:
                   port: 8080
             options:
               trafficPolicy:
-                faultInjection:          # delay requests 15s
-                  fixedDelay: 15s
+                requestTimeout: 3s      # total request timeout at 3s
