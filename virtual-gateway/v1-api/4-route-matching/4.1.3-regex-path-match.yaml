@@ -49,7 +49,7 @@ spec:
           routes:
           - matchers:                    # match on path any /v1/frontend /v2/frontend
             - uri:
-                exact: /v*/frontend
+                regex: /v*/frontend
             name: frontend
             routeAction:
               destinations:
