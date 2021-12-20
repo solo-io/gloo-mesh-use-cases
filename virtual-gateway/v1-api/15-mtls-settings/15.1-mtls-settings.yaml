@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: mTLS settings in Istio 
+# Test Name: Enable TLS to an external endpoint
 # Test Number: 15.1
 # Test Description:
-#   - Outlier detection
+#   - Turn on TLS to an external endpoint
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -23,6 +23,25 @@ spec:
       namespace: gloo-mesh
     - name: istiod-istio-system-cluster-2
       namespace: gloo-mesh
+---
+apiVersion: discovery.mesh.gloo.solo.io/v1
+kind: Destination                        # Representaion of a non-mesh service for routing
+metadata:
+  name: httpbin
+  namespace: gloo-mesh
+spec:
+  externalService:                       # httpbin.org external service
+    endpoints:
+    - address: httpbin.org
+      ports:
+        https: 443
+    hosts:
+    - httpbin.org                        # match on internal requests for httpbin.org
+    name: httpbin
+    ports:
+    - name: http
+      number: 80                         # internal port match, requires requests be to http://httpbin.org:80 and will be upgraded to HTTPS
+      protocol: HTTP
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
@@ -45,16 +64,14 @@ spec:
           domains:
           - "frontend.solo.io"           # listen on frontend.solo.io
           routes:
-          - name: frontend
+          - name: httpbin
             routeAction:
               destinations:
-              - kubeService:
-                  clusterName: cluster-1
-                  name: frontend
-                  namespace: app
-                  port: 8080
+              - staticDestination:       # route to httpbin destination
+                  name: httpbin
+                  namespace: gloo-mesh
             options:
               trafficPolicy:
                 mtls:
                   istio:
-                    tlsMode: 
+                    tlsMode: SIMPLE      # enable tls to external endpoint

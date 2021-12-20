@@ -1,0 +1,77 @@
+##################################################
+# Test Name: Enable TLS to an external endpoint (TODO no equivalend in v2 api)
+# Test Number: 15.1
+# Test Description:
+#   - Turn on TLS to an external endpoint
+##################################################
+# apiVersion: networking.mesh.gloo.solo.io/v1
+# kind: VirtualMesh
+# metadata:
+#   name: virtual-mesh
+#   namespace: gloo-mesh
+# spec:
+#   mtlsConfig:
+#     autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
+#     shared:
+#       rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
+#         generated: {}
+#   federation:                            # Enable automatic federation of all services to all clusters
+#     selectors:
+#       - {}
+#   meshes:
+#     - name: istiod-istio-system-cluster-1
+#       namespace: gloo-mesh
+#     - name: istiod-istio-system-cluster-2
+#       namespace: gloo-mesh
+# ---
+# apiVersion: discovery.mesh.gloo.solo.io/v1
+# kind: Destination                        # Representaion of a non-mesh service for routing
+# metadata:
+#   name: httpbin
+#   namespace: gloo-mesh
+# spec:
+#   externalService:                       # httpbin.org external service
+#     endpoints:
+#     - address: httpbin.org
+#       ports:
+#         https: 443
+#     hosts:
+#     - httpbin.org                        # match on internal requests for httpbin.org
+#     name: httpbin
+#     ports:
+#     - name: http
+#       number: 80                         # internal port match, requires requests be to http://httpbin.org:80 and will be upgraded to HTTPS
+#       protocol: HTTP
+# ---
+# apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+# kind: VirtualGateway
+# metadata:
+#   name: ingress
+#   namespace: gloo-mesh
+# spec:
+#   ingressGatewaySelectors:
+#   - portName: http2                      # match on port name http2
+#     destinationSelectors:
+#     - kubeServiceMatcher:
+#         labels:
+#           istio: ingressgateway          # select all gateways with istio=ingressgateway label
+#         namespaces:
+#         - istio-system                   # only include istio-system namespace
+#   connectionHandlers:
+#   - http:
+#       routeConfig:
+#       - virtualHost:
+#           domains:
+#           - "frontend.solo.io"           # listen on frontend.solo.io
+#           routes:
+#           - name: httpbin
+#             routeAction:
+#               destinations:
+#               - staticDestination:       # route to httpbin destination
+#                   name: httpbin
+#                   namespace: gloo-mesh
+#             options:
+#               trafficPolicy:
+#                 mtls:
+#                   istio:
+#                     tlsMode: SIMPLE      # enable tls to external endpoint
