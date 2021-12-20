@@ -1,8 +1,9 @@
 ##################################################
-# Test Name: Fault Injection Delay 50%
-# Test Number: 10.3
+# Test Name: Weighted Destination (TODO Usecase needed)
+# Test Number: 9.1
+# API Version: 2
 # Test Description:
-#   - abort requests and return 401 status
+#   - Route /frontend to frontend application
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -43,9 +44,12 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"                          # all requests to frontend application 
+          - "*"
           routes:
-          - name: frontend
+          - matchers:                    # match on path prefix /frontend
+            - uri:
+                prefix: /frontend
+            name: frontend
             routeAction:
               destinations:
               - kubeService:
@@ -55,7 +59,4 @@ spec:
                   port: 8080
             options:
               trafficPolicy:
-                faultInjection:          # abort request and return 401 50% of the time
-                  percentage: 50
-                  abort:
-                    httpStatus: 401
+                
