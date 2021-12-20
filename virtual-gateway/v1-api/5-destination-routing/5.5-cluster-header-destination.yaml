@@ -3,6 +3,8 @@
 # Test Number: 5.5
 # Test Description:
 #   - Route all requests to frontend cluyster based on header X-SOLO-CLUSTER
+# Issues:
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2056
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh

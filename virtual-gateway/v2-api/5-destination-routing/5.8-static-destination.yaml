@@ -1,0 +1,88 @@
+##################################################
+# Test Name: Static Destination Routing  (TODO cannot do 8080 to 443  port mapping)
+# Test Number: 5.8
+# API Version: 2
+# Test Description:
+#   - Route to a Static Destination
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/1365
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2082
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: RootTrustPolicy
+metadata:
+  name: auto-mtls
+  namespace: gloo-mesh
+spec:
+  applyToMeshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+  config:
+    rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
+      generated:  {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress                          # applies to all gateways in the mesh 
+  namespace: global
+spec:
+  listeners:
+    - port:
+        name: http2                      # apply configuration to ingress gateways http port
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: reviews
+  namespace: global
+spec:
+  hosts:
+    - '*'
+  http:
+  - forwardTo:
+      destinations:
+      - name: httpbin
+        type: ExternalService
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: ExternalService
+metadata:
+  name: httpbin
+  namespace: global
+spec:
+  hosts:
+  - httpbin.org
+  ports:
+  - number: 443
+
+---
+# apiVersion: discovery.mesh.gloo.solo.io/v1
+# kind: Destination                        # Representaion of a non-mesh service for routing
+# metadata:
+#   name: httpbin
+#   namespace: gloo-mesh
+# spec:
+#   externalService:                       # httpbin.org external service
+#     endpoints:
+#     - address: httpbin.org
+#       ports:
+#         https: 443
+#     hosts:
+#     - httpbin.org                        # match on internal requests for httpbin.org
+#     name: httpbin
+#     ports:
+#     - name: http
+#       number: 80                         # internal port match, requires requests be to http://httpbin.org:80 and will be upgraded to HTTPS
+#       protocol: HTTP
