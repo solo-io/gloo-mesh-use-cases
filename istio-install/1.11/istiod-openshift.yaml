@@ -8,8 +8,8 @@ metadata:
 spec:
   # Only the control plane components are installed (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
   profile: minimal
-  # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative. Or, for Istio 1.11 or earlier, use 'gcr.io/istio-enterprise'.
-  hub: $REPO
+  # Solo.io Istio distribution repository; required for Gloo Mesh Istio.
+  hub: gcr.io/istio-enterprise
   # Any Solo.io Gloo Mesh Istio tag
   tag: $ISTIO_VERSION
   # Istio revision to create resources with
