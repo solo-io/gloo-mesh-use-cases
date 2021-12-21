@@ -8,7 +8,7 @@ spec:
   type: LoadBalancer
   selector:
     istio: eastwestgateway
-    version: 1-11-4
+    version: $REVISION
   ports:
   # Health check port. For AWS ELBs, this port must be listed first.
   - name: status-port
