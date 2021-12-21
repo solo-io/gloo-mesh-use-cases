@@ -14,7 +14,7 @@ enterprise-networking:
     devMode: false
   
   # Name of the management cluster
-  cluster: <MGMT_CLUSTER_NAME>
+  cluster: $MGMT_CLUSTER
 
   # Required for routing to non-Istio services behind a gateway
   settings:
