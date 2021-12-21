@@ -45,11 +45,11 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"
+          - "api.solo.io"
           routes:
           - matchers:                    # match on path any /v1/frontend /v2/frontend
             - uri:
-                regex: /v*/frontend
+                regex: \/v.*\/frontend
             name: frontend
             routeAction:
               destinations:

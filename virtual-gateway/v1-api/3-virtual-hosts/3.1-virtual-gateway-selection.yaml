@@ -2,9 +2,7 @@
 # Test Name: Vitual Host Virtual Gateway Selection
 # Test Number: 3.1
 # Test Description:
-#   - SNI Routing for TLS or mTLS PASSTRHOUGH connections
-# Issues:
-# - https://github.com/solo-io/gloo-mesh-enterprise/issues/1765
+#   - Select each gateway individually with separate virtual hosts
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh

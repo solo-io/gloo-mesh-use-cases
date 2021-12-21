@@ -44,7 +44,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"
+          - "api.solo.io"
           routes:
           - matchers:                    # route to specific cluster
             - headers:
@@ -61,7 +61,7 @@ spec:
           - matchers:                    # anything other than cluster-1 be routed to cluster-2
             - headers:
               - name: X-frontend-app
-                value: cluster-*
+                value: cluster-.*
                 regex: true              # enable regex support
             name: frontend
             routeAction:

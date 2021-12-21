@@ -44,7 +44,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"
+          - "api.solo.io"
           routes:
           - matchers:                    # match ?cluster=cluster-1
             - queryParameters:
@@ -61,7 +61,7 @@ spec:
           - matchers:                    # match ?cluster=cluster-*
             - queryParameters:
               - name: cluster
-                value: cluster-*
+                value: cluster-.*
                 regex: true              # enable regex support
             name: frontend
             routeAction:

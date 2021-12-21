@@ -10,6 +10,8 @@ kind: Workspace
 metadata:
   name: global                           # workspace contains all connected services
   namespace: gloo-mesh
+  labels:
+    workspace: global
 spec:
   workloadClusters:                      # select all clusters and namespaces
     - name: "*"
@@ -19,6 +21,8 @@ kind: RootTrustPolicy
 metadata:
   name: auto-mtls
   namespace: gloo-mesh
+  labels:
+    root-trust-policy: auto-mtls
 spec:
   applyToMeshes:
     - name: istiod-istio-system-cluster-1
@@ -34,6 +38,8 @@ kind: VirtualGateway
 metadata:
   name: ingress                          # applies to all gateways in the mesh 
   namespace: global
+  labels:
+    virtual-gateway: ingress
 spec:
   listeners:
     - port:
@@ -44,6 +50,8 @@ kind: RouteTable
 metadata:
   name: frontend
   namespace: global
+  labels:
+    route-table: frontend
 spec:
   hosts:
     - '*'

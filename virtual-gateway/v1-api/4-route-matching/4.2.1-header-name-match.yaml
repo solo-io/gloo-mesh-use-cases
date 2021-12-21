@@ -43,7 +43,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"
+          - "api.solo.io"
           routes:
           - matchers:                    # match on header X-frontend-app existing
             - headers:

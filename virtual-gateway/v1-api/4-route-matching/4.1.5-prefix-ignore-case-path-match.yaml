@@ -45,7 +45,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"
+          - "api.solo.io"
           routes:
           - matchers:                    # match on path prefix /frontend
             - uri:
