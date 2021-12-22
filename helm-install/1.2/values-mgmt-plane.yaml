@@ -8,13 +8,13 @@ enterprise-networking:
   verbose: false
 
   global:
-    # Allow unencrypted and unauthenticated communication between management and data planes. Do not use in production.
+    # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
     insecure: false
     # Set the logger to development mode, which can cause panics. Do not use in production.
     devMode: false
   
   # Name of the management cluster
-  cluster: <MGMT_CLUSTER_NAME>
+  cluster: $MGMT_CLUSTER
 
   # Required for routing to non-Istio services behind a gateway
   settings:
@@ -27,7 +27,7 @@ enterprise-networking:
     namespace: gloo-mesh
   # Custom certs: Reference to a secret containing TLS certificates used to secure the networking gRPC server with TLS
   relayTlsSecret:
-    name: enterprise-networking-server-certs
+    name: enterprise-networking-server-tls-cert
     namespace: gloo-mesh
   # (NOT needed with ACM certs) Secret containing a shared token for authenticating relay agents when they first communicate with the management plane
   # tokenSecret:
@@ -68,7 +68,7 @@ enterprise-networking:
     image:
       registry: gcr.io/gloo-mesh
       repository: enterprise-networking
-      # Gloo Mesh Enterprise version
+      # Gloo Mesh Enterprise version. Append '-fips' for a FIPS-compliant image, such as '1.2.3-fips'.
       tag: 1.2.3
       # if pulling from a private registry
       # imagePullSecret:
@@ -110,8 +110,8 @@ enterprise-networking:
 # Gloo Mesh dashboard configuration 
 gloo-mesh-ui:
   enabled: true
-  # Allow unencrypted and unauthenticated communication between management and data planes
-  # enterprise-networking.global.insecure must also be set
+  # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes.
+  # This value must match enterprise-networking.global.insecure.
   global:
     insecure: false
   # Address for enterprise-networking-admin service, used for debug page loading
@@ -144,7 +144,7 @@ gloo-mesh-ui:
     image:
       registry: gcr.io/gloo-mesh
       repository: gloo-mesh-apiserver
-      # Gloo Mesh Enterprise version
+      # Gloo Mesh Enterprise version. Append '-fips' for a FIPS-compliant image, such as '1.2.3-fips'.
       tag: 1.2.3
       # if pulling from a private registry
       # imagePullSecret:
@@ -185,7 +185,7 @@ rbac-webhook:
       pullPolicy: IfNotPresent
       registry: gcr.io/gloo-mesh
       repository: rbac-webhook
-      # Gloo Mesh Enterprise version
+      # Gloo Mesh Enterprise version. Append '-fips' for a FIPS-compliant image, such as '1.2.3-fips'.
       tag: 1.2.3
     ports:
       webhook: 8443

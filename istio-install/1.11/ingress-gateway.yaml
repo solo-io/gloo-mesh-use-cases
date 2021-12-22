@@ -1,4 +1,4 @@
-# Be sure to change all instances of <CLUSTER_NAME> to the name of the workload cluster.
+# Be sure to change all instances of $CLUSTER_NAME to the name of the workload cluster.
 # This value must match the value that you plan to use when you register the cluster with the Gloo Mesh management plane.
 apiVersion: v1
 kind: ServiceAccount
@@ -10,32 +10,32 @@ metadata:
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
-  name: ingress-gateway-1-11-4
+  name: ingress-gateway-$REVISION
   # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
   namespace: istio-ingress
 spec:
   # No control plane components are installed
   profile: empty
-  # Solo.io Istio distribution repository; required for Gloo Mesh Istio
+  # Solo.io Istio distribution repository; required for Gloo Mesh Istio.
   hub: gcr.io/istio-enterprise
   # The Solo.io Gloo Mesh Istio tag
-  tag: 1.11.4-solo
+  tag: $ISTIO_VERSION
   # Istio revision to create resources with
-  revision: 1-11-4
+  revision: $REVISION
   
   components:
     ingressGateways:
     # Enable the default ingress gateway
-      - name: istio-ingressgateway-1-11-4
+      - name: istio-ingressgateway-$REVISION
         # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
         namespace: istio-ingress
         enabled: true
         label:
           istio: ingressgateway
-          version: 1-11-4
+          version: $REVISION
           app: istio-ingressgateway
           # Matches spec.values.global.network in the istiod deployment
-          topology.istio.io/network: <CLUSTER_NAME>
+          topology.istio.io/network: $CLUSTER_NAME
         k8s:
           hpaSpec:
             maxReplicas: 5
@@ -48,7 +48,7 @@ spec:
             scaleTargetRef:
               apiVersion: apps/v1
               kind: Deployment
-              name: istio-ingressgateway-1-11-4
+              name: istio-ingressgateway-$REVISION
           strategy:
             rollingUpdate:
               maxSurge: 100%
@@ -85,7 +85,7 @@ spec:
             # Update role binding to use shared service account
             - apiVersion: rbac.authorization.k8s.io/v1
               kind: RoleBinding
-              name: istio-ingressgateway-1-11-4-sds
+              name: istio-ingressgateway-$REVISION-sds
               patches:
                 - path: subjects.[0]
                   value:
@@ -93,7 +93,7 @@ spec:
                     kind: ServiceAccount
             - apiVersion: v1
               kind: Deployment
-              name: istio-ingressgateway-1-11-4
+              name: istio-ingressgateway-$REVISION
               patches:
               # Update the deployment to use shared service account
               - path: spec.template.spec.serviceAccountName
@@ -119,7 +119,7 @@ spec:
                           - key: app
                             operator: In
                             values:
-                            - istio-ingressgateway-1-11-4
+                            - istio-ingressgateway-$REVISION
                         topologyKey: kubernetes.io/hostname
                       weight: 100
 
@@ -128,8 +128,8 @@ spec:
     # https://istio.io/v1.5/docs/reference/config/installation-options/#global-options
     global:
       # Required for connecting VirtualMachines to the mesh
-      network: <CLUSTER_NAME>
+      network: $CLUSTER_NAME
       # Required for annotating Istio metrics with the cluster name.
       # Must match the trustDomain and GLOO_MESH_CLUSTER_NAME
       multiCluster:
-        clusterName: <CLUSTER_NAME>
+        clusterName: $CLUSTER_NAME

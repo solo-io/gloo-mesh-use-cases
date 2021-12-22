@@ -1,4 +1,4 @@
-# Be sure to change all instances of <CLUSTER_NAME> to the name of the workload cluster.
+# Be sure to change all instances of $CLUSTER_NAME to the name of the workload cluster.
 # This value must match the value that you plan to use when you register the cluster with the Gloo Mesh management plane.
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
@@ -8,12 +8,12 @@ metadata:
 spec:
   # Only the control plane components are installed (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
   profile: minimal
-  # Solo.io Istio distribution repository; required for Gloo Mesh Istio
+  # Solo.io Istio distribution repository; required for Gloo Mesh Istio.
   hub: gcr.io/istio-enterprise
   # Any Solo.io Gloo Mesh Istio tag
-  tag: 1.11.4-solo
+  tag: $ISTIO_VERSION
   # Istio revision to create resources with
-  revision: 1-11-4
+  revision: $REVISION
 
   # Mesh configuration
   meshConfig:
@@ -41,13 +41,13 @@ spec:
         ISTIO_META_DNS_AUTO_ALLOCATE: "true"
         # Used for Gloo Mesh metrics aggregation; required for Gloo Mesh Dashboard
         # Must match the trustDomain
-        GLOO_MESH_CLUSTER_NAME: <CLUSTER_NAME>
+        GLOO_MESH_CLUSTER_NAME: $CLUSTER_NAME
 
     # Set the default behavior of the sidecar for handling outbound traffic from the application
     outboundTrafficPolicy:
       mode: ALLOW_ANY
     # The trust root of a system, which is the name of the cluster that corresponds with the CA certificate CommonName identity
-    trustDomain: <CLUSTER_NAME>
+    trustDomain: $CLUSTER_NAME
     # The administrative root namespace for Istio configuration
     rootNamespace: istio-config
 
@@ -74,7 +74,7 @@ spec:
           scaleTargetRef:
             apiVersion: apps/v1
             kind: Deployment
-            name: istiod-1-11-4
+            name: istiod-$REVISION
           metrics:
             - resource:
                 name: cpu
@@ -101,11 +101,11 @@ spec:
     # https://istio.io/v1.5/docs/reference/config/installation-options/#global-options
     global:
       # Required for connecting VirtualMachines to the mesh
-      network: <CLUSTER_NAME>
+      network: $CLUSTER_NAME
       # Required for annotating Istio metrics with the cluster name.
       # Must match the trustDomain and GLOO_MESH_CLUSTER_NAME
       multiCluster:
-        clusterName: <CLUSTER_NAME>
+        clusterName: $CLUSTER_NAME
       # Sidecar resource settings
       # proxy:
       # The Istio load tests mesh consists of 1000 services and 2000 sidecars with 70,000 mesh-wide requests per second and istio-proxy used 0.35 vCPU and 40 MB memory per 1000 requests per second.
