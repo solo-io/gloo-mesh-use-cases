@@ -18,8 +18,8 @@ spec:
   profile: empty
   # Solo.io Istio distribution repository; required for Gloo Mesh Istio.
   hub: gcr.io/istio-enterprise
-  # The Solo.io Gloo Mesh Istio tag
-  tag: $VERSION_TAG
+  # The Solo.io Gloo Mesh Istio version
+  tag: $ISTIO_VERSION
   # Istio revision to create resources with
   revision: $REVISION
   
