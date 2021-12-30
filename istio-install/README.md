@@ -11,7 +11,7 @@ For more information about the content of the provided `IstioOperator` examples,
 
 ## Contents
 
-These resources are configured with production-level settings; however, depending on your environment, you might need to edit settings to achieve specific Istio functionality. For instructions on how to install Istio for use with Gloo Mesh Enterprise, see [Install Istio](https://docs.solo.io/gloo-mesh-enterprise/latest/setup/istio/).
+These resources are configured with production-level settings; however, depending on your environment, you might need to edit settings to achieve specific Istio functionality. For instructions on how to install Istio for use with Gloo Mesh Enterprise, see [Install Istio](https://docs.solo.io/gloo-mesh-enterprise/latest/setup/istio/). For information about the supported Istio versions for each Gloo Mesh Enterprise version, see [Supported versions](https://docs.solo.io/gloo-mesh-enterprise/latest/reference/version/versions/).
 
 - The `istiod-kubernetes.yaml` and `istiod-openshift.yaml` files provide example production-level settings for the `IstioOperator` resource to install the istiod control plane in a cluster. Choose the resource for your cluster's container orchestration platform.
 - The `ingress-gateway.yaml` file provides an `IstioOperator` resource for the ingress gateway deployment and a service account for the ingress gateway deployment to use. Note that these gateway resources are deployed to the `istio-ingress` namespace. If use only [one namespaces](https://docs.solo.io/gloo-mesh-enterprise/main/setup/istio/namespaces/) for all gateways, be sure to specify `istio-gateways` for the resource namespaces instead.
