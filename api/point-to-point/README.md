@@ -13,7 +13,7 @@ This is the multi-cluster setup we will be utilizing.
 
 ### Traffic Policy
 
-#### Selectors
+#### 1. Selectors
 * Source Selector
   * Labels
   * Namespace / Clusters
@@ -25,13 +25,16 @@ This is the multi-cluster setup we will be utilizing.
   * externalServiceMatcher - https://github.com/solo-io/gloo-mesh-enterprise/issues/2142
   * externalServiceRefs - https://github.com/solo-io/gloo-mesh-enterprise/issues/2142
 
+#### 2. Route Selectors - Skipped due to alternatives in VirtualHost/VirtualGateway/RouteTable
 
-#### Route Selectors - Skipped due to alternatives in VirtualHost/VirtualGateway/RouteTable
+#### 3. HTTP Request Matchers
+- URI
+- Headers
+- Query Parameters
+- Methods
 
-#### HTTP Request Matchers - TODO Deprecated?
-
-#### Connection Pool Settings
-- http
+#### 4. Connection Pool Settings
+- HTTP
   - http1MaxPendingRequests
   - http2MaxRequests
   - maxRequestsPerConnection
@@ -39,34 +42,34 @@ This is the multi-cluster setup we will be utilizing.
   - idleTimeout
   - h2UpgradePolicyH2UpgradePolicy 		
   - useClientProtocol
-- tcp
+- TCP
   - maxConnections
   - connectTimeout
   - tcpKeepalive
 
-#### Traffic Shift
+#### 5. Traffic Shift
 - Weighted Destination
 
-#### Fault Injection
+#### 6. Fault Injection
 - Delaying requests
 - Aborting requests
 - Faults for percentage of traffic
 
-#### Request Timeout / Retries
+#### 7. Request Timeout / Retries
 - Setting timeouts
 - Adding retries 
 
-#### CORS
+#### 8. CORS
 - Setting allowed origins
 - Allowed methods & headers
 - Exposed headers
 - Preflight request caching
 - Access-Control-Allow-Credentials
 
-#### Mirroring
+#### 9. Mirroring
 - Send percentage of traffic to mirrored destination (kubeService only)
 
-#### Header Manipulation
+#### 10. Header Manipulation
 - Request Headers
   - Add Request Header
   - Remove Request Header
@@ -74,17 +77,17 @@ This is the multi-cluster setup we will be utilizing.
   - Add Response Header
   - Remove Response Header
 
-#### Outlier Detection
+#### 11. Outlier Detection
 - Outlier Detection for failover routing to a global destination
 
-#### mTLS
+#### 12. mTLS
 - Setting mTLS settings per destination
 
-#### CSRF
+#### 13. CSRF
 - Setting CSRF Policy
 - Setting CSRF Policy
 
-#### Rate Limit
+#### 14. Rate Limit
 - Using raw Rate Limit definition
 - Rate Limit on source cluster  (TODO does this make sense)
 - Rate Limit on destination cluster (TODO use istio cluster name?)
@@ -95,41 +98,38 @@ This is the multi-cluster setup we will be utilizing.
 - Rate Limit on metadata
 - Using separate Rate Limit config
 
-#### Ext Auth
+#### 15. Ext Auth
 - Using a custom auth server
 - OIDC with AuthConfig
 - Using an API token
 
-
-
-
 ### Virtual Destination
 
-#### Hostname
+#### 16. Hostname
 - Custom Hostname
 - Override Kube Service
 
-#### Port Selection
+#### 17. Port Selection
 - Custom Port
 
-#### Mesh Selection
+#### 18. Mesh Selection
 - Single Mesh
 - Multi-Mesh
 
-#### Static Destination
+#### 19.Static Destination
 
-#### Locality
+#### 20. Locality
 - Outlier Detection
 
 
 ### Access Policy
 
-#### Source Selection
+#### 21. Source Selection
 - kubeIdentityMatcher
 - kubeServiceAccountRefs
 - requestIdentityMatcher
 
-#### DestinationSelection
+#### 22. DestinationSelection
 * Destination Selector
   * kubeServiceMatcher
   * kubeServiceRefs
@@ -138,13 +138,13 @@ This is the multi-cluster setup we will be utilizing.
   * externalServiceMatcher
   * externalServiceRefs
 
-#### Allowed
+#### 23. Allowed
 - Paths
 - Methods
 - Ports
 
 
-### Service Dependencies
+### 24. Service Dependencies
 - Namespace Selection
 - Cluster Selection
 - Label Selectors
