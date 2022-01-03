@@ -3,6 +3,8 @@
 # Test Number: 5.6
 # Test Description:
 #   - Route to an application subset based on version label
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2097
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -10,11 +12,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -57,11 +54,11 @@ spec:
                   namespace: app
                   port: 8080
                   subset:
-                    - version: v1
+                    version: v1
           - matchers:                    # match on path prefix /v2/frontend
             - uri:
                 prefix: /v2/frontend
-            name: frontend
+            name: frontend-v2
             routeAction:
               destinations:
               - kubeService:
@@ -70,4 +67,4 @@ spec:
                   namespace: app
                   port: 8080
                   subset:
-                    - version: v2
+                    version: v2

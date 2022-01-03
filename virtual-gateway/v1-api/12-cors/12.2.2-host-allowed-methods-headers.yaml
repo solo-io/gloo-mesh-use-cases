@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Query Value Match
-# Test Number: 4.3.1
+# Test Name: Cors allowed headers and methods
+# Test Number: 12.2
 # Test Description:
-#   - Route based on cluster query value in ?cluster=<cluster-1|cluster-2>
+#   - Setting of Access-Control-Allow-Headers and Access-Control-Allow-Methods
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -38,13 +38,9 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "api.solo.io"
+          - "frontend.solo.io"           # listen on frontend.solo.io
           routes:
-          - matchers:                    # match ?cluster=cluster-1
-            - queryParameters:
-              - name: cluster
-                value: cluster-1
-            name: frontend
+          - name: frontend
             routeAction:
               destinations:
               - kubeService:
@@ -52,15 +48,13 @@ spec:
                   name: frontend
                   namespace: app
                   port: 8080
-          - matchers:                    # match ?cluster=cluster-2
-            - queryParameters:
-              - name: cluster
-                value: cluster-2
-            name: frontend
-            routeAction:
-              destinations:
-              - kubeService:
-                  clusterName: cluster-2
-                  name: frontend
-                  namespace: app
-                  port: 8080
+          options:
+            trafficPolicy:
+              corsPolicy:
+                allowMethods:          # allow GET and POST Requests and headers Content-Type
+                - GET
+                - POST
+                allowHeaders:
+                - Content-Type
+                allowOrigins:          # allow frontend.solo.io
+                - exact: "http://frontend.solo.io"

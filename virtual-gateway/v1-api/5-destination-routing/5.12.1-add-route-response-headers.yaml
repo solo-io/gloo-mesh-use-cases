@@ -10,11 +10,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -56,4 +51,4 @@ spec:
             options:
               headerManipulation:
                 appendResponseHeaders:
-                  - X-my-response-header: "frontend"
+                  X-my-response-header: "frontend"

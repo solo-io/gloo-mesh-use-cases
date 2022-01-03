@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Fault Injection Delay 50%
-# Test Number: 10.3
+# Test Name: Cors Preflight Request Cache Time
+# Test Number: 12.4
 # Test Description:
-#   - abort requests and return 401 status
+#   - Setting of Access-Control-Max-Age
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -10,11 +10,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -43,7 +38,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"                          # all requests to frontend application 
+          - "frontend.solo.io"           # listen on frontend.solo.io
           routes:
           - name: frontend
             routeAction:
@@ -54,8 +49,7 @@ spec:
                   namespace: app
                   port: 8080
             options:
-              trafficPolicy:
-                faultInjection:          # abort request and return 401 50% of the time
-                  percentage: 50
-                  abort:
-                    httpStatus: 401
+              corsPolicy:
+                maxAge: 1h             # Specify how long the results of a preflight request can be cached. Serialized to the Access-Control-Max-Age header.
+                allowOrigins:          # allow frontend.solo.io
+                - exact: "http://frontend.solo.io"

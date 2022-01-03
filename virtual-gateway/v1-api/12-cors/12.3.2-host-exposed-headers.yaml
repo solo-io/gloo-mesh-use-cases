@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Request Timeout
-# Test Number: 11.1
+# Test Name: Cors exposed headers
+# Test Number: 12.3
 # Test Description:
-#   - 3s request timeout
+#   - Setting of Access-Control-Expose-Headers
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -10,11 +10,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -43,7 +38,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"                          # all requests to frontend application 
+          - "frontend.solo.io"           # listen on frontend.solo.io
           routes:
           - name: frontend
             routeAction:
@@ -53,6 +48,11 @@ spec:
                   name: frontend
                   namespace: app
                   port: 8080
-            options:
-              trafficPolicy:
-                requestTimeout: 3s      # total request timeout at 3s
+          options:
+            trafficPolicy:
+              corsPolicy:
+                exposeHeaders:         # would allow the X-My-Custom-Header and X-Another-Custom-Header headers to be exposed to the browser.
+                - X-My-Custom-Header
+                - X-Another-Custom-Header
+                allowOrigins:          # allow frontend.solo.io
+                - exact: "http://frontend.solo.io"

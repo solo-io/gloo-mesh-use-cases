@@ -1,8 +1,9 @@
 ##################################################
-# Test Name: Request Timeout + Retries
-# Test Number: 11.2
+# Test Name: Fault Injection Abort
+# Test Number: 10.2.1
 # Test Description:
-#   - timeout after 1s but retry 3 times
+#   - abort requests and return 401 status
+#   - apply at the route level
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -10,11 +11,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -54,8 +50,7 @@ spec:
                   namespace: app
                   port: 8080
             options:
-              trafficPolicy:
-                requestTimeout: 15s      # total request timeout at 15s
-                retries:
-                  attempts: 5            # retry a total of 5 times
-                  perTryTimeout: 5s      # 5s timeout per retry
+              faultInjection:          # abort request and return 401
+                abort:
+                  httpStatus: 401
+                percentage: 100

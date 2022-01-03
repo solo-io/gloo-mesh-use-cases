@@ -5,17 +5,28 @@
 #   - Delegate cluster-1.solo.io to cluster-1 RouteTable
 #   - Delegate cluster-2.solo.io to cluster-2 RouteTable
 ##################################################
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: virtual-hosts
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cluster-1-routes
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cluster-2-routes
+
+---
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
 metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}

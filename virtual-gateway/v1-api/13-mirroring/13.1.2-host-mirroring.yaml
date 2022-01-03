@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Fault Injection Delay
-# Test Number: 10.1
+# Test Name: Traffic Mirroring
+# Test Number: 13.1
 # Test Description:
-#   - inject 15s delay to requests
+#   - Mirror traffic from one application to another
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -10,11 +10,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -43,7 +38,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "*"                          # all requests to frontend application 
+          - "frontend.solo.io"           # listen on frontend.solo.io
           routes:
           - name: frontend
             routeAction:
@@ -55,5 +50,10 @@ spec:
                   port: 8080
             options:
               trafficPolicy:
-                faultInjection:          # delay requests 15s
-                  fixedDelay: 15s
+                mirror:                  # mirror 50% traffic from cluster-1 frontend to cluster-2
+                  port: 8080
+                  percentage: 50
+                  kubeService:
+                    clusterName: cluster-2
+                    name: frontend
+                    namespace: app

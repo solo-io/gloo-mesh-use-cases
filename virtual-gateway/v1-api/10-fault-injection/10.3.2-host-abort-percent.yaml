@@ -1,8 +1,9 @@
 ##################################################
-# Test Name: Cors exposed headers
-# Test Number: 12.3
+# Test Name: Fault Injection Delay 50%
+# Test Number: 10.3.2
 # Test Description:
-#   - Setting of Access-Control-Expose-Headers
+#   - abort requests and return 401 status
+#   - apply at the virtual host level
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -10,11 +11,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -43,7 +39,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "frontend.solo.io"           # listen on frontend.solo.io
+          - "*"                          # all requests to frontend application 
           routes:
           - name: frontend
             routeAction:
@@ -53,9 +49,9 @@ spec:
                   name: frontend
                   namespace: app
                   port: 8080
-            options:
-              trafficPolicy:
-                corsPolicy:
-                  exposeHeaders:         # would allow the X-My-Custom-Header and X-Another-Custom-Header headers to be exposed to the browser.
-                  - X-My-Custom-Header
-                  - X-Another-Custom-Header
+          options:
+            trafficPolicy:
+              faultInjection:          # abort request and return 401 50% of the time
+                percentage: 50
+                abort:
+                  httpStatus: 401

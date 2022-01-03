@@ -2,8 +2,8 @@
 # Test Name: Weighted Destination Routing
 # Test Number: 5.2
 # Test Description:
-#   - Route 50% of requests to frontend application in cluster-1
-#   - Route 50% of requests to frontend application in cluster-2
+#   - Route 80% of requests to frontend application in cluster-1
+#   - Route 20% of requests to frontend application in cluster-2
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -11,11 +11,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -49,13 +44,13 @@ spec:
           - name: frontend
             routeAction:
               destinations:
-              - weight: 50               # route 50% of traffic to frontend in cluster-2
+              - weight: 80               # route 80% of traffic to frontend in cluster-2
                 kubeService:
                   clusterName: cluster-1
                   name: frontend
                   namespace: app
                   port: 8080
-              - weight: 50               # route 50% of traffic to frontend in cluster-2
+              - weight: 20               # route 20% of traffic to frontend in cluster-2
                 kubeService:
                   clusterName: cluster-2
                   name: frontend

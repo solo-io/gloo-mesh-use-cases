@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Inline Rate Limiting
-# Test Number: 17.1
+# Test Name: Cors exposed headers
+# Test Number: 12.3
 # Test Description:
-#   - 2rps rate limit to the frontend application
+#   - Setting of Access-Control-Expose-Headers
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -10,11 +10,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -54,29 +49,9 @@ spec:
                   namespace: app
                   port: 8080
             options:
-              trafficPolicy:
-                rateLimit:
-                  raw:                   # Use this field if you want to inline the Envoy rate limits. 
-                    rateLimits:
-                    - actions:
-                      - genericKey:
-                          descriptorValue: per-second
-                  ratelimitServerConfigSelector:
-                    namespaces:
-                    - gloo-mesh
----
-apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
-kind: RateLimitServerConfig
-metadata:
-  labels:
-    app: frontend-policies
-  name: rl-config
-  namespace: gloo-mesh
-spec:
-  raw:
-    descriptors:
-      - key: generic_key                 # generic 2rps rate limit policy
-        value: per-second
-        rateLimit:
-          requestsPerUnit: 2
-          unit: SECOND
+              corsPolicy:
+                exposeHeaders:         # would allow the X-My-Custom-Header and X-Another-Custom-Header headers to be exposed to the browser.
+                - X-My-Custom-Header
+                - X-Another-Custom-Header
+                allowOrigins:          # allow frontend.solo.io
+                - exact: "http://frontend.solo.io"

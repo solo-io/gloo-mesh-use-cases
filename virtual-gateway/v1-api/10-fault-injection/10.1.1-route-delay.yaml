@@ -1,8 +1,11 @@
 ##################################################
-# Test Name: Cors allowed headers and methods
-# Test Number: 12.2
+# Test Name: Fault Injection Delay
+# Test Number: 10.1.1
 # Test Description:
-#   - Setting of Access-Control-Allow-Headers and Access-Control-Allow-Methods
+#   - inject 5s delay to requests
+#   - apply at the route level
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2103
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -10,11 +13,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -43,7 +41,7 @@ spec:
       routeConfig:
       - virtualHost:
           domains:
-          - "frontend.solo.io"           # listen on frontend.solo.io
+          - "*"                          # all requests to frontend application 
           routes:
           - name: frontend
             routeAction:
@@ -54,10 +52,6 @@ spec:
                   namespace: app
                   port: 8080
             options:
-              trafficPolicy:
-                corsPolicy:
-                  allowMethods:          # allow GET and POST Requests and headers Content-Type
-                  - GET
-                  - POST
-                  allowHeaders:
-                  - Content-Type
+              faultInjection:          # delay requests 5s
+                fixedDelay: 5s
+                percentage: 100

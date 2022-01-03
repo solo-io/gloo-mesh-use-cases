@@ -3,6 +3,8 @@
 # Test Number: 5.9.1
 # Test Description:
 #   - Add request header on requests meant for frontend
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2098
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -10,11 +12,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -56,4 +53,4 @@ spec:
                 options:
                   headerManipulation:
                     appendRequestHeaders:
-                      - X-my-request-header: "frontend"
+                      X-my-request-header: "frontend"

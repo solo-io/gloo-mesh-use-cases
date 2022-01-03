@@ -2,7 +2,7 @@
 # Test Name: Cluster Header Destination Routing
 # Test Number: 5.5
 # Test Description:
-#   - Route all requests to frontend cluyster based on header X-SOLO-CLUSTER
+#   - Route all requests to frontend cluster based on header X-SOLO-CLUSTER
 # Issues:
 # - https://github.com/solo-io/gloo-mesh-enterprise/issues/2056
 ##################################################
@@ -12,11 +12,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}

@@ -10,11 +10,6 @@ metadata:
   name: virtual-mesh
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
   federation:                            # Enable automatic federation of all services to all clusters
     selectors:
       - {}
@@ -31,7 +26,7 @@ metadata:
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
-  - portName: https                      # match on port name https
+  - portName: http2                      # match on port name http2
     destinationSelectors:
     - kubeServiceMatcher:
         labels:
@@ -40,7 +35,7 @@ spec:
         - istio-system                   # only include istio-system namespace
   connectionHandlers:
   - connectionOptions:
-      enableProxyProtocol: true          #enable PROXY protocol for this connection handler.
+      enableProxyProtocol: true          # enable PROXY protocol for this connection handler.
     http:
       routeConfig:
       - virtualHost:
