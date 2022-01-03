@@ -111,41 +111,41 @@ This is the multi-cluster setup we will be utilizing.
 - 8.3 Sort RouteTables by weight
 - 8.4 Sort RouteTables by specificity
 
-# 9 Traffic Shifting
+### 9 Traffic Shifting
 - 9.1 Traffic Shift
 - 9.2 
 
 
-# 10 Fault Injection
+### 10 Fault Injection
 - 10.1 Delaying requests
 - 10.2 Aborting requests
 - 10.3 Faults for percentage of traffic
 
-# 11 Handling timeouts
+### 11 Handling timeouts
 - 11.1 Setting timeouts
 - 11.2 Adding retries 
 
-# 12 CORS
+### 12 CORS
 - 12.1 Setting allowed origins
 - 12.2 Allowed methods & headers
 - 12.3 Exposed headers
 - 12.4 Preflight request caching
 - 12.5 Access-Control-Allow-Credentials
 
-# 13 Mirroring Traffic
+### 13 Mirroring Traffic
 - 13.1 Send percentage of traffic to mirrored destination (kubeService only)
 
-# 14 Outlier Detection
+### 14 Outlier Detection
 - 14.1 Outlier Detection for failover routing to a global destination
 
-# 15 Istio mTLS Settings
+### 15 Istio mTLS Settings
 - 15.1 Setting mTLS settings per destination
 
-# 16 Cross-Site Request Forgery (TrafficPolicy)
+### 16 Cross-Site Request Forgery (TrafficPolicy)
 - 16.1 Setting CSRF Policy
 - 16.2 Setting CSRF Policy
 
-# 17 Rate Limiting (TrafficPolicy)
+### 17 Rate Limiting (TrafficPolicy)
 - 17.1 Using raw Rate Limit definition
 - 17.2 Rate Limit on source cluster  (TODO does this make sense)
 - 17.3 Rate Limit on destination cluster (TODO use istio cluster name?)
@@ -156,15 +156,15 @@ This is the multi-cluster setup we will be utilizing.
 - 17.8 Rate Limit on metadata
 - 17.9 Using separate Rate Limit config
 
-# 18 External Auth (TrafficPolicy)
+### 18 External Auth (TrafficPolicy)
 - 18.1 Using a custom auth server
 - 18.2 OIDC with AuthConfig
 - 18.3 Using an API token
 
-# 19 Labeled routes (TrafficPolicy)
+### 19 Labeled routes (TrafficPolicy)
 - 19.1 Specifying route labels for a TrafficPolicy
 
-# 20 Rate Limiting (RouteTable)
+### 20 Rate Limiting (RouteTable)
 - 20.1 Using raw Rate Limit definition
 - 20.2 Rate Limit on source cluster
 - 20.3 Rate Limit on destination cluster
@@ -175,27 +175,27 @@ This is the multi-cluster setup we will be utilizing.
 - 20.8 Rate Limit on metadata
 - 20.9 Using separate Rate Limit config
 
-# 21 External Auth (RouteTable)
+### 21 External Auth (RouteTable)
 - 21.1 Using a custom auth server
 - 21.2 OIDC with AuthConfig
 - 21.3 Using an API token
 
-# 22 Cross-Site Request Forgery (RouteTable)
+### 22 Cross-Site Request Forgery (RouteTable)
 - 22.1 Setting CSRF Policy
 - 22.2 Setting CSRF Policy
 
-# 23 TCP Destinations
+### 23 TCP Destinations
 - 23.1 Configuring a static TCP Destination
 - 23.2 Configuring a virtual TCP Destination
 - 23.3 Configuring a kube TCP Destination
 - 23.4 Forwarding SNI
 - 23.5 Weighted routing
 
-# 24 TCP Options
+### 24 TCP Options
 - 24.1 Setting max connection attempts
 - 24.2 Setting idle timeout
 - 24.3 Using a TCP tunnel
 
-# 25 Global Virtual Gateway options
+### 25 Global Virtual Gateway options
 - 25.1 Setting a limit on connection buffers
 - 25.2 Setting the bind address
