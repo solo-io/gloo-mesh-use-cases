@@ -91,7 +91,6 @@ This is the multi-cluster setup we will be utilizing.
 - 5.12 Per Route Response Headers
   - 5.12.1 Add Response Header
   - 5.12.2 Remove Response Header
-
 - 5.13 Path rewrite
 
 ### 6 Redirects
@@ -112,9 +111,7 @@ This is the multi-cluster setup we will be utilizing.
 - 8.4 Sort RouteTables by specificity
 
 ### 9 Traffic Shifting
-- 9.1 Traffic Shift
-- 9.2 
-
+- 9.1 Weighted Destination
 
 ### 10 Fault Injection
 - 10.1 Delaying requests
