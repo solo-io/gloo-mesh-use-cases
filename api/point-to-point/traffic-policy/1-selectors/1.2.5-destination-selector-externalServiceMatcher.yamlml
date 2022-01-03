@@ -1,0 +1,59 @@
+##################################################
+# Test Name: Traffic Policy Selecting ExternalService as Destination
+# Test Number: 1.2.5
+# Test Description:
+#   - Setting request timeouts for requests bound for a ExternalService by labels
+# Issues:
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2142
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: discovery.mesh.gloo.solo.io/v1
+kind: Destination
+metadata:
+  name: httpbin
+  namespace: gloo-mesh
+  labels:
+    external-service: httpbin            # label to match TrafficPolicy selector
+spec:
+  externalService:                       # definition for something outside the mesh
+    endpoints:
+    - address: httpbin.org               # outbound address
+      ports:
+        https: 443                       # outbound connection and port
+    hosts:
+    - httpbin.org                        # internal hosts that the mesh can use
+    name: httpbin
+    ports:                               # the port used internally within the mesh http://httpbin.org:80
+    - name: http
+      number: 80
+      protocol: HTTP                     # protocol that should be used internally
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend-timeout
+spec:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+    - externalServiceMatcher:            # select ExternalService Destination using labels
+        labels:
+          external-service: httpbin
+        namespaces:
+        - gloo-mesh
+  policy:
+    requestTimeout: 1s                   # request timeout of 1s

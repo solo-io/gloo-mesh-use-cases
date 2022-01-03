@@ -1,7 +1,7 @@
 ##################################################
 # Test Name: HTTPS TLS Termination
 # Test Number: 2.2
-# Test Description: 
+# Test Description:
 #   - Terminate TLS at the ingress gateway using kubernetes mounted tls secret
 #   - Requires tls certificate secret in every cluster with ingressgateway selected
 ##################################################

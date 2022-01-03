@@ -1,7 +1,7 @@
 ##################################################
 # Test Name: Multi Gateway Using Cluster Selector
 # Test Number: 1.2.3
-# Test Description: 
+# Test Description:
 #   - Select multiple ingress gateways
 #   - Using multiple kubeServiceRefs selector
 ##################################################

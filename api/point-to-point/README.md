@@ -14,16 +14,16 @@ This is the multi-cluster setup we will be utilizing.
 ### Traffic Policy
 
 #### 1. Selectors
-* Source Selector
-  * Labels
-  * Namespace / Clusters
-* Destination Selector
-  * kubeServiceMatcher
-  * kubeServiceRefs
-  * virtualDestinationMatcher
-  * virtualDestinationRefs
-  * externalServiceMatcher - https://github.com/solo-io/gloo-mesh-enterprise/issues/2142
-  * externalServiceRefs - https://github.com/solo-io/gloo-mesh-enterprise/issues/2142
+* 1.1 Source Selector
+  * 1.1.1 Labels
+  * 1.1.2 Namespace / Clusters
+* 1.2 Destination Selector
+  * 1.2.1 kubeServiceMatcher
+  * 1.2.2 kubeServiceRefs
+  * 1.2.3 virtualDestinationMatcher
+  * 1.2.4 virtualDestinationRefs
+  * 1.2.5 externalServiceMatcher - https://github.com/solo-io/gloo-mesh-enterprise/issues/2142
+  * 1.2.6 externalServiceRefs - https://github.com/solo-io/gloo-mesh-enterprise/issues/2142
 
 #### 2. Route Selectors - Skipped due to alternatives in VirtualHost/VirtualGateway/RouteTable
 
@@ -57,7 +57,7 @@ This is the multi-cluster setup we will be utilizing.
 
 #### 7. Request Timeout / Retries
 - Setting timeouts
-- Adding retries 
+- Adding retries
 
 #### 8. CORS
 - Setting allowed origins
@@ -105,31 +105,31 @@ This is the multi-cluster setup we will be utilizing.
 
 ### Virtual Destination
 
-#### 16. Hostname
+#### 1. Hostname
 - Custom Hostname
 - Override Kube Service
 
-#### 17. Port Selection
+#### 2. Port Selection
 - Custom Port
 
-#### 18. Mesh Selection
+#### 3. Mesh Selection
 - Single Mesh
 - Multi-Mesh
 
-#### 19.Static Destination
+#### 4. Static Destination
 
-#### 20. Locality
+#### 5. Locality
 - Outlier Detection
 
 
 ### Access Policy
 
-#### 21. Source Selection
+#### 1. Source Selection
 - kubeIdentityMatcher
 - kubeServiceAccountRefs
 - requestIdentityMatcher
 
-#### 22. DestinationSelection
+#### 2. DestinationSelection
 * Destination Selector
   * kubeServiceMatcher
   * kubeServiceRefs
@@ -138,13 +138,13 @@ This is the multi-cluster setup we will be utilizing.
   * externalServiceMatcher
   * externalServiceRefs
 
-#### 23. Allowed
+#### 3. Allowed
 - Paths
 - Methods
 - Ports
 
 
-### 24. Service Dependencies
+### 4. Service Dependencies
 - Namespace Selection
 - Cluster Selection
 - Label Selectors

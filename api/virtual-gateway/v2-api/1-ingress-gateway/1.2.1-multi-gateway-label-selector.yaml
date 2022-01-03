@@ -2,7 +2,7 @@
 # Test Name: Multi Gateway Using Cluster Selector
 # Test Number: 1.2.1
 # API Version: 2
-# Test Description: 
+# Test Description:
 #   - Select all ingress gateways in workspace
 ##################################################
 apiVersion: admin.gloo.solo.io/v2

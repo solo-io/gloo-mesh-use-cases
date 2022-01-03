@@ -1,7 +1,7 @@
 ##################################################
 # Test Name: Gateway in different namespace
 # Test Number: 1.4
-# Test Description: 
+# Test Description:
 #   - Gateway is deployed to istio-gateways namespace
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1

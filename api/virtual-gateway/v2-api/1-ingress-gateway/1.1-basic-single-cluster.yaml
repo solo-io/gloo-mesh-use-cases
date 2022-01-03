@@ -1,7 +1,7 @@
 ##################################################
 # Test Name: Multi Gateway Using Cluster Selector (TODO missing cluster selector)
 # Test Number: 1.1
-# Test Description: 
+# Test Description:
 #   - Simple use case with gateway selector and destination route
 # Issues
 # - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077

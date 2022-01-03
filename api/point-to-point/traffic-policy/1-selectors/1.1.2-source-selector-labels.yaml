@@ -1,0 +1,36 @@
+##################################################
+# Test Name: Traffic Policy Using Cluster/Namespace Source Selectors
+# Test Number: 1.1.2
+# Test Description:
+#   - Setting request timeouts on sources selected by namespaces and clusters
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend-timeout
+spec:
+  # destinationSelector:                 # destination selector omitted means "apply to all destinations"
+  sourceSelector:
+    - kubeServiceMatcher:                # select applications running in cluster-1 and app namespace
+        namespaces:
+        - app
+        clusters:
+        - cluster-1
+  policy:
+    requestTimeout: 1s                   # request timeout of 1s

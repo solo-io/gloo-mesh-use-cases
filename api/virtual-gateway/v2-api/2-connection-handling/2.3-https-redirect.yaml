@@ -1,7 +1,7 @@
 ##################################################
 # Test Name: HTTPS Redirect
 # Test Number: 2.3
-# Test Description: 
+# Test Description:
 #   - Gateway for HTTPS port to redirect to HTTPS
 #   - Gateway for HTTPS TLS termination
 ##################################################
