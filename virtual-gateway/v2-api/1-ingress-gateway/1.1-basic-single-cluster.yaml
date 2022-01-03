@@ -1,0 +1,57 @@
+##################################################
+# Test Name: Multi Gateway Using Cluster Selector (TODO missing cluster selector)
+# Test Number: 1.1
+# Test Description: 
+#   - Simple use case with gateway selector and destination route
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  mtlsConfig:
+    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
+    shared:
+      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
+        generated: {}
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2                      # match on port name http2
+    destinationSelectors:                # select single specific kubernetes services
+    - kubeServiceRefs:
+        services:
+        - name: istio-ingressgateway     # select cluster-1 ingress gateway service
+          namespace: istio-system
+          clusterName: cluster-1
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - "*"                          # Use a catch-all domain
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:
+              - kubeService:
+                  clusterName: cluster-1
+                  name: frontend
+                  namespace: app
+                  port: 8080

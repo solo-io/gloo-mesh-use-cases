@@ -1,0 +1,102 @@
+##################################################
+# Test Name: Sort RouteTables By Specificity
+# Test Number: 8.4
+# Test Description:
+#   - After processing all routes, including additional route tables delegated to, the resulting routes are sorted by specificity to reduce the chance that a more specific route will be short-circuited by a general route. Matchers with exact path matchers are considered more specific than regex path patchers, which are more specific than prefix path matchers. 
+#   - Matchers of the same type are sorted by length of the path in descending order. 
+#   - Only the most specific matcher on each route is used.
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2                      # match on port name http2
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system                   # only include istio-system namespace
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHostSelector:             # select VirtualHost based on label gateway=ingress in the gloo-mesh namespace
+          labels:
+            gateway: ingress
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualHost
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+  labels:
+    gateway: ingress
+spec:
+  domains:
+  - frontend.solo.io
+  routes:
+  - delegateAction:                      # domain frontend.solo.io applies to RouteTables with the label cluster=cluster-1 in the gloo-mesh namespace
+      sortMethod: ROUTE_SPECIFICITY      # sort the matching RouteTables by their specificity
+      selector:
+        labels:
+          gateway: ingress
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: RouteTable
+metadata:
+  name: frontend-1
+  namespace: gloo-mesh
+  labels:
+    gateway: ingress                     # matches the label selector in frontend VirtualHost
+spec:
+  routes:
+  - matchers:
+    - uri:
+        prefix: /frontend                # only match on frontend.solo.io/frontend
+    name: frontend
+    routeAction:
+      destinations:
+      - kubeService:                     # route requests to cluster-1 frontend application
+          clusterName: cluster-1
+          name: frontend
+          namespace: app
+          port: 8080
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: RouteTable
+metadata:
+  name: frontend-2
+  namespace: gloo-mesh
+  labels:
+    gateway: ingress                     # matches the label selector in frontend VirtualHost
+spec:
+  routes:
+  - matchers:
+    - uri:
+        exact: /frontend/cluster-2       # only match on frontend.solo.io/frontend/cluster-2 (exact is more specific than prefix match)
+    name: frontend
+    routeAction:
+      destinations:
+      - kubeService:                     # route requests to cluster-2 frontend application
+          clusterName: cluster-2
+          name: frontend
+          namespace: app
+          port: 8080

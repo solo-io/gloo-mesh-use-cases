@@ -1,0 +1,55 @@
+##################################################
+# Test Name: Multi Cluster Destination Routing
+# Test Number: 5.4
+# Test Description:
+#   - Route all requests to frontend application in cluster-1 and cluster-2
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2                      # match on port name http2
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system                   # only include istio-system namespace
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - "*"
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:              # route to both cluster-1 and cluster-2 frontend
+              - kubeService:
+                  clusterName: cluster-1
+                  name: frontend
+                  namespace: app
+                  port: 8080
+              - kubeService:
+                  clusterName: cluster-2
+                  name: frontend
+                  namespace: app
+                  port: 8080

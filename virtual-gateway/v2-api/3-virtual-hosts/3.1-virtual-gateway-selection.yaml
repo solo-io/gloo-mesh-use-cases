@@ -1,0 +1,7 @@
+##################################################
+# Test Name: Vitual Host Virtual Gateway Selection (TODO not implemented in API yet)
+# Test Number: 3.1
+# API Version: 2
+# Test Description:
+#   - SNI Routing for TLS or mTLS PASSTRHOUGH connections
+##################################################

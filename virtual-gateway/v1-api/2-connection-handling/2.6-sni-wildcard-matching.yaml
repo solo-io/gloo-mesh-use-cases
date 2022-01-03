@@ -1,0 +1,53 @@
+##################################################
+# Test Name: SNI Matching
+# Test Number: 2.5
+# Test Description:
+#   - SNI Routing for TLS or mTLS PASSTRHOUGH connections
+# Issues:
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/1765
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: https                      # match on port name https
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system                   # only include istio-system namespace
+  connectionHandlers:
+  - connectionOptions:
+      sslConfig:
+        tlsMode: PASSTHROUGH             # no tls termination
+    connectionMatch:
+      serverNames:
+      - "*.solo.io"                      # SNI match
+    tcp:
+      tcpHosts:
+      - name: frontend
+        destination:
+          kube:
+            name: frontend
+            namespace: app
+            clusterName: cluster-1
+            port: 8080

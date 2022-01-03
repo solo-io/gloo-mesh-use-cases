@@ -1,0 +1,8 @@
+##################################################
+# Test Name: Enabling Proxy Protocol (TODO not implemented in API yet)
+# Test Number: 2.7
+# Test Description:
+#   - Enable proxy protocol in the VirtualGateway
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2079
+##################################################

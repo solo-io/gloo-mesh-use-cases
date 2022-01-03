@@ -1,0 +1,6 @@
+##################################################
+# Test Name: Restricting Envoy Filters (TODO NOT COMPLETE)
+# Test Number: 2.4
+# Test Description:
+#   - Utilizing the VirtualGatewaySpec.ConnectionHandler.ConnectionOptions.StrictFilterManagement
+##################################################

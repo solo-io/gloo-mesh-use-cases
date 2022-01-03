@@ -1,0 +1,58 @@
+##################################################
+# Test Name: HTTPS TLS Termination
+# Test Number: 2.2
+# Test Description: 
+#   - Terminate TLS at the ingress gateway using kubernetes mounted tls secret
+#   - Requires tls certificate secret in every cluster with ingressgateway selected
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: https                      # match on port name https
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system                   # only include istio-system namespace
+  connectionHandlers:
+  - connectionOptions:                   # TLS Termination settings
+      sslConfig:
+        secretName: frontend-cert        # This kubernetes tls secret must be located on the same cluster in the same namespace as each gateway deployment
+        tlsMode: SIMPLE
+    connectionMatch:
+      serverNames:
+      - api.solo.io                      # This SNI should match the DNS name your cert is using
+    http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - api.solo.io                  # Use a catch-all domain
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:
+              - kubeService:
+                  clusterName: cluster-1
+                  name: frontend
+                  namespace: app
+                  port: 8080

@@ -1,0 +1,58 @@
+##################################################
+# Test Name: Weighted Destination Routing
+# Test Number: 5.2
+# Test Description:
+#   - Route 80% of requests to frontend application in cluster-1
+#   - Route 20% of requests to frontend application in cluster-2
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2               # match on port name http2
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway  # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system            # only include istio-system namespace
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - "*"
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:
+              - weight: 80               # route 80% of traffic to frontend in cluster-2
+                kubeService:
+                  clusterName: cluster-1
+                  name: frontend
+                  namespace: app
+                  port: 8080
+              - weight: 20               # route 20% of traffic to frontend in cluster-2
+                kubeService:
+                  clusterName: cluster-2
+                  name: frontend
+                  namespace: app
+                  port: 8080

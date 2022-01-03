@@ -1,0 +1,8 @@
+##################################################
+# Test Name: SNI Matching (TODO not implemented in API yet)
+# Test Number: 2.5
+# Test Description:
+#   - SNI Routing for TLS or mTLS PASSTRHOUGH connections
+# Issues:
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2078
+##################################################

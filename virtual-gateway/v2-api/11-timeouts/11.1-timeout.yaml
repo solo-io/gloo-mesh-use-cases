@@ -1,0 +1,73 @@
+##################################################
+# Test Name: Request Timeout
+# Test Number: 11.1
+# API Version: 2
+# Test Description:
+#   - 3s request timeout
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: RootTrustPolicy
+metadata:
+  name: auto-mtls
+  namespace: gloo-mesh
+spec:
+  applyToMeshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+  config:
+    rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
+      generated:  {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress                          # applies to all gateways in the mesh 
+  namespace: global
+spec:
+  listeners:
+    - port:
+        name: http2                      # apply configuration to ingress gateways http port
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+  labels:
+    route-table: frontend
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - name: frontend
+    forwardTo:
+      destinations:
+      - name: frontend
+        namespace: app
+        port:
+          number: 8080
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: RetryTimeoutPolicy
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  applyToRoutes:
+    selector:
+      route-table: frontend
+  config:
+    requestTimeout: 3s                   # total request timeout at 3s

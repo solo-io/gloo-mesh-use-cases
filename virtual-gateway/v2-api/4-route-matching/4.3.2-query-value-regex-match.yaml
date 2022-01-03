@@ -1,0 +1,113 @@
+##################################################
+# Test Name: Query Value Regex Value Match (TODO cannot do cluster selection)
+# Test Number: 4.3.2
+# API Version: 2
+# Test Description:
+# - Requests that contain ?cluster=cluster-1 to cluster-1
+# - Requests that contain ?cluster=cluster-* to cluster-2
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: RootTrustPolicy
+metadata:
+  name: auto-mtls
+  namespace: gloo-mesh
+spec:
+  applyToMeshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+  config:
+    rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
+      generated:  {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress                          # applies to all gateways in the mesh 
+  namespace: global
+spec:
+  listeners:
+    - port:
+        name: http2                      # apply configuration to ingress gateways http port
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - name: frontend
+    matchers:                            # match ?cluster=cluster-1
+    - queryParameters:
+      - name: cluster
+        value: cluster-1
+    forwardTo:
+      destinations:
+      - name: frontend
+        namespace: app
+        port:
+          number: 8080
+---
+# apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+# kind: VirtualGateway
+# metadata:
+#   name: ingress
+#   namespace: gloo-mesh
+# spec:
+#   ingressGatewaySelectors:
+#   - portName: http2                      # match on port name http2
+#     destinationSelectors:
+#     - kubeServiceMatcher:
+#         labels:
+#           istio: ingressgateway          # select all gateways with istio=ingressgateway label
+#         namespaces:
+#         - istio-system                   # only include istio-system namespace
+#   connectionHandlers:
+#   - http:
+#       routeConfig:
+#       - virtualHost:
+#           domains:
+#           - "*"
+#           routes:
+#           - matchers:                    # match ?cluster=cluster-1
+#             - queryParameters:
+#               - name: cluster
+#                 value: cluster-1
+#             name: frontend
+#             routeAction:
+#               destinations:
+#               - kubeService:
+#                   clusterName: cluster-1
+#                   name: frontend
+#                   namespace: app
+#                   port: 8080
+#           - matchers:                    # match ?cluster=cluster-*
+#             - queryParameters:
+#               - name: cluster
+#                 value: cluster-*
+#                 regex: true              # enable regex support
+#             name: frontend
+#             routeAction:
+#               destinations:
+#               - kubeService:
+#                   clusterName: cluster-2
+#                   name: frontend
+#                   namespace: app
+#                   port: 8080

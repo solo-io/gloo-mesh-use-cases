@@ -1,0 +1,74 @@
+##################################################
+# Test Name: Header Value Match (TODO incomplete due to missing cluster selector)
+# Test Number: 4.2.2
+# API Version: 2
+# Test Description:
+#   - Route X-frontend-app header to correct cluster
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: RootTrustPolicy
+metadata:
+  name: auto-mtls
+  namespace: gloo-mesh
+spec:
+  applyToMeshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+  config:
+    rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
+      generated:  {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress                          # applies to all gateways in the mesh 
+  namespace: global
+spec:
+  listeners:
+    - port:
+        name: http2                      # apply configuration to ingress gateways http port
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - name: frontend-cluster-1
+    matchers:
+    - headers:
+      - name: X-frontend-app             # match on header X-frontend-app existing
+        value: cluster-1                 # route to a specific cluster
+    forwardTo:
+      destinations:
+      - name: frontend
+        namespace: app
+        port:
+          number: 8080
+  - name: frontend-cluster-2
+    matchers:
+    - headers:
+      - name: X-frontend-app             # match on header X-frontend-app existing
+        value: cluster-2                 # route to a specific cluster
+    forwardTo:
+      destinations:
+      - name: frontend
+        namespace: app
+        port:
+          number: 8080

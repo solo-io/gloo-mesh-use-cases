@@ -1,0 +1,116 @@
+##################################################
+# Test Name: Label Selector Based Route Selection
+# Test Number: 8.2
+# Test Description:
+#   - Delegate cluster-1.solo.io to cluster-1 RouteTable
+#   - Delegate cluster-2.solo.io to cluster-2 RouteTable
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2                      # match on port name http2
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system                   # only include istio-system namespace
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHostSelector:             # select VirtualHost based on label gateway: ingress in the gloo-mesh namespace
+          labels:
+            gateway: ingress
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualHost
+metadata:
+  name: cluster-1
+  namespace: gloo-mesh
+  labels:
+    gateway: ingress
+spec:
+  domains:
+  - cluster-1.solo.io
+  routes:
+  - delegateAction:                      # domain cluster-1.solo.io applies to RouteTables with the label cluster=cluster-1 in the gloo-mesh namespace
+      selector:
+        labels:
+          cluster: cluster-1
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualHost
+metadata:
+  name: cluster-2
+  namespace: gloo-mesh
+  labels:
+    gateway: ingress
+spec:
+  domains:
+  - cluster-2.solo.io
+  routes:
+  - delegateAction:                      # domain cluster-1.solo.io applies to RouteTables with the label cluster=cluster-2 in the gloo-mesh namespace
+      selector:
+        labels:
+          cluster: cluster-2
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: RouteTable
+metadata:
+  name: frontend-cluster-1
+  namespace: gloo-mesh                   # matches the namespace selector in cluster-1 VirtualHost
+  labels:
+    cluster: cluster-1                   # matches the label selector in cluster-1 VirtualHost
+spec:
+  routes:
+  - matchers:
+    - uri:
+        prefix: /frontend                # only match on cluster-1.solo.io/frontend
+    name: frontend
+    routeAction:
+      destinations:
+      - kubeService:                     # route requests to cluster-1 frontend application
+          clusterName: cluster-1
+          name: frontend
+          namespace: app
+          port: 8080
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: RouteTable
+metadata:
+  name: frontend-cluster-2
+  namespace: gloo-mesh                   # matches the namespace selector in cluster-2 VirtualHost
+  labels:
+    cluster: cluster-2                   # matches the label selector in cluster-2 VirtualHost
+spec:
+  routes:
+  - matchers:
+    - uri:
+        prefix: /frontend                # only match on cluster-2.solo.io/frontend
+    name: frontend
+    routeAction:
+      destinations:
+      - kubeService:                     # route requests to cluster-2 frontend application
+          clusterName: cluster-2
+          name: frontend
+          namespace: app
+          port: 8080

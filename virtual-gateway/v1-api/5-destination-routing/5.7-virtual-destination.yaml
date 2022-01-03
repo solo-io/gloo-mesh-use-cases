@@ -1,0 +1,69 @@
+##################################################
+# Test Name: Virtual Destination Routing
+# Test Number: 5.7
+# Test Description:
+#   - Route to a VirtualDestination
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualDestination
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+spec:
+  hostname: http-frontend.solo.io        # mesh dns hostname
+  port:
+    number: 8080                         # VirtualDestination port
+    protocol: http
+    targetNumber: 8080
+  localized:
+    destinationSelectors:                # all frontend labeled services in the virtual mesh
+      - kubeServiceMatcher:
+          labels:
+            app: frontend
+  virtualMesh:
+    name: virtual-mesh
+    namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2                      # match on port name http2
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system                   # only include istio-system namespace
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - "*"                          # match on all hosts
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:
+              - virtualDestination:      # proxy requests to the frontend VirtualDestination
+                  name: frontend
+                  namespace: gloo-mesh
+---
