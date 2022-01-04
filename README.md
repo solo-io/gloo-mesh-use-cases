@@ -1,7 +1,7 @@
 # Gloo Mesh Use Cases
 
 This repository showcases typical Gloo Mesh use cases.  See below for categories of use cases.
-- [API Examples](./api/README.md)
+- [API Examples](./api)
   - [In Mesh](./api/in-mesh/README.md)
   - [Virtual Gateway](./api/virtual-gateway/README.md)
 - [Certificate Management](./cert-management/README.md)
