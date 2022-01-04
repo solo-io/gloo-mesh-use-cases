@@ -28,10 +28,20 @@ This is the multi-cluster setup we will be utilizing.
 #### 2. Route Selectors - Skipped due to alternatives in VirtualHost/VirtualGateway/RouteTable
 
 #### 3. HTTP Request Matchers
-- URI
-- Headers
-- Query Parameters
-- Methods
+- 3.1 - URI
+  - 3.1.1 - Exact match
+  - 3.1.2 - Prefix match
+  - 3.1.3 - Regex match
+  - 3.1.4 - Ignore case match
+- 3.2 Header-based matching
+  - 3.2.1 Name Match
+  - 3.2.2 Name/Value Match
+  - 3.2.3 Name/Regex Match
+  - 3.2.4 Invert Match
+- 3.3 Query parameter matching
+  - 3.3.1 Key/Value match
+  - 3.3.2 Regex Match
+- 3.4 HTTP method matching
 
 #### 4. Connection Pool Settings
 - HTTP
