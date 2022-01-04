@@ -28,7 +28,7 @@ apiVersion: networking.mesh.gloo.solo.io/v1
 kind: TrafficPolicy
 metadata:
   namespace: gloo-mesh
-  name: frontend-timeout
+  name: frontend
 spec:
   # destinationSelector:                 # destination selector omitted means "apply to all destinations"
   sourceSelector:                        # select any application with the label app=frontend

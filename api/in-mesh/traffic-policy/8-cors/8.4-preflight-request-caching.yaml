@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Traffic Policy fault injection
-# Test Number: 6.1
+# Test Name: Traffic Policy CORS Settings
+# Test Number: 8.4
 # Test Description:
-#   - Delay requests for frontend.app.svc.cluster.local by 5s
+#   - Setting of Access-Control-Max-Age
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -31,6 +31,7 @@ spec:
         labels:
           app: frontend                  # applications with app=frontend label
   policy:
-    faultInjection:                      # delay requests 5s
-      fixedDelay: 5s
-      percentage: 100
+    corsPolicy:
+      maxAge: 1h                         # Specify how long the results of a preflight request can be cached. Serialized to the Access-Control-Max-Age header.
+      allowOrigins:                      # allow frontend.app.svc.cluster.local
+      - exact: "http://frontend.app.svc.cluster.local"

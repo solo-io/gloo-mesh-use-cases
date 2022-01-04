@@ -70,11 +70,11 @@ This is the multi-cluster setup we will be utilizing.
 - 7.2 Retries
 
 #### 8. CORS
-- Setting allowed origins
-- Allowed methods & headers
-- Exposed headers
-- Preflight request caching
-- Access-Control-Allow-Credentials
+- 8.1 Setting allowed origins
+- 8.2 Allowed methods & headers
+- 8.3 Exposed headers
+- 8.4 Preflight request caching
+- 8.5 Access-Control-Allow-Credentials
 
 #### 9. Mirroring
 - Send percentage of traffic to mirrored destination (kubeService only)
