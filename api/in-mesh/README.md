@@ -77,25 +77,25 @@ This is the multi-cluster setup we will be utilizing.
 - 8.5 Access-Control-Allow-Credentials
 
 #### 9. Mirroring
-- Send percentage of traffic to mirrored destination (kubeService only)
+- 9.1 Send percentage of traffic to mirrored destination (kubeService only)
 
 #### 10. Header Manipulation
-- Request Headers
-  - Add Request Header
-  - Remove Request Header
-- Response Headers
-  - Add Response Header
-  - Remove Response Header
+- 10.1 Request Headers
+  - 10.1.1 Add Request Header
+  - 10.1.2 Remove Request Header
+- 10.2 Response Headers
+  - 10.2.1 Add Response Header
+  - 10.2.2 Remove Response Header
 
 #### 11. Outlier Detection
-- Outlier Detection for failover routing to a global destination
+- 11.1 Outlier Detection for failover routing to a global destination
 
 #### 12. mTLS
-- Setting mTLS settings per destination
+- 12.1 Setting mTLS settings per destination
 
 #### 13. CSRF
-- Setting CSRF Policy
-- Setting CSRF Policy
+- 13.1 Setting CSRF Policy
+- 13.2 Setting CSRF Policy
 
 #### 14. Rate Limit
 - Using raw Rate Limit definition
