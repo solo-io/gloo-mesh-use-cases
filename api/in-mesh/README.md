@@ -1,4 +1,4 @@
-# Point to Point use cases
+# In Mesh use cases
 
 
 ### Multi Cluster
@@ -61,9 +61,9 @@ This is the multi-cluster setup we will be utilizing.
 - 5.1 Weighted Destination
 
 #### 6. Fault Injection
-- Delaying requests
-- Aborting requests
-- Faults for percentage of traffic
+- 6.1 Delaying requests
+- 6.2 Aborting requests
+- 6.3 Faults for percentage of traffic
 
 #### 7. Request Timeout / Retries
 - Setting timeouts
