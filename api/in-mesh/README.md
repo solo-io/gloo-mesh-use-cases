@@ -58,7 +58,7 @@ This is the multi-cluster setup we will be utilizing.
   - 4.2.3 tcpKeepalive
 
 #### 5. Traffic Shift
-- Weighted Destination
+- 5.1 Weighted Destination
 
 #### 6. Fault Injection
 - Delaying requests

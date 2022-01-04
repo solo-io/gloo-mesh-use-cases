@@ -1,0 +1,45 @@
+##################################################
+# Test Name: Traffic Policy traffic shifting
+# Test Number: 5.1
+# Test Description:
+#   - Redirecting traffic for frontend.app.svc.cluster.local to split between two clusters
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend-timeout
+spec:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
+        labels:
+          app: frontend                  # applications with app=frontend label
+  policy:
+    trafficShift:                        # all traffic bound for frontend.app.svc.cluster.local will be split between two clusters
+      destinations:
+        - kubeService:
+            clusterName: cluster-1
+            name: frontend
+            namespace: app
+          weight: 50
+        - kubeService:
+            clusterName: cluster-2
+            name: frontend
+            namespace: app
+          weight: 50
