@@ -23,7 +23,7 @@ apiVersion: networking.mesh.gloo.solo.io/v1
 kind: TrafficPolicy
 metadata:
   namespace: gloo-mesh
-  name: frontend
+  name: frontend-timeout
 spec:
   # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
   destinationSelector:
@@ -31,7 +31,7 @@ spec:
         labels:
           app: frontend                  # applications with app=frontend label
   policy:
-    trafficShift:                        # all traffic bound for frontend.app.svc.cluster.local will be split between two clusters
+    trafficShift:                        # all traffic bound for frontend.app.svc.cluster.local will be split between 2 clusters
       destinations:
         - kubeService:
             clusterName: cluster-1

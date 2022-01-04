@@ -98,39 +98,40 @@ This is the multi-cluster setup we will be utilizing.
 - 13.2 Setting CSRF Policy
 
 #### 14. Rate Limit
-- Using raw Rate Limit definition
-- Rate Limit on source cluster  (TODO does this make sense)
-- Rate Limit on destination cluster (TODO use istio cluster name?)
-- Rate Limit on request headers
-- Rate Limit on remote address
-- Rate Limit on generic key
-- Rate Limit on the existence of a requst header
-- Rate Limit on metadata
-- Using separate Rate Limit config
+- 14.1 Using raw Rate Limit definition
+- 14.2 Rate Limit on source cluster  (TODO does this make sense)
+- 14.3 Rate Limit on destination cluster (TODO use istio cluster name?)
+- 14.4 Rate Limit on request headers
+- 14.5 Rate Limit on remote address
+- 14.6 Rate Limit on generic key
+- 14.7 Rate Limit on the existence of a requst header
+- 14.8 Rate Limit on metadata
+- 14.9 Using separate Rate Limit config
 
 #### 15. Ext Auth
-- Using a custom auth server
-- OIDC with AuthConfig
-- Using an API token
+- 15.1 Using a custom auth server
+- 15.2 OIDC with AuthConfig
+- 15.2 Using an API token
 
 ### Virtual Destination
 
 #### 1. Hostname
-- Custom Hostname
-- Override Kube Service
+- 1.1 Custom Hostname
+- 1.2 Override Kube Service
 
 #### 2. Port Selection
-- Custom Port
+- 2.1 Custom Port
 
 #### 3. Mesh Selection
-- Single Mesh
-- Multi-Mesh
+- 3.1 Single Mesh
+- 3.2 Multi-Mesh
 
 #### 4. Static Destination
+- 4.1 Static Destinations
 
 #### 5. Locality
-- Outlier Detection
-
+- 5.1 Outlier Detection
+- 5.2 Failover
 
 ### Access Policy
 

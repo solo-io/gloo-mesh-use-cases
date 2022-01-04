@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Traffic Policy Selecting VirtualDestination as Destination
-# Test Number: 1.2.3
+# Test Name: Virtual Destination Hostnames
+# Test Number: 1.2
 # Test Description:
-#   - Setting request timeouts for requests bound for a VirtualDestination by labels
+#   - Override kube-dns frontend.app.svc.cluster.local and route requets to frontend in all clusters
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -24,9 +24,8 @@ kind: VirtualDestination
 metadata:
   name: frontend
   namespace: gloo-mesh
-  labels:
-    virtual-destination: frontend        # used for selection by TrafficPolicy destinationSelector
 spec:
+  hostname: frontend.svc.cluster.local   # overriding the kube dns name
   port:
     number: 8080                         # matches frontend port
     protocol: http
@@ -48,10 +47,12 @@ metadata:
 spec:
   # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
   destinationSelector:
-    - virtualDestinationMatcher:         # select VirtualDestination by label
+    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
         labels:
-          virtual-destination: frontend  # matches label in VirtualDestination
-        namespaces: 
-        - gloo-mesh
+          app: frontend                  # applications with app=frontend label
   policy:
-    requestTimeout: 1s                   # request timeout of 1s
+    trafficShift:
+      destinations:
+        - virtualDestination:            # all traffic for frontend.app.svc.cluster.local forward to VirtualDestination
+            name: frontend
+            namespace: gloo-mesh

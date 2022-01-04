@@ -31,6 +31,7 @@ spec:
     number: 8080                         # matches frontend port
     protocol: http
     targetNumber: 8080                   # matches frontend service port
+  localized:
     destinationSelectors:                # all frontend applications in all clusters
       - kubeServiceMatcher:
           labels:
