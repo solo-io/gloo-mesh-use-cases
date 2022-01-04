@@ -66,8 +66,8 @@ This is the multi-cluster setup we will be utilizing.
 - 6.3 Faults for percentage of traffic
 
 #### 7. Request Timeout / Retries
-- Setting timeouts
-- Adding retries
+- 7.1 Timeouts
+- 7.2 Retries
 
 #### 8. CORS
 - Setting allowed origins
