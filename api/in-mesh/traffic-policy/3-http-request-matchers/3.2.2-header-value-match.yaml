@@ -1,6 +1,6 @@
 ##################################################
 # Test Name: Traffic Policy applies to specific requests
-# Test Number: 3.2.1
+# Test Number: 3.2.2
 # Test Description:
 #   - Setting 1s response times only to requests with header X-frontend-app=v1
 ##################################################

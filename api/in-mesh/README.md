@@ -28,11 +28,11 @@ This is the multi-cluster setup we will be utilizing.
 #### 2. Route Selectors - Skipped due to alternatives in VirtualHost/VirtualGateway/RouteTable
 
 #### 3. HTTP Request Matchers
-- 3.1 - URI
-  - 3.1.1 - Exact match
-  - 3.1.2 - Prefix match
-  - 3.1.3 - Regex match
-  - 3.1.4 - Ignore case match
+- 3.1 URI
+  - 3.1.1 Exact match
+  - 3.1.2 Prefix match
+  - 3.1.3 Regex match
+  - 3.1.4 Ignore case match
 - 3.2 Header-based matching
   - 3.2.1 Name Match
   - 3.2.2 Name/Value Match
@@ -44,18 +44,18 @@ This is the multi-cluster setup we will be utilizing.
 - 3.4 HTTP method matching
 
 #### 4. Connection Pool Settings
-- HTTP
-  - http1MaxPendingRequests
-  - http2MaxRequests
-  - maxRequestsPerConnection
-  - maxRetries
-  - idleTimeout
-  - h2UpgradePolicyH2UpgradePolicy 		
-  - useClientProtocol
-- TCP
-  - maxConnections
-  - connectTimeout
-  - tcpKeepalive
+- 4.1 HTTP
+  - 4.1.1 http1MaxPendingRequests
+  - 4.1.2 http2MaxRequests
+  - 4.1.3 maxRequestsPerConnection
+  - 4.1.4 maxRetries
+  - 4.1.5 idleTimeout
+  - 4.1.6 h2UpgradePolicyH2UpgradePolicy 		
+  - 4.1.7 useClientProtocol
+- 4.2 TCP
+  - 4.2.1 maxConnections
+  - 4.2.2 connectTimeout
+  - 4.2.3 tcpKeepalive
 
 #### 5. Traffic Shift
 - Weighted Destination

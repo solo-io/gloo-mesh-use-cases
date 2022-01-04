@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Traffic Policy applies to specific requests
-# Test Number: 3.4
+# Test Name: Traffic Policy to tune connection pool settings
+# Test Number: 4.1.3
 # Test Description:
-#   - Setting 1s response times only to requests with PATCH requests
+#   - Setting maxRequestsPerConnection - Maximum number of requests per connection to a backend. Setting this parameter to 1 disables keep alive
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -30,8 +30,7 @@ spec:
     - kubeServiceMatcher:
         labels:
           app: frontend
-  httpRequestMatchers:                   # match on PATCH requests
-  - name: method-match
-    method: PATCH
   policy:
-    requestTimeout: 1s                   # 1s request timeout
+    connectionPoolSettings:
+      http:
+        maxRequestsPerConnection: 10     # Maximum number of requests per connection to a backend. Setting this parameter to 1 disables keep alive. Default 0, meaning “unlimited”, up to 2^29.

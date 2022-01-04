@@ -1,8 +1,8 @@
 ##################################################
-# Test Name: Traffic Policy applies to specific requests
-# Test Number: 3.4
+# Test Name: Traffic Policy to tune connection pool settings
+# Test Number: 4.1.6
 # Test Description:
-#   - Setting 1s response times only to requests with PATCH requests
+#   - Setting h2UpgradePolicy - Specify if http1.1 connection should be upgraded to http2 for the associated destination.
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -30,8 +30,7 @@ spec:
     - kubeServiceMatcher:
         labels:
           app: frontend
-  httpRequestMatchers:                   # match on PATCH requests
-  - name: method-match
-    method: PATCH
   policy:
-    requestTimeout: 1s                   # 1s request timeout
+    connectionPoolSettings:
+      http:
+        h2UpgradePolicy: UPGRADE         # Upgrade the connection to http2

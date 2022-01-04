@@ -1,8 +1,13 @@
 ##################################################
-# Test Name: Traffic Policy applies to specific requests
-# Test Number: 3.4
+# Test Name: Traffic Policy to tune connection pool settings
+# Test Number: 4.1.5
 # Test Description:
-#   - Setting 1s response times only to requests with PATCH requests
+#   - Setting idleTimeout - The idle timeout for upstream connection pool connections. 
+#     - The idle timeout is defined as the period in which there are no active requests. 
+#     - If not set, the default is 1 hour. When the idle timeout is reached, the connection will be closed. 
+#     - If the connection is an HTTP/2 connection a drain sequence will occur prior to closing the connection. 
+#     - Note that request based timeouts mean that HTTP/2 PINGs will not keep the connection alive. 
+#     - Applies to both HTTP1.1 and HTTP2 connections.
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -30,8 +35,7 @@ spec:
     - kubeServiceMatcher:
         labels:
           app: frontend
-  httpRequestMatchers:                   # match on PATCH requests
-  - name: method-match
-    method: PATCH
   policy:
-    requestTimeout: 1s                   # 1s request timeout
+    connectionPoolSettings:
+      http:
+        idleTimeout: 30s                 # The idle timeout for upstream connection pool connections.
