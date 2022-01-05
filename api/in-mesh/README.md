@@ -142,10 +142,8 @@ This is the multi-cluster setup we will be utilizing.
 #### 2. Destination Selection
 - 2.1 kubeServiceMatcher
 - 2.2 kubeServiceRefs
-- 2.3 virtualDestinationMatcher
-- 2.4 virtualDestinationRefs
-- 2.5 externalServiceMatcher
-- 2.6 externalServiceRefs
+- 2.3 externalServiceMatcher
+- 2.4 externalServiceRefs
 
 #### 3. Allowed
 - 3.1 Paths
