@@ -1,5 +1,5 @@
 ##################################################
-# Test Name: Access Policy Allowed Paths
+# Test Name: Access Policy Allowed Ports
 # Test Number: 3.3
 # Test Description:
 #   - Allow all services access to port 8080 requests on frontend app

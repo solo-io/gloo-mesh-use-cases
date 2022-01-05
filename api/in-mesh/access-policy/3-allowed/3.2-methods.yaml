@@ -1,5 +1,5 @@
 ##################################################
-# Test Name: Access Policy Allowed Paths
+# Test Name: Access Policy Allowed Methods
 # Test Number: 3.1
 # Test Description:
 #   - Allow all services access to GET requests on frontend app

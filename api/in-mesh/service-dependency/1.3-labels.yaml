@@ -1,0 +1,35 @@
+##################################################
+# Test Name: Service Dependency between namespaces
+# Test Number: 1.3
+# Test Description:
+#   - Scope service discovery from frontend app using labels to see only workloads from istio-system namespace
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: ServiceDependency
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+spec:
+  sourceSelectors:                       # all frontend labeled application have access to istio-system
+  - kubeWorkloadMatcher:
+      labels:
+        app: frontend
+  destinationSelectors:
+  - kubeWorkloadMatcher:
+      namespaces:
+      - istio-system
