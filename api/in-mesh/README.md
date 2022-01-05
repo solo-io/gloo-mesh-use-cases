@@ -1,15 +1,12 @@
 # In Mesh use cases
 
-
 ### Multi Cluster
 
 This is the multi-cluster setup we will be utilizing. 
 
 ![](./multi-cluster-ptp.png)
 
-
 ## Gloo Mesh Enterprise 1.x
-
 
 ### Traffic Policy
 
@@ -34,13 +31,13 @@ This is the multi-cluster setup we will be utilizing.
   - 3.1.3 Regex match
   - 3.1.4 Ignore case match
 - 3.2 Header-based matching
-  - 3.2.1 Name Match
-  - 3.2.2 Name/Value Match
-  - 3.2.3 Name/Regex Match
-  - 3.2.4 Invert Match
+  - 3.2.1 Name match
+  - 3.2.2 Name/Value match
+  - 3.2.3 Name/Regex match
+  - 3.2.4 Invert match
 - 3.3 Query parameter matching
   - 3.3.1 Key/Value match
-  - 3.3.2 Regex Match
+  - 3.3.2 Regex match
 - 3.4 HTTP method matching
 
 #### 4. Connection Pool Settings
@@ -58,7 +55,7 @@ This is the multi-cluster setup we will be utilizing.
   - 4.2.3 tcpKeepalive
 
 #### 5. Traffic Shift
-- 5.1 Weighted Destination
+- 5.1 Weighted destination
 
 #### 6. Fault Injection
 - 6.1 Delaying requests
@@ -80,12 +77,12 @@ This is the multi-cluster setup we will be utilizing.
 - 9.1 Send percentage of traffic to mirrored destination (kubeService only)
 
 #### 10. Header Manipulation
-- 10.1 Request Headers
-  - 10.1.1 Add Request Header
-  - 10.1.2 Remove Request Header
-- 10.2 Response Headers
-  - 10.2.1 Add Response Header
-  - 10.2.2 Remove Response Header
+- 10.1 Request headers
+  - 10.1.1 Add request header
+  - 10.1.2 Remove request header
+- 10.2 Response headers
+  - 10.2.1 Add response header
+  - 10.2.2 Remove response header
 
 #### 11. Outlier Detection
 - 11.1 Outlier Detection for failover routing to a global destination
@@ -94,8 +91,8 @@ This is the multi-cluster setup we will be utilizing.
 - 12.1 Setting mTLS settings per destination
 
 #### 13. CSRF
-- 13.1 Setting CSRF Policy
-- 13.2 Setting CSRF Policy
+- 13.1 Setting CSRF policy
+- 13.2 Setting CSRF policy
 
 #### 14. Rate Limit
 - 14.1 Using raw Rate Limit definition
@@ -116,46 +113,46 @@ This is the multi-cluster setup we will be utilizing.
 ### Virtual Destination
 
 #### 1. Hostname
-- 1.1 Custom Hostname
-- 1.2 Override Kube Service
+- 1.1 Custom hostname
+- 1.2 Override kube service
 
 #### 2. Port Selection
-- 2.1 Custom Port
+- 2.1 Custom port
 
 #### 3. Mesh Selection
-- 3.1 Single Mesh
+- 3.1 Single mesh
 - 3.2 Multi-Mesh
 
 #### 4. Static Destination
-- 4.1 Static Destinations
+- 4.1 Static destinations
 
 #### 5. Locality
-- 5.1 Outlier Detection
+- 5.1 Outlier detection
 - 5.2 Failover
 
 ### Access Policy
 
 #### 1. Source Selection
-- kubeIdentityMatcher
-- kubeServiceAccountRefs
-- requestIdentityMatcher
+- 1.1 kubeIdentityMatcher
+- 1.2 kubeServiceAccountRefs
+- 1.3 requestIdentityMatcher
+  - 1.3.1 requestPrincipals
+  - 1.3.2 notRequestPrincipals
 
-#### 2. DestinationSelection
-* Destination Selector
-  * kubeServiceMatcher
-  * kubeServiceRefs
-  * virtualDestinationMatcher
-  * virtualDestinationRefs
-  * externalServiceMatcher
-  * externalServiceRefs
+#### 2. Destination Selection
+- 2.1 kubeServiceMatcher
+- 2.2 kubeServiceRefs
+- 2.3 virtualDestinationMatcher
+- 2.4 virtualDestinationRefs
+- 2.5 externalServiceMatcher
+- 2.6 externalServiceRefs
 
 #### 3. Allowed
-- Paths
-- Methods
-- Ports
+- 3.1 Paths
+- 3.2 Methods
+- 3.3 Ports
 
-
-### 4. Service Dependencies
-- Namespace Selection
-- Cluster Selection
-- Label Selectors
+### Service Dependencies
+- 1.1 Namespace selection
+- 1.2 Cluster selection
+- 1.3 Label selectors

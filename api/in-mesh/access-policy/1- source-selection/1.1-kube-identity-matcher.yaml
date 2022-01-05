@@ -1,0 +1,36 @@
+##################################################
+# Test Name: Access Policy Source Selector
+# Test Number: 1.1
+# Test Description:
+#   - Using kubeIdentityMatcher to select applications in a specific namespace and clusters
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  globalAccessPolicy: ENABLED            # default deny access to all services
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: AccessPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  sourceSelector:
+  - kubeIdentityMatcher:                 # select services in namespace app and cluster-1 and cluster-2 
+      namespaces:
+      - app
+      clusters:
+      - cluster-1
+      - cluster-2
+  # destinationSelector:                 left empty to apply the AccessPolicy to all Destinations.
