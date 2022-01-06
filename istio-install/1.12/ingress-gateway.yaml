@@ -2,14 +2,14 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: istio-ingressgateway
-  # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
+  # Deploy to the ingress gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
   namespace: istio-ingress
 ---
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
   name: ingress-gateway-$REVISION
-  # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
+  # Deploy to the ingress gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
   namespace: istio-ingress
 spec:
   # No control plane components are installed
@@ -25,7 +25,7 @@ spec:
     ingressGateways:
     # Enable the default ingress gateway
       - name: istio-ingressgateway-$REVISION
-        # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
+        # Deploy to the ingress gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
         namespace: istio-ingress
         enabled: true
         label:
