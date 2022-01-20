@@ -69,7 +69,7 @@ enterprise-networking:
       registry: gcr.io/gloo-mesh
       repository: enterprise-networking
       # Gloo Mesh Enterprise version. Append '-fips' for a FIPS-compliant image, such as '1.2.3-fips'.
-      tag: 1.3.0-beta2
+      tag: 1.3.0-beta8
       # if pulling from a private registry
       # imagePullSecret:
 
@@ -145,7 +145,7 @@ gloo-mesh-ui:
       registry: gcr.io/gloo-mesh
       repository: gloo-mesh-apiserver
       # Gloo Mesh Enterprise version. Append '-fips' for a FIPS-compliant image, such as '1.2.3-fips'.
-      tag: 1.3.0-beta2
+      tag: 1.3.0-beta8
       # if pulling from a private registry
       # imagePullSecret:
 
@@ -186,7 +186,7 @@ rbac-webhook:
       registry: gcr.io/gloo-mesh
       repository: rbac-webhook
       # Gloo Mesh Enterprise version. Append '-fips' for a FIPS-compliant image, such as '1.2.3-fips'.
-      tag: 1.3.0-beta2
+      tag: 1.3.0-beta8
     ports:
       webhook: 8443
     # rbac-webhook pod resources
