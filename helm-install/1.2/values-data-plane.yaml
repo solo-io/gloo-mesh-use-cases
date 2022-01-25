@@ -44,6 +44,15 @@ enterpriseAgent:
       cpu: 500m
       memory: 512Mi
 
+  # deployment overrides
+  deploymentOverrides:
+    spec:
+      template:
+        spec:
+          # Provide a node selector to ensure enterprise-agent runs on infra nodes
+          nodeSelector:
+            node_type: infra
+
 # Install rate limiting service in the gloo-mesh namespace.
 # Do not use in production; install in gloo-mesh-addons namespace after registration time.
 rate-limiter:
