@@ -1,0 +1,6 @@
+resources:
+- base.yaml
+patchesStrategicMerge:
+- redis-patch.yaml
+- rate-limiter-patch.yaml
+- ext-auth-service-patch.yaml

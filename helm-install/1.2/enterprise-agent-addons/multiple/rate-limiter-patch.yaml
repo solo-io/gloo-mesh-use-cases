@@ -1,0 +1,9 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rate-limiter
+spec:
+  template:
+    spec:
+      nodeSelector:
+        node_type: infra
