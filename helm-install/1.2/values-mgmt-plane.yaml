@@ -27,7 +27,7 @@ enterprise-networking:
     namespace: gloo-mesh
   # Custom certs: Reference to a secret containing TLS certificates used to secure the networking gRPC server with TLS
   relayTlsSecret:
-    name: enterprise-networking-server-tls-cert
+    name: relay-server-tls-secret
     namespace: gloo-mesh
   # (NOT needed with ACM certs) Secret containing a shared token for authenticating relay agents when they first communicate with the management plane
   # tokenSecret:
