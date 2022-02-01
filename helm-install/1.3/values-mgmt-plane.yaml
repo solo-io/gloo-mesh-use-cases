@@ -68,7 +68,8 @@ enterprise-networking:
     image:
       registry: gcr.io/gloo-mesh
       repository: enterprise-networking
-      # Gloo Mesh Enterprise version
+      # Gloo Mesh Enterprise patch version. For a list of patch versions,
+      # see https://docs.solo.io/gloo-mesh-enterprise/main/reference/changelog/
       tag: $GLOO_MESH_VERSION
       # if pulling from a private registry
       # imagePullSecret:
@@ -144,7 +145,7 @@ gloo-mesh-ui:
     image:
       registry: gcr.io/gloo-mesh
       repository: gloo-mesh-apiserver
-      # Gloo Mesh Enterprise version
+      # Gloo Mesh Enterprise patch version
       tag: $GLOO_MESH_VERSION
       # if pulling from a private registry
       # imagePullSecret:
@@ -185,7 +186,7 @@ rbac-webhook:
       pullPolicy: IfNotPresent
       registry: gcr.io/gloo-mesh
       repository: rbac-webhook
-      # Gloo Mesh Enterprise version
+      # Gloo Mesh Enterprise patch version
       tag: $GLOO_MESH_VERSION
     ports:
       webhook: 8443

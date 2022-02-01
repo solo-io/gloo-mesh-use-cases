@@ -27,7 +27,7 @@ enterpriseAgent:
   image:
     registry: gcr.io/gloo-mesh
     repository: enterprise-agent
-    # Gloo Mesh Enterprise version. Must match the enterprise-networking version.
+    # Gloo Mesh Enterprise patch version. Must match the enterprise-networking version.
     tag: $GLOO_MESH_VERSION
     # if pulling from a private registry
     # imagePullSecret:
