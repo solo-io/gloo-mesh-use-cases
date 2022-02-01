@@ -27,8 +27,8 @@ enterpriseAgent:
   image:
     registry: gcr.io/gloo-mesh
     repository: enterprise-agent
-    # Gloo Mesh Enterprise version. Must match the enterprise-networking version. Append '-fips' for a FIPS-compliant image, such as '1.2.3-fips'.
-    tag: 1.3.0-beta8
+    # Gloo Mesh Enterprise patch version. Must match the enterprise-networking version.
+    tag: $GLOO_MESH_VERSION
     # if pulling from a private registry
     # imagePullSecret:
   ports:
