@@ -2,7 +2,7 @@
 # Test Name: Query Value Match
 # Test Number: 4.3.1
 # Test Description:
-#   - Route based on cluster query value in ?cluster=<cluster-1|cluster-2>
+#   - Route based on cluster query value in ?cluster=<cluster1|cluster2>
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -14,9 +14,9 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
@@ -40,27 +40,27 @@ spec:
           domains:
           - "api.solo.io"
           routes:
-          - matchers:                    # match ?cluster=cluster-1
+          - matchers:                    # match ?cluster=cluster1
             - queryParameters:
               - name: cluster
-                value: cluster-1
+                value: cluster1
             name: frontend
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-1
+                  clusterName: cluster1
                   name: frontend
                   namespace: app
                   port: 8080
-          - matchers:                    # match ?cluster=cluster-2
+          - matchers:                    # match ?cluster=cluster2
             - queryParameters:
               - name: cluster
-                value: cluster-2
+                value: cluster2
             name: frontend
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-2
+                  clusterName: cluster2
                   name: frontend
                   namespace: app
                   port: 8080

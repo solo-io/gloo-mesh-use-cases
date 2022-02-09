@@ -2,8 +2,8 @@
 # Test Name: Namespace Based Delegation
 # Test Number: 8.1
 # Test Description:
-#   - Delegate cluster-1.solo.io to cluster-1 RouteTable
-#   - Delegate cluster-2.solo.io to cluster-2 RouteTable
+#   - Delegate cluster1.solo.io to cluster1 RouteTable
+#   - Delegate cluster2.solo.io to cluster2 RouteTable
 ##################################################
 apiVersion: v1
 kind: Namespace
@@ -13,12 +13,12 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: cluster-1-routes
+  name: cluster1-routes
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: cluster-2-routes
+  name: cluster2-routes
 
 ---
 apiVersion: networking.mesh.gloo.solo.io/v1
@@ -31,9 +31,9 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
@@ -60,50 +60,50 @@ spec:
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualHost
 metadata:
-  name: cluster-1
+  name: cluster1
   namespace: virtual-hosts
   labels:
     gateway: ingress
 spec:
   domains:
-  - cluster-1.solo.io
+  - cluster1.solo.io
   routes:
-  - delegateAction:                      # domain cluster-1.solo.io applies to RouteTables in the cluster-1-routes namespace
+  - delegateAction:                      # domain cluster1.solo.io applies to RouteTables in the cluster1-routes namespace
       selector:
         namespaces:
-        - cluster-1-routes
+        - cluster1-routes
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualHost
 metadata:
-  name: cluster-2
+  name: cluster2
   namespace: virtual-hosts
   labels:
     gateway: ingress
 spec:
   domains:
-  - cluster-2.solo.io
+  - cluster2.solo.io
   routes:
-  - delegateAction:                      # domain cluster-1.solo.io applies to RouteTables in the cluster-2-routes namespace
+  - delegateAction:                      # domain cluster1.solo.io applies to RouteTables in the cluster2-routes namespace
       selector:
         namespaces:
-        - cluster-2-routes
+        - cluster2-routes
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: RouteTable
 metadata:
   name: frontend
-  namespace: cluster-1-routes            # matches the namespace selector in cluster-1 VirtualHost
+  namespace: cluster1-routes            # matches the namespace selector in cluster1 VirtualHost
 spec:
   routes:
   - matchers:
     - uri:
-        prefix: /frontend                # only match on cluster-1.solo.io/frontend
+        prefix: /frontend                # only match on cluster1.solo.io/frontend
     name: frontend
     routeAction:
       destinations:
-      - kubeService:                     # route requests to cluster-1 frontend application
-          clusterName: cluster-1
+      - kubeService:                     # route requests to cluster1 frontend application
+          clusterName: cluster1
           name: frontend
           namespace: app
           port: 8080
@@ -112,17 +112,17 @@ apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: RouteTable
 metadata:
   name: frontend
-  namespace: cluster-2-routes            # matches the namespace selector in cluster-2 VirtualHost
+  namespace: cluster2-routes            # matches the namespace selector in cluster2 VirtualHost
 spec:
   routes:
   - matchers:
     - uri:
-        prefix: /frontend                # only match on cluster-2.solo.io/frontend
+        prefix: /frontend                # only match on cluster2.solo.io/frontend
     name: frontend
     routeAction:
       destinations:
-      - kubeService:                     # route requests to cluster-2 frontend application
-          clusterName: cluster-2
+      - kubeService:                     # route requests to cluster2 frontend application
+          clusterName: cluster2
           name: frontend
           namespace: app
           port: 8080

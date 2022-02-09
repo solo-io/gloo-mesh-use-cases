@@ -14,9 +14,9 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
@@ -43,24 +43,24 @@ spec:
           - matchers:                    # route to specific cluster
             - headers:
               - name: x-frontend-app
-                value: cluster-1
+                value: cluster1
             name: frontend
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-1
+                  clusterName: cluster1
                   name: frontend
                   namespace: app
                   port: 8080
           - matchers:                    # route to specific cluster
             - headers:
               - name: x-frontend-app
-                value: cluster-2
+                value: cluster2
             name: frontend
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-2
+                  clusterName: cluster2
                   name: frontend
                   namespace: app
                   port: 8080

@@ -15,15 +15,15 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
 metadata:
-  name: ingress-cluster-1
+  name: ingress-cluster1
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
@@ -31,9 +31,9 @@ spec:
     destinationSelectors:               # select single specific kubernetes services
     - kubeServiceRefs:
         services:
-        - name: istio-ingressgateway    # select cluster-1 ingress gateway service
+        - name: istio-ingressgateway    # select cluster1 ingress gateway service
           namespace: istio-system
-          clusterName: cluster-1
+          clusterName: cluster1
   connectionHandlers:
   - http:
       routeConfig:
@@ -45,7 +45,7 @@ spec:
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-1 # route to cluster-1 frontend application
+                  clusterName: cluster1 # route to cluster1 frontend application
                   name: frontend
                   namespace: app
                   port: 8080
@@ -53,7 +53,7 @@ spec:
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
 metadata:
-  name: ingress-cluster-2
+  name: ingress-cluster2
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
@@ -61,9 +61,9 @@ spec:
     destinationSelectors:                # select single specific kubernetes services
     - kubeServiceRefs:                   # select single specific kubernetes services
         services: 
-        - name: istio-ingressgateway     # select cluster-2 ingress gateway service
+        - name: istio-ingressgateway     # select cluster2 ingress gateway service
           namespace: istio-system
-          clusterName: cluster-2
+          clusterName: cluster2
   connectionHandlers:
   - http:
       routeConfig:
@@ -75,7 +75,7 @@ spec:
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-2 # route to cluster-2 frontend application
+                  clusterName: cluster2 # route to cluster2 frontend application
                   name: frontend
                   namespace: app
                   port: 8080

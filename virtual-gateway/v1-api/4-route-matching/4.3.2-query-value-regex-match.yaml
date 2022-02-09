@@ -2,8 +2,8 @@
 # Test Name: Query Value Regex Value Match
 # Test Number: 4.3.2
 # Test Description:
-# - Requests that contain ?cluster=cluster-1 to cluster-1
-# - Requests that contain ?cluster=cluster-* to cluster-2
+# - Requests that contain ?cluster=cluster1 to cluster1
+# - Requests that contain ?cluster=cluster-* to cluster2
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -15,9 +15,9 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
@@ -41,15 +41,15 @@ spec:
           domains:
           - "api.solo.io"
           routes:
-          - matchers:                    # match ?cluster=cluster-1
+          - matchers:                    # match ?cluster=cluster1
             - queryParameters:
               - name: cluster
-                value: cluster-1
+                value: cluster1
             name: frontend
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-1
+                  clusterName: cluster1
                   name: frontend
                   namespace: app
                   port: 8080
@@ -62,7 +62,7 @@ spec:
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-2
+                  clusterName: cluster2
                   name: frontend
                   namespace: app
                   port: 8080

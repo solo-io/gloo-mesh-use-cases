@@ -21,9 +21,9 @@ metadata:
   namespace: gloo-mesh
 spec:
   applyToMeshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
   config:
     rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
@@ -50,7 +50,7 @@ spec:
   virtualGateways:
     - name: ingress
   http:
-  - name: frontend-cluster-1
+  - name: frontend-cluster1
     matchers:
     - headers:
       - name: X-route-to-frontend

@@ -3,8 +3,8 @@
 # Test Number: 8.2
 # API Version: 2
 # Test Description:
-#   - Delegate cluster-1.solo.io to cluster-1 RouteTable
-#   - Delegate cluster-2.solo.io to cluster-2 RouteTable
+#   - Delegate cluster1.solo.io to cluster1 RouteTable
+#   - Delegate cluster2.solo.io to cluster2 RouteTable
 ##################################################
 apiVersion: admin.gloo.solo.io/v2
 kind: RootTrustPolicy
@@ -13,9 +13,9 @@ metadata:
   namespace: gloo-mesh
 spec:
   applyToMeshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
   config:
     rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
@@ -38,27 +38,27 @@ metadata:
   name: admin-settings
   namespace: admin                       # workspace settings must exist in workspace namespace
 spec:
- imports:                                # import setting from cluster-1 and cluster-2 
- - name: cluster-1
- - name: cluster-2
- exportTo:                               # export to cluster-1 cluster-2 so they can use ingressgateway
- - name: cluster-1
- - name: cluster-2
+ imports:                                # import setting from cluster1 and cluster2 
+ - name: cluster1
+ - name: cluster2
+ exportTo:                               # export to cluster1 cluster2 so they can use ingressgateway
+ - name: cluster1
+ - name: cluster2
 ---
 apiVersion: admin.gloo.solo.io/v2
 kind: Workspace
 metadata:
-  name: cluster-1                        # workspace for cluster-1 config
+  name: cluster1                        # workspace for cluster1 config
   namespace: gloo-mesh
 spec:
   workloadClusters:
-   - name: cluster-1
+   - name: cluster1
 ---
 apiVersion: admin.gloo.solo.io/v2
 kind: WorkspaceSettings
 metadata:
-  name: cluster-1-settings
-  namespace: cluster-1                   # workspace settings must exist in workspace namespace
+  name: cluster1-settings
+  namespace: cluster1                   # workspace settings must exist in workspace namespace
 spec:
  exportTo:                               # export to admin workspace
  - name: admin
@@ -66,17 +66,17 @@ spec:
 apiVersion: admin.gloo.solo.io/v2
 kind: Workspace
 metadata:
-  name: cluster-2                        # workspace for cluster-2 config
+  name: cluster2                        # workspace for cluster2 config
   namespace: gloo-mesh
 spec:
   workloadClusters:
-   - name: cluster-2
+   - name: cluster2
 ---
 apiVersion: admin.gloo.solo.io/v2
 kind: WorkspaceSettings
 metadata:
-  name: cluster-2-settings
-  namespace: cluster-2                   # workspace settings must exist in workspace namespace
+  name: cluster2-settings
+  namespace: cluster2                   # workspace settings must exist in workspace namespace
 spec:
  exportTo:                               # export to admin workspace
  - name: admin
@@ -94,47 +94,47 @@ spec:
 apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
-  name: cluster-1-routes
+  name: cluster1-routes
   namespace: admin
 spec:
   hosts:
-    - 'cluster-1.solo.io'
+    - 'cluster1.solo.io'
   virtualGateways:
     - name: ingress
   http:
-  - name: cluster-1-routes
-    delegate:                            # delegate cluster-1.solo.io to route tables with label cluster=cluster-1
+  - name: cluster1-routes
+    delegate:                            # delegate cluster1.solo.io to route tables with label cluster=cluster1
       routeTables:
       - selector:
-          cluster: cluster-1
+          cluster: cluster1
 ---
 apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
-  name: cluster-2-routes
+  name: cluster2-routes
   namespace: admin
 spec:
   hosts:
-    - 'cluster-2.solo.io'
+    - 'cluster2.solo.io'
   virtualGateways:
     - name: ingress
   http:
-  - name: cluster-2-routes
-    delegate:                            # delegate cluster-2.solo.io to route tables with label cluster=cluster-2
+  - name: cluster2-routes
+    delegate:                            # delegate cluster2.solo.io to route tables with label cluster=cluster2
       routeTables:
       - selector:
-          cluster: cluster-2
+          cluster: cluster2
 ---
 apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
   name: frontend
-  namespace: cluster-1
+  namespace: cluster1
   labels:
-    cluster: cluster-1
+    cluster: cluster1
 spec:
   hosts:
-    - 'cluster-1.solo.io'
+    - 'cluster1.solo.io'
   virtualGateways:
     - name: ingress
       workspace: admin
@@ -151,12 +151,12 @@ apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
   name: frontend
-  namespace: cluster-2
+  namespace: cluster2
   labels:
-    cluster: cluster-2
+    cluster: cluster2
 spec:
   hosts:
-    - 'cluster-2.solo.io'
+    - 'cluster2.solo.io'
   virtualGateways:
     - name: ingress
       workspace: admin

@@ -3,7 +3,7 @@
 # Test Number: 4.3.1
 # API Version: 2
 # Test Description:
-#   - Route based on cluster query value in ?cluster=<cluster-1|cluster-2>
+#   - Route based on cluster query value in ?cluster=<cluster1|cluster2>
 # Issues
 # - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
 ##################################################
@@ -23,9 +23,9 @@ metadata:
   namespace: gloo-mesh
 spec:
   applyToMeshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
   config:
     rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
@@ -53,10 +53,10 @@ spec:
     - name: ingress
   http:
   - name: frontend
-    matchers:                            # match ?cluster=cluster-1
+    matchers:                            # match ?cluster=cluster1
     - queryParameters:
       - name: cluster
-        value: cluster-1
+        value: cluster1
     forwardTo:
       destinations:
       - name: frontend
@@ -85,27 +85,27 @@ spec:
 #           domains:
 #           - "*"
 #           routes:
-#           - matchers:                    # match ?cluster=cluster-1
+#           - matchers:                    # match ?cluster=cluster1
 #             - queryParameters:
 #               - name: cluster
-#                 value: cluster-1
+#                 value: cluster1
 #             name: frontend
 #             routeAction:
 #               destinations:
 #               - kubeService:
-#                   clusterName: cluster-1
+#                   clusterName: cluster1
 #                   name: frontend
 #                   namespace: app
 #                   port: 8080
-#           - matchers:                    # match ?cluster=cluster-2
+#           - matchers:                    # match ?cluster=cluster2
 #             - queryParameters:
 #               - name: cluster
-#                 value: cluster-2
+#                 value: cluster2
 #             name: frontend
 #             routeAction:
 #               destinations:
 #               - kubeService:
-#                   clusterName: cluster-2
+#                   clusterName: cluster2
 #                   name: frontend
 #                   namespace: app
 #                   port: 8080
