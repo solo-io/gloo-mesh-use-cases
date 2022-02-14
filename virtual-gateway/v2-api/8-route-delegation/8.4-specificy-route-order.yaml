@@ -14,9 +14,9 @@ metadata:
   namespace: gloo-mesh
 spec:
   applyToMeshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
   config:
     rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
@@ -39,25 +39,25 @@ metadata:
   name: admin-settings
   namespace: admin                       # workspace settings must exist in workspace namespace
 spec:
- imports:                                # import setting from cluster-1
- - name: cluster-1
- exportTo:                               # export to cluster-1 it can use ingressgateway
- - name: cluster-1
+ imports:                                # import setting from cluster1
+ - name: cluster1
+ exportTo:                               # export to cluster1 it can use ingressgateway
+ - name: cluster1
 ---
 apiVersion: admin.gloo.solo.io/v2
 kind: Workspace
 metadata:
-  name: cluster-1                        # workspace for cluster-1 config
+  name: cluster1                        # workspace for cluster1 config
   namespace: gloo-mesh
 spec:
   workloadClusters:
-   - name: cluster-1
+   - name: cluster1
 ---
 apiVersion: admin.gloo.solo.io/v2
 kind: WorkspaceSettings
 metadata:
-  name: cluster-1-settings
-  namespace: cluster-1                   # workspace settings must exist in workspace namespace
+  name: cluster1-settings
+  namespace: cluster1                   # workspace settings must exist in workspace namespace
 spec:
  exportTo:                               # export to admin workspace
  - name: admin
@@ -83,7 +83,7 @@ spec:
   virtualGateways:
     - name: ingress
   http:
-  - name: cluster-1-routes
+  - name: cluster1-routes
     delegate:                            # delegate frontend.solo.io to route tables with label gateway=ingress
       sortMethod: ROUTE_SPECIFICITY
       routeTables:
@@ -94,7 +94,7 @@ apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
   name: frontend
-  namespace: cluster-1
+  namespace: cluster1
   labels:
     gateway: ingress
 spec:
@@ -120,7 +120,7 @@ apiVersion: networking.gloo.solo.io/v2
 kind: RouteTable
 metadata:
   name: frontend
-  namespace: cluster-1
+  namespace: cluster1
   labels:
     gateway: ingress
 spec:
@@ -134,7 +134,7 @@ spec:
     matchers:
     - name: frontend
       uri:
-        prefix: /frontend/cluster-2
+        prefix: /frontend/cluster2
     forwardTo:
       destinations:
       - name: frontend

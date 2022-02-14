@@ -16,9 +16,9 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
@@ -53,7 +53,7 @@ spec:
   domains:
   - frontend.solo.io
   routes:
-  - delegateAction:                      # domain frontend.solo.io applies to RouteTables with the label cluster=cluster-1 in the gloo-mesh namespace
+  - delegateAction:                      # domain frontend.solo.io applies to RouteTables with the label cluster=cluster1 in the gloo-mesh namespace
       sortMethod: ROUTE_SPECIFICITY      # sort the matching RouteTables by their specificity
       selector:
         labels:
@@ -74,8 +74,8 @@ spec:
     name: frontend
     routeAction:
       destinations:
-      - kubeService:                     # route requests to cluster-1 frontend application
-          clusterName: cluster-1
+      - kubeService:                     # route requests to cluster1 frontend application
+          clusterName: cluster1
           name: frontend
           namespace: app
           port: 8080
@@ -91,12 +91,12 @@ spec:
   routes:
   - matchers:
     - uri:
-        exact: /frontend/cluster-2       # only match on frontend.solo.io/frontend/cluster-2 (exact is more specific than prefix match)
+        exact: /frontend/cluster2       # only match on frontend.solo.io/frontend/cluster2 (exact is more specific than prefix match)
     name: frontend
     routeAction:
       destinations:
-      - kubeService:                     # route requests to cluster-2 frontend application
-          clusterName: cluster-2
+      - kubeService:                     # route requests to cluster2 frontend application
+          clusterName: cluster2
           name: frontend
           namespace: app
           port: 8080

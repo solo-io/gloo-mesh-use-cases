@@ -3,7 +3,7 @@
 # Test Number: 5.1
 # API Version: 2
 # Test Description:
-#   - Route all requests to frontend application in cluster-1
+#   - Route all requests to frontend application in cluster1
 # Issues
 # - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
 ##################################################
@@ -22,9 +22,9 @@
 #     selectors:
 #       - {}
 #   meshes:
-#     - name: istiod-istio-system-cluster-1
+#     - name: istiod-istio-system-cluster1
 #       namespace: gloo-mesh
-#     - name: istiod-istio-system-cluster-2
+#     - name: istiod-istio-system-cluster2
 #       namespace: gloo-mesh
 # ---
 # apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
@@ -52,7 +52,7 @@
 #             routeAction:
 #               destinations:
 #               - kubeService:
-#                   clusterName: cluster-1
+#                   clusterName: cluster1
 #                   name: frontend
 #                   namespace: app
 #                   port: 8080

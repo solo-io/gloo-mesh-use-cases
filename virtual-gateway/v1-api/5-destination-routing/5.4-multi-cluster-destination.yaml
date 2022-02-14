@@ -2,7 +2,7 @@
 # Test Name: Multi Cluster Destination Routing
 # Test Number: 5.4
 # Test Description:
-#   - Route all requests to frontend application in cluster-1 and cluster-2
+#   - Route all requests to frontend application in cluster1 and cluster2
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -14,9 +14,9 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
@@ -42,14 +42,14 @@ spec:
           routes:
           - name: frontend
             routeAction:
-              destinations:              # route to both cluster-1 and cluster-2 frontend
+              destinations:              # route to both cluster1 and cluster2 frontend
               - kubeService:
-                  clusterName: cluster-1
+                  clusterName: cluster1
                   name: frontend
                   namespace: app
                   port: 8080
               - kubeService:
-                  clusterName: cluster-2
+                  clusterName: cluster2
                   name: frontend
                   namespace: app
                   port: 8080

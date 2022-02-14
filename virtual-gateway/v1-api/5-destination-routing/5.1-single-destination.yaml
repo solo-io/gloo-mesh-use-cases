@@ -2,7 +2,7 @@
 # Test Name: Simple Destination Routing
 # Test Number: 5.1
 # Test Description:
-#   - Route all requests to frontend application in cluster-1
+#   - Route all requests to frontend application in cluster1
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -14,9 +14,9 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
@@ -44,7 +44,7 @@ spec:
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-1
+                  clusterName: cluster1
                   name: frontend
                   namespace: app
                   port: 8080

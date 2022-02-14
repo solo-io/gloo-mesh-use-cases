@@ -14,15 +14,15 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
 metadata:
-  name: ingress-cluster-1
+  name: ingress-cluster1
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
@@ -30,20 +30,20 @@ spec:
     destinationSelectors:               # select single specific kubernetes services
     - kubeServiceRefs:
         services:
-        - name: istio-ingressgateway    # select cluster-1 ingress gateway service
+        - name: istio-ingressgateway    # select cluster1 ingress gateway service
           namespace: istio-system
-          clusterName: cluster-1
+          clusterName: cluster1
   connectionHandlers:
   - http:
       routeConfig:
-      - virtualHostSelector:             # delegate routing to virtual hosts with label gateway: cluster-1 
+      - virtualHostSelector:             # delegate routing to virtual hosts with label gateway: cluster1 
           labels:
-            gateway: cluster-1
+            gateway: cluster1
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualGateway
 metadata:
-  name: ingress-cluster-2
+  name: ingress-cluster2
   namespace: gloo-mesh
 spec:
   ingressGatewaySelectors:
@@ -51,23 +51,23 @@ spec:
     destinationSelectors:                # select single specific kubernetes services
     - kubeServiceRefs:
         services:
-        - name: istio-ingressgateway     # select cluster-1 ingress gateway service
+        - name: istio-ingressgateway     # select cluster1 ingress gateway service
           namespace: istio-system
-          clusterName: cluster-2
+          clusterName: cluster2
   connectionHandlers:
   - http:
       routeConfig:
-      - virtualHostSelector:             # delegate routing to virtual hosts with label gateway: cluster-2
+      - virtualHostSelector:             # delegate routing to virtual hosts with label gateway: cluster2
           labels:
-            gateway: cluster-2
+            gateway: cluster2
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualHost
 metadata:
   name: frontend
   namespace: gloo-mesh
-  labels:                                # applies to ingress-cluster-1 virtualGateway
-    gateway: cluster-1
+  labels:                                # applies to ingress-cluster1 virtualGateway
+    gateway: cluster1
 spec:
   domains:
   - api.solo.io
@@ -76,7 +76,7 @@ spec:
     routeAction:
       destinations:
       - kubeService:
-          clusterName: cluster-1         # route to cluster-1 frontend
+          clusterName: cluster1         # route to cluster1 frontend
           name: frontend
           namespace: app
           port: 8080
@@ -86,8 +86,8 @@ kind: VirtualHost
 metadata:
   name: frontend
   namespace: gloo-mesh
-  labels:                                # applies to ingress-cluster-2 virtualGateway
-    gateway: cluster-2
+  labels:                                # applies to ingress-cluster2 virtualGateway
+    gateway: cluster2
 spec:
   domains:
   - api.solo.io
@@ -96,7 +96,7 @@ spec:
     routeAction:
       destinations:
       - kubeService:
-          clusterName: cluster-2         # route to cluster-2 frontend
+          clusterName: cluster2         # route to cluster2 frontend
           name: frontend
           namespace: app
           port: 8080

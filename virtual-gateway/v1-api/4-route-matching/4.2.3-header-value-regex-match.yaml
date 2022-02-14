@@ -2,8 +2,8 @@
 # Test Name: Header Regex Value Match
 # Test Number: 4.2.3
 # Test Description:
-#   - Route X-frontend-app header value cluster-1 to cluster-1 frontend
-#   - Route X-frontend-app header value cluster-* to cluster-2 frontend
+#   - Route X-frontend-app header value cluster1 to cluster1 frontend
+#   - Route X-frontend-app header value cluster-* to cluster2 frontend
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -15,9 +15,9 @@ spec:
     selectors:
       - {}
   meshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
@@ -44,25 +44,25 @@ spec:
           - matchers:                    # route to specific cluster
             - headers:
               - name: X-frontend-app
-                value: cluster-1
-            name: frontend-cluster-1
+                value: cluster1
+            name: frontend-cluster1
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-1
+                  clusterName: cluster1
                   name: frontend
                   namespace: app
                   port: 8080
-          - matchers:                    # anything other than cluster-1 be routed to cluster-2
+          - matchers:                    # anything other than cluster1 be routed to cluster2
             - headers:
               - name: X-frontend-app
                 value: cluster-.*
                 regex: true              # enable regex support
-            name: frontend-cluster-2
+            name: frontend-cluster2
             routeAction:
               destinations:
               - kubeService:
-                  clusterName: cluster-2
+                  clusterName: cluster2
                   name: frontend
                   namespace: app
                   port: 8080

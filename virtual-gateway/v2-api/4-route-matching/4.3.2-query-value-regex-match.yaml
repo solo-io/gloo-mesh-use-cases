@@ -3,8 +3,8 @@
 # Test Number: 4.3.2
 # API Version: 2
 # Test Description:
-# - Requests that contain ?cluster=cluster-1 to cluster-1
-# - Requests that contain ?cluster=cluster-* to cluster-2
+# - Requests that contain ?cluster=cluster1 to cluster1
+# - Requests that contain ?cluster=cluster-* to cluster2
 # Issues
 # - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
 ##################################################
@@ -24,9 +24,9 @@ metadata:
   namespace: gloo-mesh
 spec:
   applyToMeshes:
-    - name: istiod-istio-system-cluster-1
+    - name: istiod-istio-system-cluster1
       namespace: gloo-mesh
-    - name: istiod-istio-system-cluster-2
+    - name: istiod-istio-system-cluster2
       namespace: gloo-mesh
   config:
     rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
@@ -54,10 +54,10 @@ spec:
     - name: ingress
   http:
   - name: frontend
-    matchers:                            # match ?cluster=cluster-1
+    matchers:                            # match ?cluster=cluster1
     - queryParameters:
       - name: cluster
-        value: cluster-1
+        value: cluster1
     forwardTo:
       destinations:
       - name: frontend
@@ -86,15 +86,15 @@ spec:
 #           domains:
 #           - "*"
 #           routes:
-#           - matchers:                    # match ?cluster=cluster-1
+#           - matchers:                    # match ?cluster=cluster1
 #             - queryParameters:
 #               - name: cluster
-#                 value: cluster-1
+#                 value: cluster1
 #             name: frontend
 #             routeAction:
 #               destinations:
 #               - kubeService:
-#                   clusterName: cluster-1
+#                   clusterName: cluster1
 #                   name: frontend
 #                   namespace: app
 #                   port: 8080
@@ -107,7 +107,7 @@ spec:
 #             routeAction:
 #               destinations:
 #               - kubeService:
-#                   clusterName: cluster-2
+#                   clusterName: cluster2
 #                   name: frontend
 #                   namespace: app
 #                   port: 8080
