@@ -94,6 +94,7 @@ spec:
                               - istio-ingressgateway
                           topologyKey: kubernetes.io/hostname
                         weight: 100
+
   # Helm values overrides
   values:
     gateways:
