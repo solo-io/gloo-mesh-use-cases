@@ -1,7 +1,7 @@
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
-  name: ingress-gateway-$REVISION
+  name: ingress-gateway
   namespace: istio-system
 spec:
   # No control plane components are installed

@@ -1,13 +1,13 @@
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
-  name: ingress-gateway-$REVISION
+  name: ingress-gateway
   namespace: istio-system
 spec:
   # No control plane components are installed
   profile: empty
-  # Solo.io Istio distribution repository; required for Gloo Mesh Istio.
-  hub: gcr.io/istio-enterprise
+  # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
+  hub: $REPO
   # The Solo.io Gloo Mesh Istio tag
   tag: $ISTIO_VERSION
   # Istio revision to create resources with

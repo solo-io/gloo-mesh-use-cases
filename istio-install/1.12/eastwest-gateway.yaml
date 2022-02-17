@@ -1,7 +1,7 @@
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
-  name: eastwest-gateway-$REVISION
+  name: eastwest-gateway
   namespace: istio-system
 spec:
   # No control plane components are installed
