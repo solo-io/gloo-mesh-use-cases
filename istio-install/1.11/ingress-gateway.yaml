@@ -1,18 +1,8 @@
-# Be sure to change all instances of $CLUSTER_NAME to the name of the workload cluster.
-# This value must match the value that you plan to use when you register the cluster with the Gloo Mesh management plane.
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: istio-ingressgateway
-  # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
-  namespace: istio-ingress
----
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
   name: ingress-gateway-$REVISION
-  # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
-  namespace: istio-ingress
+  namespace: istio-system
 spec:
   # No control plane components are installed
   profile: empty
@@ -27,104 +17,24 @@ spec:
     ingressGateways:
     # Enable the default ingress gateway
       - name: istio-ingressgateway-$REVISION
-        # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
+        # Deploy to the ingress gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
         namespace: istio-ingress
         enabled: true
         label:
+          # Set a unique label for the gateway. This is required to ensure Gateways
+          # can select this workload
           istio: ingressgateway
           version: $REVISION
           app: istio-ingressgateway
           # Matches spec.values.global.network in the istiod deployment
           topology.istio.io/network: $CLUSTER_NAME
-        k8s:
-          hpaSpec:
-            maxReplicas: 5
-            metrics:
-              - resource:
-                  name: cpu
-                  targetAverageUtilization: 60
-                type: Resource
-            minReplicas: 2
-            scaleTargetRef:
-              apiVersion: apps/v1
-              kind: Deployment
-              name: istio-ingressgateway-$REVISION
-          strategy:
-            rollingUpdate:
-              maxSurge: 100%
-              maxUnavailable: 25%
-          resources:
-            limits:
-              cpu: 2000m
-              memory: 1024Mi
-            requests:
-              cpu: 100m
-              memory: 40Mi
-          env:
-            # Required by Gloo Mesh for east/west routing
-            - name: ISTIO_META_ROUTER_MODE
-              value: "sni-dnat"
-          service:
-            # Create a ClusterIP service for this gateway, because a LoadBalancer service is created separately
-            type: ClusterIP
-            # Match the LoadBalancer service
-            ports:
-              # Health check port. For AWS ELBs, this port must be listed first.
-              - name: status-port
-                port: 15021
-                targetPort: 15021
-              # Main HTTP ingress port
-              - port: 80
-                targetPort: 8080
-                name: http2
-              # Main HTTPS ingress port
-              - port: 443
-                targetPort: 8443
-                name: https
-          overlays:
-            # Update role binding to use shared service account
-            - apiVersion: rbac.authorization.k8s.io/v1
-              kind: RoleBinding
-              name: istio-ingressgateway-$REVISION-sds
-              patches:
-                - path: subjects.[0]
-                  value:
-                    name: "istio-ingressgateway"
-                    kind: ServiceAccount
-            - apiVersion: v1
-              kind: Deployment
-              name: istio-ingressgateway-$REVISION
-              patches:
-              # Update the deployment to use shared service account
-              - path: spec.template.spec.serviceAccountName
-                value: "istio-ingressgateway"
-              - path: spec.template.spec.serviceAccount
-                value: "istio-ingressgateway"
-              # Sleep 25s on pod shutdown to allow connections to drain
-              - path: spec.template.spec.containers.[name:istio-proxy].lifecycle
-                value:
-                  preStop:
-                    exec:
-                      command:
-                      - sleep
-                      - "25"
-              # Schedule pods on separate nodes if possible
-              - path: spec.template.spec.affinity
-                value:
-                  podAntiAffinity:
-                    preferredDuringSchedulingIgnoredDuringExecution:
-                    - podAffinityTerm:
-                        labelSelector:
-                          matchExpressions:
-                          - key: app
-                            operator: In
-                            values:
-                            - istio-ingressgateway-$REVISION
-                        topologyKey: kubernetes.io/hostname
-                      weight: 100
 
   # Helm values overrides
   values:
+    gateways:
+      istio-ingressgateway:
+        # Enable gateway injection
+        injectionTemplate: gateway
     # https://istio.io/v1.5/docs/reference/config/installation-options/#global-options
     global:
       # Required for connecting VirtualMachines to the mesh
