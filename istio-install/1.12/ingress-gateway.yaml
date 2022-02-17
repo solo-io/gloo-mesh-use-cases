@@ -16,7 +16,7 @@ spec:
   components:
     ingressGateways:
     # Enable the default ingress gateway
-      - name: istio-ingressgateway-$REVISION
+      - name: istio-ingressgateway
         # Deploy to the ingress gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
         namespace: istio-ingress
         enabled: true
