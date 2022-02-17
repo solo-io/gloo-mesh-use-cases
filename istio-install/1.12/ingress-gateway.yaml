@@ -28,7 +28,72 @@ spec:
           app: istio-ingressgateway
           # Matches spec.values.global.network in the istiod deployment
           topology.istio.io/network: $CLUSTER_NAME
-
+        k8s:
+          hpaSpec:
+            maxReplicas: 5
+            metrics:
+              - resource:
+                  name: cpu
+                  targetAverageUtilization: 60
+                type: Resource
+            minReplicas: 2
+            scaleTargetRef:
+              apiVersion: apps/v1
+              kind: Deployment
+              name: istio-ingressgateway
+          strategy:
+            rollingUpdate:
+              maxSurge: 100%
+              maxUnavailable: 25%
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 1024Mi
+            requests:
+              cpu: 100m
+              memory: 40Mi
+          service:
+            # Default ports
+            ports:
+              # Health check port. For AWS ELBs, this port must be listed first.
+              - name: status-port
+                port: 15021
+                targetPort: 15021
+              # Main HTTP ingress port
+              - port: 80
+                targetPort: 8080
+                name: http2
+              # Main HTTPS ingress port
+              - port: 443
+                targetPort: 8443
+                name: https
+          overlays:
+            - apiVersion: apps/v1
+              kind: Deployment
+              name: istio-ingressgateway
+              patches:
+                # Sleep 25s on pod shutdown to allow connections to drain
+                - path: spec.template.spec.containers.[name:istio-proxy].lifecycle
+                  value:
+                    preStop:
+                      exec:
+                        command:
+                        - sleep
+                        - "25"
+                # Schedule pods on separate nodes if possible
+                - path: spec.template.spec.affinity
+                  value:
+                    podAntiAffinity:
+                      preferredDuringSchedulingIgnoredDuringExecution:
+                      - podAffinityTerm:
+                          labelSelector:
+                            matchExpressions:
+                            - key: app
+                              operator: In
+                              values:
+                              - istio-ingressgateway
+                          topologyKey: kubernetes.io/hostname
+                        weight: 100
   # Helm values overrides
   values:
     gateways:
