@@ -1,18 +1,8 @@
-# Be sure to change all instances of $CLUSTER_NAME to the name of the workload cluster.
-# This value must match the value that you plan to use when you register the cluster with the Gloo Mesh management plane.
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: istio-eastwestgateway
-  # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
-  namespace: istio-eastwest
----
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
-  name: eastwest-gateway-$REVISION
-  # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
-  namespace: istio-eastwest
+  name: eastwest-gateway
+  namespace: istio-system
 spec:
   # No control plane components are installed
   profile: empty
@@ -26,11 +16,13 @@ spec:
   components:
     ingressGateways:
     # Enable the default east-west gateway
-      - name: istio-eastwestgateway-$REVISION
+      - name: istio-eastwestgateway
         # Deploy to the east-west gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
         namespace: istio-eastwest
         enabled: true
         label:
+          # Set a unique label for the gateway. This is required to ensure Gateways
+          # can select this workload.
           istio: eastwestgateway
           version: $REVISION
           app: istio-eastwestgateway
@@ -48,7 +40,7 @@ spec:
             scaleTargetRef:
               apiVersion: apps/v1
               kind: Deployment
-              name: istio-eastwestgateway-$REVISION
+              name: istio-eastwestgateway
           strategy:
             rollingUpdate:
               maxSurge: 100%
@@ -65,9 +57,7 @@ spec:
             - name: ISTIO_META_ROUTER_MODE
               value: "sni-dnat"
           service:
-            # Create a ClusterIP service for this gateway, because a LoadBalancer service is created separately
-            type: ClusterIP
-            # Match the LoadBalancer service
+            # Default ports
             ports:
               # Health check port. For AWS ELBs, this port must be listed first.
               - name: status-port
@@ -76,27 +66,13 @@ spec:
               # Port for multicluster mTLS passthrough; required for Gloo Mesh east/west routing
               - port: 15443
                 targetPort: 15443
-                # Gloo Mesh looks for this default name 'tls' on an ingress gateway
+                # Gloo Mesh looks for this default name 'tls' on a gateway
                 name: tls
           overlays:
-            # Update role binding to use shared service account
-            - apiVersion: rbac.authorization.k8s.io/v1
-              kind: RoleBinding
-              name: istio-eastwestgateway-$REVISION-sds
-              patches:
-                - path: subjects.[0]
-                  value:
-                    name: "istio-eastwestgateway"
-                    kind: ServiceAccount
             - apiVersion: apps/v1
               kind: Deployment
-              name: istio-eastwestgateway-$REVISION
+              name: istio-eastwestgateway
               patches:
-                # Update the deployment to use shared service account
-                - path: spec.template.spec.serviceAccountName
-                  value: "istio-eastwestgateway"
-                - path: spec.template.spec.serviceAccount
-                  value: "istio-eastwestgateway"
                 # Sleep 25s on pod shutdown to allow connections to drain
                 - path: spec.template.spec.containers.[name:istio-proxy].lifecycle
                   value:
@@ -116,12 +92,16 @@ spec:
                             - key: app
                               operator: In
                               values:
-                              - istio-eastwestgateway-$REVISION
+                              - istio-eastwestgateway
                           topologyKey: kubernetes.io/hostname
                         weight: 100
 
   # Helm values overrides
   values:
+    gateways:
+      istio-eastwestgateway:
+        # Enable gateway injection
+        injectionTemplate: gateway
     # https://istio.io/v1.5/docs/reference/config/installation-options/#global-options
     global:
       # Required for connecting VirtualMachines to the mesh
