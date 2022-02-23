@@ -1,0 +1,41 @@
+##################################################
+# Test Name: Traffic Policy to tune connection pool settings
+# Test Number: 4.1.5
+# Test Description:
+#   - Setting idleTimeout - The idle timeout for upstream connection pool connections. 
+#     - The idle timeout is defined as the period in which there are no active requests. 
+#     - If not set, the default is 1 hour. When the idle timeout is reached, the connection will be closed. 
+#     - If the connection is an HTTP/2 connection a drain sequence will occur prior to closing the connection. 
+#     - Note that request based timeouts mean that HTTP/2 PINGs will not keep the connection alive. 
+#     - Applies to both HTTP1.1 and HTTP2 connections.
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # destinationSelector:                 # destination selector omitted means "apply to all destinations"
+  sourceSelector:                        # select any application with the label app=frontend
+    - kubeServiceMatcher:
+        labels:
+          app: frontend
+  policy:
+    connectionPoolSettings:
+      http:
+        idleTimeout: 30s                 # The idle timeout for upstream connection pool connections.

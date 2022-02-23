@@ -1,0 +1,73 @@
+##################################################
+# Test Name: Virtual Destination Mesh Selection
+# Test Number: 3.2
+# Test Description:
+#   - Only make custom hostname available in cluster-1 virtualMesh
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: cluster-1
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: cluster-2
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualDestination
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+spec:
+  hostname: frontend.solo.internal       # in mesh services can reach frontend by this hostname
+  port:
+    number: 15500                        # Port that in mesh services must use
+    protocol: http
+    targetNumber: 8080                   # matches frontend service port
+  localized:
+    destinationSelectors:                # all frontend applications in all clusters
+      - kubeServiceMatcher:
+          labels:
+            app: frontend
+  virtualMesh:                           # apply to cluster-1 virtual-mesh
+    name: cluster-1
+    namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualDestination
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+spec:
+  hostname: frontend.solo.internal       # in mesh services can reach frontend by this hostname
+  port:
+    number: 15500                        # Port that in mesh services must use
+    protocol: http
+    targetNumber: 8080                   # matches frontend service port
+  localized:
+    destinationSelectors:                # all frontend applications in all clusters
+      - kubeServiceMatcher:
+          labels:
+            app: frontend
+          clusters:
+            - cluster-2
+  virtualMesh:                           # apply to cluster-1 virtual-mesh
+    name: cluster-2
+    namespace: gloo-mesh

@@ -1,0 +1,38 @@
+##################################################
+# Test Name: Traffic Policy Using Labels/Cluster/Namespace Destination Selectors
+# Test Number: 1.2.1
+# Test Description:
+#   - Setting request timeouts for requests bound to a destination using kubeServiceMatcher
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
+        labels:
+          app: frontend                  # applications with app=frontend label in namespace app in cluster-1
+        namespaces:
+        - app
+        clusters:
+        - cluster-1
+  policy:
+    requestTimeout: 1s                   # request timeout of 1s

@@ -1,0 +1,37 @@
+##################################################
+# Test Name: Traffic Policy Timeouts And Retries
+# Test Number: 7.2
+# Test Description:
+#   - 1s request timeout for requests to frontend.app.svc.cluster.local but retry 3 times
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
+        labels:
+          app: frontend                  # applications with app=frontend label
+  policy:
+    requestTimeout: 10s                  # total request timeout time including retries
+    retries:
+      attempts: 2                        # retry a total of 2 times
+      perTryTimeout: 1s                  # 1s timeout per retry

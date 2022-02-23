@@ -1,0 +1,9 @@
+##################################################
+# Test Name: Multi Cluster Multi Gateway (TODO V2 does not allow fine grained cluster selection)
+# Test Number: 1.3
+# Test Description:
+#   - Multiple gateways over multiple clusters
+#   - Each gateway only routes to its local frontend application
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
+##################################################

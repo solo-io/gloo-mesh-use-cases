@@ -1,0 +1,6 @@
+##################################################
+# Test Name: Transport Protocol (TODO NOT COMPLETE)
+# Test Number: 2.1
+# Test Description:
+#   - Override the default protocol selection for mysql
+##################################################

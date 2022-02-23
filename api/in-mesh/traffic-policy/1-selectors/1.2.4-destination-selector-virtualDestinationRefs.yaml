@@ -1,0 +1,57 @@
+##################################################
+# Test Name: Traffic Policy Selecting VirtualDestination as Destination
+# Test Number: 1.2.4
+# Test Description:
+#   - Setting request timeouts for requests bound for a VirtualDestination by reference
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualDestination
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+  labels:
+    virtual-destination: frontend        # used for selection by TrafficPolicy destinationSelector
+spec:
+  hostname: frontend.app.svc.cluster.local
+  port:
+    number: 8080                         # matches frontend port
+    protocol: http
+    targetNumber: 8080                   # matches frontend service port
+  localized:
+    destinationSelectors:                # all frontend applications in all clusters
+      - kubeServiceMatcher:
+          labels:
+            app: frontend
+  virtualMesh:                           # apply to virtual-mesh
+    name: virtual-mesh
+    namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+    - virtualDestinationRefs:            # select VirtualDestination by direct reference
+        virtualDestinations:
+        - name: frontend
+          namespace: gloo-mesh
+  policy:
+    requestTimeout: 1s                   # request timeout of 1s

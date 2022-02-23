@@ -1,0 +1,56 @@
+##################################################
+# Test Name: Traffic Policy Selecting ExternalService as Destination
+# Test Number: 1.2.6
+# Test Description:
+#   - Setting request timeouts for requests bound for a ExternalService by reference
+# Issues:
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2142
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: discovery.mesh.gloo.solo.io/v1
+kind: Destination
+metadata:
+  name: httpbin
+  namespace: gloo-mesh
+spec:
+  externalService:                       # definition for something outside the mesh
+    endpoints:
+    - address: httpbin.org               # outbound address
+      ports:
+        http: 80                       # outbound connection and port
+    hosts:
+    - httpbin.org                        # internal hosts that the mesh can use
+    name: httpbin
+    ports:                               # the port used internally within the mesh http://httpbin.org:80
+    - name: http
+      number: 80
+      protocol: HTTP                     # protocol that should be used internally
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+  - externalServiceRefs:                 # select ExternalService Destination by direct reference
+      externalServices:
+      - name: httpbin
+        namespace: gloo-mesh
+  policy:
+    requestTimeout: 1ms                   # request timeout of 1s

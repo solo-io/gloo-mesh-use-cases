@@ -1,8 +1,0 @@
-##################################################
-# Test Name: Gateway in different namespace (TODO V2 does not allow fine grained namespace control)
-# Test Number: 1.4
-# Test Description: 
-#   - Gateway is deployed to istio-gateways namespace
-# Issues
-# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
-##################################################

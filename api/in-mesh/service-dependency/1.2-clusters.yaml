@@ -1,0 +1,35 @@
+##################################################
+# Test Name: Service Dependency between clusters
+# Test Number: 1.2
+# Test Description:
+#   - Scope service discovery from cluster-1 to see only its own workloads
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: ServiceDependency
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+spec:
+  sourceSelectors:
+  - kubeWorkloadMatcher:
+      clusters:
+      - cluster-1
+  destinationSelectors:
+  - kubeWorkloadMatcher:
+      clusters:
+      - cluster-1

@@ -1,0 +1,47 @@
+##################################################
+# Test Name: Virtual Destination Outlier Detection
+# Test Number: 5.1
+# Test Description:
+#   - Eject bad actors based on criteria
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualDestination
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+spec:
+  hostname: frontend.solo.internal       # in mesh services can reach frontend by this hostname
+  port:
+    number: 8080                         # matches frontend port
+    protocol: http
+    targetNumber: 8080                   # matches frontend service port
+  localized:
+    outlierDetection:                    # remove frontend for 1m when 5 conseucutive errors over 30s
+      consecutiveErrors: 5
+      interval: 10s
+      baseEjectionTime: 10s
+      maxEjectionPercent: 100
+    destinationSelectors:                # all frontend applications in all clusters
+      - kubeServiceMatcher:
+          labels:
+            app: frontend
+          clusters:
+            - cluster-2
+  virtualMesh:                           # apply to virtual-mesh
+    name: virtual-mesh
+    namespace: gloo-mesh

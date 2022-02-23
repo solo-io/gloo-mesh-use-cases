@@ -1,0 +1,67 @@
+##################################################
+# Test Name: HTTPS Redirect
+# Test Number: 2.3
+# Test Description:
+#   - Gateway for HTTPS port to redirect to HTTPS
+#   - Gateway for HTTPS TLS termination
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: RootTrustPolicy
+metadata:
+  name: auto-mtls
+  namespace: gloo-mesh
+spec:
+  applyToMeshes:
+    - name: istiod-istio-system-cluster1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster2
+      namespace: gloo-mesh
+  config:
+    rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
+      generated:  {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: global
+spec:
+  listeners:
+    - port:
+        name: http2                      # apply to the http port
+      httpsRedirect: true                # Redirect http requests to https
+    - port:
+        name: https                      # apply to the https port
+      tlsSettings:                       # enable tls termination
+        tls:
+          certificates:                  # load TLS certificate secret from the gateway namespace 
+            secretName: frontend-cert
+          mode: SIMPLE                   # Simple TLS
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - name: frontend
+    forwardTo:
+      destinations:
+      - name: frontend
+        namespace: app
+        port:
+          number: 8080

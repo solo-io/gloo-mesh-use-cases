@@ -1,0 +1,154 @@
+##################################################
+# Test Name: Virtual Destination Port Selection
+# Test Number: 2.1
+# Test Description:
+#   - Define custom hostname with custom port http://frontend.solo.internal:15500
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualDestination
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+spec:
+  hostname: frontend.solo.internal       # in mesh services can reach frontend by this hostname
+  port:
+    number: 15500                        # Port that in mesh services must use
+    protocol: http
+    targetName: http                     # matches frontend service port
+  localized:
+    destinationSelectors:                # all frontend applications in all clusters
+      - kubeServiceMatcher:
+          labels:
+            app: frontend
+          clusters:
+            - cluster-2
+  virtualMesh:                           # apply to virtual-mesh
+    name: virtual-mesh
+    namespace: gloo-mesh
+
+#▶ kg vd -A -o yaml
+#+ kubectl get vd -A -o yaml
+#apiVersion: v1
+#items:
+#- apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+#  kind: VirtualDestination
+#  metadata:
+#    annotations:
+#      kubectl.kubernetes.io/last-applied-configuration: |
+#        {"apiVersion":"networking.enterprise.mesh.gloo.solo.io/v1beta1","kind":"VirtualDestination","metadata":{"annotations":{},"name":"frontend","namespace":"gloo-mesh"},"spec":{"hostname":"frontend.solo.internal","localized":{"destinationSelectors":[{"kubeServiceMatcher":{"clusters":["cluster-2"],"labels":{"app":"frontend"}}}]},"port":{"number":15500,"protocol":"http","targetName":"http"},"virtualMesh":{"name":"virtual-mesh","namespace":"gloo-mesh"}}}
+#    creationTimestamp: "2022-02-14T03:27:45Z"
+#    generation: 1
+#    name: frontend
+#    namespace: gloo-mesh
+#    resourceVersion: "8198"
+#    uid: f84618a6-fdaa-48aa-ba2e-2e1ab9cda27a
+#  spec:
+#    hostname: frontend.solo.internal
+#    localized:
+#      destinationSelectors:
+#      - kubeServiceMatcher:
+#          clusters:
+#          - cluster-2
+#          labels:
+#            app: frontend
+#    port:
+#      number: 15500
+#      protocol: http
+#      targetName: http
+#    virtualMesh:
+#      name: virtual-mesh
+#      namespace: gloo-mesh
+#  status:
+#    observedGeneration: 1
+#    selectedDestinations:
+#    - destination:
+#        kubeService:
+#          clusterName: cluster-2
+#          name: frontend
+#          namespace: app-1-45629
+#      ref:
+#        name: frontend-app-1-45629-cluster-2
+#        namespace: gloo-mesh
+#    state: ACCEPTED
+#kind: List
+#metadata:
+#  resourceVersion: ""
+#  selfLink: ""
+
+#▶ kg svc -A
+#+ kubectl get svc -A
+#NAMESPACE         NAME                          TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                      AGE
+#default           kubernetes                    ClusterIP      10.43.0.1       <none>        443/TCP                                      36m
+#kube-system       kube-dns                      ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP                       36m
+#kube-system       metrics-server                ClusterIP      10.43.132.27    <none>        443/TCP                                      36m
+#istio-system      istiod                        ClusterIP      10.43.204.53    <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP        3m59s
+#istio-system      istio-ingressgateway          LoadBalancer   10.43.42.63     172.22.0.3    80:32166/TCP,443:31595/TCP,15443:30820/TCP   3m55s
+#gloo-mesh         enterprise-networking-admin   ClusterIP      10.43.170.191   <none>        11100/TCP,9091/TCP                           3m44s
+#gloo-mesh         dashboard                     ClusterIP      10.43.206.53    <none>        10101/TCP,8090/TCP,8081/TCP                  3m44s
+#gloo-mesh         enterprise-networking         LoadBalancer   10.43.235.84    172.22.0.3    8090:30309/TCP,9900:31447/TCP                3m44s
+#app-1-45629       backend                       ClusterIP      10.43.225.182   <none>        7070/TCP,8090/TCP,9443/TCP,9000/TCP          3m18s
+#no-mesh-3-96575   no-mesh                       ClusterIP      10.43.152.3     <none>        7070/TCP,8090/TCP,9443/TCP,9000/TCP          3m18s
+#subset-2-86618    subset                        ClusterIP      10.43.193.28    <none>        7070/TCP,8090/TCP,9443/TCP,9000/TCP          3m18s
+#app-1-45629       frontend                      ClusterIP      10.43.195.58    <none>        7070/TCP,8090/TCP,9443/TCP,9000/TCP          3m18s
+#
+#~
+#▶ kg svc -n app-1-45629 frontend -o yaml
+#+ kubectl get svc -n app-1-45629 frontend -o yaml
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  annotations:
+#    kubectl.kubernetes.io/last-applied-configuration: |
+#      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"frontend"},"name":"frontend","namespace":"app-1-45629"},"spec":{"ports":[{"name":"grpc","port":7070,"targetPort":7070},{"name":"http","port":8090,"targetPort":8090},{"name":"https","port":9443,"targetPort":9443},{"name":"tcp","port":9000,"targetPort":9000}],"selector":{"app":"frontend"}}}
+#  creationTimestamp: "2022-02-14T03:27:08Z"
+#  labels:
+#    app: frontend
+#  name: frontend
+#  namespace: app-1-45629
+#  resourceVersion: "7884"
+#  uid: b2ebdcc6-328b-4378-979d-99ae7483b57f
+#spec:
+#  clusterIP: 10.43.195.58
+#  clusterIPs:
+#  - 10.43.195.58
+#  ipFamilies:
+#  - IPv4
+#  ipFamilyPolicy: SingleStack
+#  ports:
+#  - name: grpc
+#    port: 7070
+#    protocol: TCP
+#    targetPort: 7070
+#  - name: http
+#    port: 8090
+#    protocol: TCP
+#    targetPort: 8090
+#  - name: https
+#    port: 9443
+#    protocol: TCP
+#    targetPort: 9443
+#  - name: tcp
+#    port: 9000
+#    protocol: TCP
+#    targetPort: 9000
+#  selector:
+#    app: frontend
+#  sessionAffinity: None
+#  type: ClusterIP
+#status:
+#  loadBalancer: {}

@@ -1,0 +1,38 @@
+##################################################
+# Test Name: Traffic Policy applies to specific requests
+# Test Number: 3.2.1
+# Test Description:
+#   - Setting 1s response times only to requests with header X-frontend-app
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
+        labels:
+          app: frontend                  # applications with app=frontend label in namespace app in cluster-1
+  httpRequestMatchers:                   # match on header X-frontend-app existing
+  - name: headers-match
+    headers:
+    - name: X-frontend-app               # case insensitive
+  policy:
+    requestTimeout: 1s                   # 1s request timeout

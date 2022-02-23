@@ -1,0 +1,37 @@
+##################################################
+# Test Name: Traffic Policy fault injection
+# Test Number: 6.2
+# Test Description:
+#   - Abort requests and return 401 status
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
+        labels:
+          app: frontend                  # applications with app=frontend label
+  policy:
+    faultInjection:                      # abort request and return 401
+      abort:
+        httpStatus: 401
+      percentage: 100

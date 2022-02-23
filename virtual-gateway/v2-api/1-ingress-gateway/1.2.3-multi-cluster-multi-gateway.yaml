@@ -1,9 +1,0 @@
-##################################################
-# Test Name: Multi Gateway Using Cluster Selector (TODO V2 does not allow fine grained )
-# Test Number: 1.2.3
-# Test Description: 
-#   - Select multiple ingress gateways
-#   - Using multiple kubeServiceRefs selector
-# Issues
-# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
-##################################################

@@ -1,0 +1,51 @@
+##################################################
+# Test Name: Virtual Destination Static Destination
+# Test Number: 4.1
+# Test Description:
+#   - Select specific gloo mesh destinations for failover
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualDestination
+metadata:
+  name: frontend
+  namespace: gloo-mesh
+spec:
+  hostname: frontend.solo.internal       # in mesh services can reach frontend by this hostname
+  port:
+    number: 8080                         # matches frontend port
+    protocol: http
+    targetNumber: 8080                   # matches frontend service port
+  static:
+    destinations:                        # settings failover order explicitly, all traffic to cluster-1 first and cluster-2 secondary
+      - kubeService:
+          name: frontend
+          namespace: app
+          clusterName: cluster-1
+      - kubeService:
+          name: frontend
+          namespace: app
+          clusterName: cluster-2
+  localized:
+    outlierDetection:                    # remove frontend for 1m when 5 conseucutive errors over 30s
+      consecutiveErrors: 5
+      interval: 10s
+      baseEjectionTime: 10s
+      maxEjectionPercent: 100
+  virtualMesh:                           # apply to virtual-mesh
+    name: virtual-mesh
+    namespace: gloo-mesh

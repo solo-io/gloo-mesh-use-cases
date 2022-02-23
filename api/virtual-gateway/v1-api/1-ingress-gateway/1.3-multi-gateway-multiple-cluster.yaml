@@ -1,0 +1,81 @@
+##################################################
+# Test Name: Multi Cluster Multi Gateway
+# Test Number: 1.3
+# Test Description:
+#   - Multiple gateways over multiple clusters
+#   - Each gateway only routes to its local frontend application
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress-cluster1
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2                     # match on port name http2
+    destinationSelectors:               # select single specific kubernetes services
+    - kubeServiceRefs:
+        services:
+        - name: istio-ingressgateway    # select cluster1 ingress gateway service
+          namespace: istio-system
+          clusterName: cluster1
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - "*"                         # Use a catch-all domain
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:
+              - kubeService:
+                  clusterName: cluster1 # route to cluster1 frontend application
+                  name: frontend
+                  namespace: app
+                  port: 8080
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress-cluster2
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2                      # match on port name http2
+    destinationSelectors:                # select single specific kubernetes services
+    - kubeServiceRefs:                   # select single specific kubernetes services
+        services: 
+        - name: istio-ingressgateway     # select cluster2 ingress gateway service
+          namespace: istio-system
+          clusterName: cluster2
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - "*"                          # Use a catch-all domain
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:
+              - kubeService:
+                  clusterName: cluster2 # route to cluster2 frontend application
+                  name: frontend
+                  namespace: app
+                  port: 8080

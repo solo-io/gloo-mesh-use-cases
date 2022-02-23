@@ -1,0 +1,34 @@
+##################################################
+# Test Name: Traffic Policy Using Label Source Selectors
+# Test Number: 1.1.1
+# Test Description:
+#   - Setting 1s request timeouts on sources selected by labels
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # destinationSelector:                 # destination selector omitted means "apply to all destinations"
+  sourceSelector:                        # select any application with the label app=frontend
+    - kubeWorkloadMatcher:
+        labels:
+          app: frontend
+  policy:
+    requestTimeout: 1s                   # 1s request timeout

@@ -1,0 +1,35 @@
+##################################################
+# Test Name: Access Policy Allowed Ports
+# Test Number: 3.3
+# Test Description:
+#   - Allow all services access to port 8080 requests on frontend app
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  globalAccessPolicy: ENABLED            # default deny access to all services
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: AccessPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # sourceSelector:                      Leave empty to apply the AccessPolicy to all Workloads colocated in the destination's Mesh.
+  destinationSelector:                   # Apply to all services with the label app=frontend
+  - kubeServiceMatcher:
+      labels:
+        app: frontend
+  allowedPorts:                          # only allow requests to port 8080
+  - 8080

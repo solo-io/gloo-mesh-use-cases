@@ -1,0 +1,36 @@
+##################################################
+# Test Name: Traffic Policy to tune connection pool settings
+# Test Number: 4.2.2
+# Test Description:
+#   - Setting connectTimeout - TCP connection timeout. format: 1h/1m/1s/1ms. MUST BE >=1ms. Default is 10s.
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # destinationSelector:                 # destination selector omitted means "apply to all destinations"
+  sourceSelector:                        # select any application with the label app=frontend
+    - kubeServiceMatcher:
+        labels:
+          app: frontend
+  policy:
+    connectionPoolSettings:
+      tcp:
+        connectTimeout: 5s               # TCP connection timeout

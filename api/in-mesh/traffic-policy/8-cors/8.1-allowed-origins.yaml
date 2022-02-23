@@ -1,0 +1,36 @@
+##################################################
+# Test Name: Traffic Policy CORS Settings
+# Test Number: 8.1
+# Test Description:
+#   - Add frontend.app.svc.cluster.local to Access-Control-Allow-Origin header
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
+        labels:
+          app: frontend                  # applications with app=frontend label
+  policy:
+    corsPolicy:
+      allowOrigins:                      # allow frontend.app.svc.cluster.local
+      - exact: "http://frontend.app.svc.cluster.local"
