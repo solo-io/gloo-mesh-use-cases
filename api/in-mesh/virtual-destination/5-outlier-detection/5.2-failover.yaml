@@ -42,8 +42,8 @@ spec:
           - region: us-east-1
     outlierDetection:                    # remove frontend for 1m when 5 conseucutive errors over 30s
       consecutiveErrors: 5
-      interval: 30s
-      baseEjectionTime: 1m
+      interval: 10s
+      baseEjectionTime: 10s
       maxEjectionPercent: 100
     destinationSelectors:                # all frontend applications in all clusters
       - kubeServiceMatcher:

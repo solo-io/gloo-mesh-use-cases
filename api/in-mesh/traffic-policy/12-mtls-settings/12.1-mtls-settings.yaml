@@ -2,7 +2,7 @@
 # Test Name: Traffic Policy mTLS Settings
 # Test Number: 12.1
 # Test Description:
-#   - Enable mTLS settings for an application
+#   - Disable mTLS for traffic to a destination
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -33,4 +33,4 @@ spec:
   policy:
     mtls:
       istio:
-        tlsMode: ISTIO_MUTUAL            # require mTLS to frontend application
+        tlsMode: DISABLE                 # disable mTLS traffic to frontend

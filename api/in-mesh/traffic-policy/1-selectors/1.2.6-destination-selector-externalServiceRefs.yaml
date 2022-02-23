@@ -31,7 +31,7 @@ spec:
     endpoints:
     - address: httpbin.org               # outbound address
       ports:
-        https: 443                       # outbound connection and port
+        http: 80                       # outbound connection and port
     hosts:
     - httpbin.org                        # internal hosts that the mesh can use
     name: httpbin
@@ -53,4 +53,4 @@ spec:
       - name: httpbin
         namespace: gloo-mesh
   policy:
-    requestTimeout: 1s                   # request timeout of 1s
+    requestTimeout: 1ms                   # request timeout of 1s

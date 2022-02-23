@@ -25,11 +25,11 @@ metadata:
   namespace: gloo-mesh
   name: frontend
 spec:
-  # destinationSelector:                 # destination selector omitted means "apply to all destinations"
-  sourceSelector:                        # select any application with the label app=frontend
-    - kubeServiceMatcher:
+  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+  destinationSelector:
+    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
         labels:
-          app: frontend
+          app: frontend                  # applications with app=frontend label in namespace app in cluster-1
   httpRequestMatchers:                   # match on header existing and not X-frontend-app=v1
   - name: headers-match
     headers:

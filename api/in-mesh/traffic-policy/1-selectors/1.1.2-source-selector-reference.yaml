@@ -27,7 +27,7 @@ metadata:
 spec:
   # destinationSelector:                 # destination selector omitted means "apply to all destinations"
   sourceSelector:
-    - kubeServiceMatcher:                # select applications running in cluster-1 and app namespace
+    - kubeWorkloadMatcher:                # select applications running in cluster-1 and app namespace
         namespaces:
         - app
         clusters:

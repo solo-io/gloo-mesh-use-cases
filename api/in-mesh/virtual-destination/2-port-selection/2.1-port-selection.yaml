@@ -2,7 +2,7 @@
 # Test Name: Virtual Destination Port Selection
 # Test Number: 2.1
 # Test Description:
-#   - Define custom hostname with custom port http://frontend.solo.internal:15000
+#   - Define custom hostname with custom port http://frontend.solo.internal:15500
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -27,7 +27,7 @@ metadata:
 spec:
   hostname: frontend.solo.internal       # in mesh services can reach frontend by this hostname
   port:
-    number: 15000                        # Port that in mesh services must use
+    number: 15500                        # Port that in mesh services must use
     protocol: http
     targetNumber: 8080                   # matches frontend service port
   localized:
@@ -35,6 +35,8 @@ spec:
       - kubeServiceMatcher:
           labels:
             app: frontend
+          clusters:
+            - cluster-2
   virtualMesh:                           # apply to virtual-mesh
     name: virtual-mesh
     namespace: gloo-mesh

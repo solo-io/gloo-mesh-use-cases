@@ -25,7 +25,7 @@ metadata:
   name: frontend
   namespace: gloo-mesh
 spec:
-  hostname: frontend.svc.cluster.local   # overriding the kube dns name
+  hostname: frontend.app.svc.cluster.local   # overriding the kube dns name
   port:
     number: 8080                         # matches frontend port
     protocol: http
@@ -35,24 +35,120 @@ spec:
       - kubeServiceMatcher:
           labels:
             app: frontend
+          clusters:
+            - cluster-2
   virtualMesh:                           # apply to virtual-mesh
     name: virtual-mesh
     namespace: gloo-mesh
----
-apiVersion: networking.mesh.gloo.solo.io/v1
-kind: TrafficPolicy
-metadata:
-  namespace: gloo-mesh
-  name: frontend
-spec:
-  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
-  destinationSelector:
-    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
-        labels:
-          app: frontend                  # applications with app=frontend label
-  policy:
-    trafficShift:
-      destinations:
-        - virtualDestination:            # all traffic for frontend.app.svc.cluster.local forward to VirtualDestination
-            name: frontend
-            namespace: gloo-mesh
+
+
+# TODO what should happen if you override they kube dns?
+#▶ kg se -n istio-system frontend -o yaml
+#+ kubectl get se -n istio-system frontend -o yaml
+#apiVersion: networking.istio.io/v1beta1
+#kind: ServiceEntry
+#metadata:
+#  annotations:
+#    parents.networking.mesh.gloo.solo.io: '{"networking.enterprise.mesh.gloo.solo.io/v1beta1,
+#      Kind=VirtualDestination":[{"name":"frontend","namespace":"gloo-mesh"}]}'
+#  creationTimestamp: "2022-02-14T03:17:50Z"
+#  generation: 1
+#  labels:
+#    cluster.multicluster.solo.io: ""
+#    owner.networking.mesh.gloo.solo.io: gloo-mesh
+#    relay-agent: cluster-1
+#  name: frontend
+#  namespace: istio-system
+#  resourceVersion: "4768"
+#  uid: 0c4febef-30db-4639-a055-8d09cebb3968
+#spec:
+#  addresses:
+#  - 246.94.86.0
+#  exportTo:
+#  - '*'
+#  hosts:
+#  - frontend.app-1-81344.svc.cluster.local
+#  location: MESH_INTERNAL
+#  ports:
+#  - name: http
+#    number: 8080
+#    protocol: http
+#  resolution: STATIC
+#  workloadSelector:
+#    labels:
+#      gloomesh.solo.io/virtual-destination: frontend.gloo-mesh
+#
+#~
+#▶ kg svc -A
+#+ kubectl get svc -A
+#NAMESPACE         NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                      AGE
+#default           kubernetes             ClusterIP      10.43.0.1       <none>        443/TCP                                      23m
+#kube-system       kube-dns               ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP                       23m
+#kube-system       metrics-server         ClusterIP      10.43.50.214    <none>        443/TCP                                      23m
+#istio-system      istiod                 ClusterIP      10.43.99.123    <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP        112s
+#istio-system      istio-ingressgateway   LoadBalancer   10.43.224.168   172.22.0.5    80:30378/TCP,443:32441/TCP,15443:32082/TCP   108s
+#gloo-mesh         enterprise-agent       ClusterIP      10.43.125.20    <none>        9988/TCP,9977/TCP                            79s
+#app-1-81344       backend                ClusterIP      10.43.163.239   <none>        7070/TCP,8090/TCP,9443/TCP,9000/TCP          67s
+#app-1-81344       frontend               ClusterIP      10.43.2.109     <none>        7070/TCP,8090/TCP,9443/TCP,9000/TCP          67s
+#subset-2-46756    subset                 ClusterIP      10.43.54.57     <none>        7070/TCP,8090/TCP,9443/TCP,9000/TCP          67s
+#no-mesh-3-19468   no-mesh                ClusterIP      10.43.106.198   <none>        7070/TCP,8090/TCP,9443/TCP,9000/TCP          67s
+#
+#~
+#▶ kctx mgmt
+#Switched to context "mgmt".
+#
+#~
+#▶ kg vd -A
+#+ kubectl get vd -A
+#NAMESPACE   NAME       AGE
+#gloo-mesh   frontend   55s
+#
+#~
+#▶ kg vd -A -o yaml
+#+ kubectl get vd -A -o yaml
+#apiVersion: v1
+#items:
+#- apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+#  kind: VirtualDestination
+#  metadata:
+#    annotations:
+#      kubectl.kubernetes.io/last-applied-configuration: |
+#        {"apiVersion":"networking.enterprise.mesh.gloo.solo.io/v1beta1","kind":"VirtualDestination","metadata":{"annotations":{},"name":"frontend","namespace":"gloo-mesh"},"spec":{"hostname":"frontend.app-1-81344.svc.cluster.local","localized":{"destinationSelectors":[{"kubeServiceMatcher":{"clusters":["cluster-2"],"labels":{"app":"frontend"}}}]},"port":{"number":8090,"protocol":"http","targetNumber":8090},"virtualMesh":{"name":"virtual-mesh","namespace":"gloo-mesh"}}}
+#    creationTimestamp: "2022-02-14T03:17:49Z"
+#    generation: 1
+#    name: frontend
+#    namespace: gloo-mesh
+#    resourceVersion: "5185"
+#    uid: 99c73e60-7257-42b5-bd1f-b0612200691e
+#  spec:
+#    hostname: frontend.app-1-81344.svc.cluster.local
+#    localized:
+#      destinationSelectors:
+#      - kubeServiceMatcher:
+#          clusters:
+#          - cluster-2
+#          labels:
+#            app: frontend
+#    port:
+#      number: 8080
+#      protocol: http
+#      targetNumber: 8080
+#    virtualMesh:
+#      name: virtual-mesh
+#      namespace: gloo-mesh
+#  status:
+#    observedGeneration: 1
+#    selectedDestinations:
+#    - destination:
+#        kubeService:
+#          clusterName: cluster-2
+#          name: frontend
+#          namespace: app-1-81344
+#      ref:
+#        name: frontend-app-1-81344-cluster-2
+#        namespace: gloo-mesh
+#    state: ACCEPTED
+#kind: List
+#metadata:
+#  resourceVersion: ""
+#  selfLink: ""

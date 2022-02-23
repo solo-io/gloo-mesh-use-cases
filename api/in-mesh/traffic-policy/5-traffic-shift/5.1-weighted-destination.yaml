@@ -37,9 +37,11 @@ spec:
             clusterName: cluster-1
             name: frontend
             namespace: app
-          weight: 50
+            port: 8090
+          weight: 80
         - kubeService:
             clusterName: cluster-2
             name: frontend
             namespace: app
-          weight: 50
+            port: 8090
+          weight: 20

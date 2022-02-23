@@ -27,7 +27,7 @@ metadata:
 spec:
   # destinationSelector:                 # destination selector omitted means "apply to all destinations"
   sourceSelector:                        # select any application with the label app=frontend
-    - kubeServiceMatcher:
+    - kubeWorkloadMatcher:
         labels:
           app: frontend
   policy:

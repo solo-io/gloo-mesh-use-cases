@@ -2,7 +2,7 @@
 # Test Name: Service Dependency between namespaces
 # Test Number: 1.1
 # Test Description:
-#   - Scope service discovery from frontend namespace to see only workloads in istio-system
+#   - Scope service discovery to only its own namespace
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -28,8 +28,8 @@ spec:
   sourceSelectors:                       # frontend namespace depends on workloads in the istio-system namespace
   - kubeWorkloadMatcher:
       namespaces:
-      - frontend
+      - app
   destinationSelectors:
   - kubeWorkloadMatcher:
       namespaces:
-      - istio-system
+      - app

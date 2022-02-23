@@ -1,8 +1,9 @@
 ##################################################
-# Test Name: Virtual Destination Hostnames
-# Test Number: 1.1
+# Test Name: Virtual Destination Mesh Selection
+# Test Number: 3.1
 # Test Description:
-#   - Define a custom hostname for a service
+#   - Set VirtualDestination to only be available in cluster-1
+#   - Since the VirtualDestination references a backend in cluster-2 itll actually also be available in cluster-2
 ##################################################
 apiVersion: networking.mesh.gloo.solo.io/v1
 kind: VirtualMesh
@@ -27,16 +28,17 @@ metadata:
 spec:
   hostname: frontend.solo.internal       # in mesh services can reach frontend by this hostname
   port:
-    number: 8080                         # matches frontend port
+    number: 8080                        # Port that in mesh services must use
     protocol: http
     targetNumber: 8080                   # matches frontend service port
   localized:
-    destinationSelectors:                # frontend applications in cluster-2
+    destinationSelectors:                # all frontend applications in all clusters
       - kubeServiceMatcher:
           labels:
             app: frontend
           clusters:
             - cluster-2
-  virtualMesh:                           # apply to virtual-mesh
-    name: virtual-mesh
-    namespace: gloo-mesh
+  meshList:                              # apply to selected meshes
+    meshes:
+      - name: istiod-istio-system-cluster-1
+        namespace: gloo-mesh

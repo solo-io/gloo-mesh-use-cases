@@ -32,7 +32,7 @@ spec:
           app: frontend                  # applications with app=frontend label
   policy:
     mirror:                              # mirror 50% traffic from cluster-1 frontend to cluster-2
-      port: 8080
+      port: 8090
       percentage: 50
       kubeService:
         clusterName: cluster-2

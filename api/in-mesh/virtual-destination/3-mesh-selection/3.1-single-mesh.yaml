@@ -27,7 +27,7 @@ metadata:
 spec:
   hostname: frontend.solo.internal       # in mesh services can reach frontend by this hostname
   port:
-    number: 15000                        # Port that in mesh services must use
+    number: 8080                        # Port that in mesh services must use
     protocol: http
     targetNumber: 8080                   # matches frontend service port
   localized:
@@ -35,7 +35,9 @@ spec:
       - kubeServiceMatcher:
           labels:
             app: frontend
+          clusters:
+            - cluster-2
   meshList:                              # apply to selected meshes
     meshes:
-      - name: istiod-istio-system-cluster-1
+      - name: istiod-istio-system-cluster-2
         namespace: gloo-mesh

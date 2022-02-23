@@ -27,7 +27,7 @@ metadata:
   name: frontend
 spec:
   sourceSelector:
-  - kubeIdentityMatcher:                 # select services in namespace app and cluster-1 and cluster-2 
+  - kubeIdentityMatcher:                 # select services in namespace app and cluster-1 and cluster-2
       namespaces:
       - app
       clusters:

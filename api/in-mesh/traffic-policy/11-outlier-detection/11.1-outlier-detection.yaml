@@ -33,6 +33,6 @@ spec:
   policy:
     outlierDetection:                    # remove frontend for 1m when 5 conseucutive errors over 30s
       consecutiveErrors: 5
-      interval: 30s
+      interval: 10s
       baseEjectionTime: 1m
       maxEjectionPercent: 100

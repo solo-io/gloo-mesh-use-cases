@@ -40,6 +40,12 @@ spec:
           name: frontend
           namespace: app
           clusterName: cluster-2
+  localized:
+    outlierDetection:                    # remove frontend for 1m when 5 conseucutive errors over 30s
+      consecutiveErrors: 5
+      interval: 10s
+      baseEjectionTime: 10s
+      maxEjectionPercent: 100
   virtualMesh:                           # apply to virtual-mesh
     name: virtual-mesh
     namespace: gloo-mesh

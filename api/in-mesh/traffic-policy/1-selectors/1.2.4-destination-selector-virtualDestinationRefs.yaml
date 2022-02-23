@@ -27,6 +27,7 @@ metadata:
   labels:
     virtual-destination: frontend        # used for selection by TrafficPolicy destinationSelector
 spec:
+  hostname: frontend.app.svc.cluster.local
   port:
     number: 8080                         # matches frontend port
     protocol: http
