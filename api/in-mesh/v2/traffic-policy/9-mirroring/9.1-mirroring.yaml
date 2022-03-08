@@ -1,0 +1,45 @@
+##################################################
+# Test Name: Traffic Policy Mirroring
+# Test Number: 9.1
+# Test Description:
+#   - Mirror traffic from one application to another
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+apiVersion: trafficcontrol.policy.gloo.solo.io/v2
+kind: MirrorPolicy
+metadata:
+  name: mirror
+  namespace: global
+spec:
+  applyToRoutes:
+  - withDestinations:
+      selector:
+        labels:
+          app: frontend
+  config:
+    destination:
+      port:
+        number: 8090
+      ref:
+        cluster: cluster-2
+        name: frontend
+        namespace: {{.EchoContext.AppNamespace.Name}}
+    percentage: 50

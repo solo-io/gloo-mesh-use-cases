@@ -1,0 +1,38 @@
+##################################################
+# Test Name: Traffic Policy mTLS Settings
+# Test Number: 12.1
+# Test Description:
+#   - Disable mTLS for traffic to a destination
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+  {}
+---
+apiVersion: security.gloo.solo.io/v2
+kind: AccessPolicy
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  applyToDestinations:
+    - selector:
+        labels:
+          app: frontend
+  config:
+    authn:
+      tlsMode: DISABLE

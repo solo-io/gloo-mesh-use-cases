@@ -1,0 +1,44 @@
+##################################################
+# Test Name: Traffic Policy CORS Settings
+# Test Number: 8.2
+# Test Description:
+#   - Setting of Access-Control-Allow-Headers and Access-Control-Allow-Methods
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+apiVersion: security.policy.gloo.solo.io/v2
+kind: CORSPolicy
+metadata:
+  name: cors
+  namespace: global
+spec:
+  applyToRoutes:
+  - withDestinations:
+      selector:
+        labels:
+          app: frontend
+  config:
+    allowMethods:                        # allow GET and POST Requests and headers Content-Type
+    - GET
+    - POST
+    allowHeaders:
+    - Content-Type
+    allowOrigins:                        # allow frontend.solo.io
+    - xact: "http://frontend.{{.EchoContext.AppNamespace.Name}}.svc.cluster.local"

@@ -1,0 +1,54 @@
+##################################################
+# Test Name: Access Policy Allowed Methods
+# Test Number: 3.1
+# Test Description:
+#   - Allow all services access to GET requests on frontend app
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/3019
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+  options:
+    serviceIsolation: true
+---
+apiVersion: security.gloo.solo.io/v2
+kind: AccessPolicy
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  applyToDestinations:
+    - selector:
+        labels:
+          app: frontend
+  config:
+    authz: {}                            # omitted to apply to all sources
+---
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: AccessPolicy
+metadata:
+  namespace: gloo-mesh
+  name: frontend
+spec:
+  # sourceSelector:                      Leave empty to apply the AccessPolicy to all Workloads colocated in the destination's Mesh.
+  destinationSelector:                   # Apply to all services with the label app=frontend
+  - kubeServiceMatcher:
+      labels:
+        app: frontend
+  allowedMethods:                        # only allow access to GET requests
+  - GET

@@ -1,7 +1,104 @@
 ##################################################
-# Test Name: Vitual Host Virtual Gateway Selection (TODO not implemented in API yet)
+# Test Name: Virtual Host Virtual Gateway Selection
 # Test Number: 3.1
-# API Version: 2
 # Test Description:
-#   - SNI Routing for TLS or mTLS PASSTRHOUGH connections
+#   - Select each gateway individually with separate virtual hosts
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2963
 ##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+# establish a listener on the ingress gateway
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress-cluster1
+  namespace: global
+spec:
+  # TODO need cluster selector on gateway
+  workloads:
+    - selector:
+        istio: ingressgateway
+  listeners:
+    - port:
+        number: 80
+      http: {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress-cluster2
+  namespace: global
+spec:
+  # TODO need cluster selector on gateway
+  workloads:
+    - selector:
+        istio: ingressgateway
+  listeners:
+    - port:
+        number: 80
+      http: {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend-cluster1
+  namespace: global
+spec:
+  hosts:
+    - 'api.solo.io'
+  virtualGateways:
+    - name: ingress-cluster1
+  http:
+  - matchers:
+    - uri:
+        prefix: /
+    forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-1
+        port:
+          number: 8090
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend-cluster2
+  namespace: global
+spec:
+  hosts:
+    - 'api.solo.io'
+  virtualGateways:
+    - name: ingress-cluster2
+  http:
+  - matchers:
+    - uri:
+        prefix: /
+    forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-2
+        port:
+          number: 8090
+---

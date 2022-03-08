@@ -1,0 +1,42 @@
+##################################################
+# Test Name: Access Policy Source Selector
+# Test Number: 1.1
+# Test Description:
+#   - Using kubeIdentityMatcher to select applications in a specific namespace and clusters
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/3019
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+  options:
+    serviceIsolation: true
+---
+apiVersion: security.gloo.solo.io/v2
+kind: AccessPolicy
+metadata:
+  name: frontend
+  namespace: global
+spec:
+#  applyToDestinations: {}               # omitted to apply to all destinations
+  config:
+    allowedClients:
+      serviceAccountSelector:
+      - namespace: {{.EchoContext.AppNamespace.Name}}
+        cluster: cluster-1
+      - namespace: {{.EchoContext.AppNamespace.Name}}
+        cluster: cluster-2

@@ -1,8 +1,50 @@
 ##################################################
-# Test Name: Gateway in different namespace (TODO V2 does not allow fine grained namespace control)
+# Test Name: Gateway in different namespace
 # Test Number: 1.4
-# Test Description:
+# Test Description: 
 #   - Gateway is deployed to istio-gateways namespace
-# Issues
-# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
 ##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:                            # Enable automatic federation of all services to all clusters
+    selectors:
+      - {}
+  meshes:
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+---
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: gloo-mesh
+spec:
+  ingressGatewaySelectors:
+  - portName: http2                      # match on port name http2
+    destinationSelectors:
+    - kubeServiceMatcher:
+        labels:
+          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+        namespaces:
+        - istio-system                   # only include istio-system namespace
+  connectionHandlers:
+  - http:
+      routeConfig:
+      - virtualHost:
+          domains:
+          - "*"                          # Use a catch-all domain
+          routes:
+          - name: frontend
+            routeAction:
+              destinations:
+              - kubeService:
+                  clusterName: cluster-1
+                  name: frontend
+                  namespace: {{.EchoContext.AppNamespace.Name}}
+                  port: 8090

@@ -1,0 +1,56 @@
+##################################################
+# Test Name: Traffic Policy applies to specific requests
+# Test Number: 3.1.4
+# Test Description:
+#   - Setting 1s response times only to /frontend prefix requests ignoring case
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+  options:
+    serviceIsolation: true
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  workloadSelectors:
+    - selector:
+        labels:
+          app: frontend
+  http:
+  - matchers:
+    - uri:
+        prefix: /frontend
+        ignoreCase: true
+    labels:
+      timeout: frontend
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: RetryTimeoutPolicy
+metadata:
+  name: request-timeout
+  namespace: global
+spec:
+  applyToRoutes:
+  - route:
+      labels:
+        timeout: frontend
+  config:
+    requestTimeout: 1s

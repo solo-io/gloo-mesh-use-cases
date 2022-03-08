@@ -1,0 +1,77 @@
+##################################################
+# Test Name: Outlier Detection Route Level
+# Test Number: 14.2
+# Test Description:
+#   - Outlier detection and ejection of unhealthy applications
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+# establish a listener on the ingress gateway
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: global
+spec:
+  workloads:
+    - selector:
+        istio: ingressgateway
+  listeners:
+    - port:
+        number: 80
+      http: {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - 'frontend.solo.io'
+  virtualGateways:
+    - name: ingress
+  http:
+  - labels:
+      outlier-enabled: "true"
+    forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-1
+        port:
+          number: 8090
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: OutlierDetectionPolicy
+metadata:
+  name: outlier
+  namespace: global
+spec:
+  applyToRoutes:
+  - route:
+      labels:
+        outlier-enabled: "true"
+  config:
+    consecutiveErrors: 5
+    interval: 10s
+    baseEjectionTime: 1m
+    maxEjectionPercent: 100

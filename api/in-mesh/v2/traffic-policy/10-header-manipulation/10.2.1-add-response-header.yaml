@@ -1,0 +1,42 @@
+##################################################
+# Test Name: Traffic Policy Header Manipulation
+# Test Number: 10.2.1
+# Test Description:
+#   - Add response header on requests from frontend.app.svc.cluster.local
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/3004
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+#apiVersion: networking.mesh.gloo.solo.io/v1
+#kind: TrafficPolicy
+#metadata:
+#  namespace: gloo-mesh
+#  name: frontend
+#spec:
+#  # sourceSelector:                      # source selector omitted means "apply to anything calling destination"
+#  destinationSelector:
+#    - kubeServiceMatcher:                # kubeServiceMatcher is a select many services by labels/namespaces/clusters using AND notation
+#        labels:
+#          app: frontend                  # applications with app=frontend label
+#  policy:
+#    headerManipulation:                  # Add response header X-my-request-header=frontend
+#      appendResponseHeaders:
+#        X-my-response-header: "frontend"

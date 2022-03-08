@@ -1,0 +1,40 @@
+##################################################
+# Test Name: Traffic Policy fault injection
+# Test Number: 6.1
+# Test Description:
+#   - Delay requests for frontend.app.svc.cluster.local by 5s
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: FaultInjectionPolicy
+metadata:
+  name: fault-injection
+  namespace: global
+spec:
+  applyToRoutes:
+  - withDestinations:
+      selector:
+        labels:
+          app: frontend
+  config:
+    delay:
+      fixedDelay: 5s
+      percentage: 100

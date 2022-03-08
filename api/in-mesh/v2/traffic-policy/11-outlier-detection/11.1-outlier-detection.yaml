@@ -1,0 +1,42 @@
+##################################################
+# Test Name: Traffic Policy Outlier Detection
+# Test Number: 11.1
+# Test Description:
+#   - Outlier detection and ejection of unhealthy applications
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: OutlierDetectionPolicy
+metadata:
+  name: outlier
+  namespace: global
+spec:
+  applyToRoutes:
+  - withDestinations:
+      selector:
+        labels:
+          app: frontend
+  config:
+    consecutiveErrors: 5
+    interval: 10s
+    baseEjectionTime: 1m
+    maxEjectionPercent: 100
+---

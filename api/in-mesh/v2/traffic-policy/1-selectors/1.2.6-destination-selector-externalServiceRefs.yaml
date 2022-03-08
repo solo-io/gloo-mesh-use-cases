@@ -1,0 +1,69 @@
+##################################################
+# Test Name: Traffic Policy Selecting ExternalService as Destination
+# Test Number: 1.2.6
+# Test Description:
+#   - Setting request timeouts for requests bound for a ExternalService by reference
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: ExternalEndpoint
+metadata:
+  name: httpbin
+  namespace: global
+  labels:
+    external-service: httpbin
+spec:
+  address: httpbin.org
+  ports:
+    - name: http
+      number: 80
+    - name: https
+      number: 443
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: ExternalService
+metadata:
+  name: httpbin
+  namespace: global
+spec:
+  selector:
+    external-service: httpbin
+  hosts:
+  - httpbin.org
+  name: httpbin
+  ports:
+  - name: http
+    number: 80                         # internal port match, requires requests be to http://httpbin.org:80 and will be upgraded to HTTPS
+    protocol: HTTP
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: RetryTimeoutPolicy
+metadata:
+  name: request-timeout
+  namespace: global
+spec:
+  applyToRoutes:
+  - withDestinations:
+      kind: EXTERNAL_SERVICE
+      selector:
+        name: httpbin
+  config:
+    requestTimeout: 1s

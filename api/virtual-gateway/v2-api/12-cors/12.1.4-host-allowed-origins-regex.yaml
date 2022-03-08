@@ -1,0 +1,75 @@
+##################################################
+# Test Name: Cors Allowed Origins
+# Test Number: 12.1
+# Test Description:
+#   - Add frontend.solo.io and login.solo.io to Access-Control-Allow-Origin header
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+# establish a listener on the ingress gateway
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: global
+spec:
+  workloads:
+    - selector:
+        istio: ingressgateway
+  listeners:
+    - port:
+        number: 80
+      http: {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - "frontend.solo.io"
+  virtualGateways:
+    - name: ingress
+  http:
+  - labels:
+      enable-cors: "true"
+    forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-1
+        port:
+          number: 8090
+---
+apiVersion: security.policy.gloo.solo.io/v2
+kind: CORSPolicy
+metadata:
+  name: cors
+  namespace: global
+spec:
+  applyToRoutes:
+  - route:
+      labels:
+        enable-cors: "true"
+  config:
+    allowOrigins: # allow frontend.solo.io
+    - regex: "http://(.*).solo.io"
