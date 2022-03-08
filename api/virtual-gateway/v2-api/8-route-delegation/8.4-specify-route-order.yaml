@@ -1,0 +1,108 @@
+##################################################
+# Test Name: Sort RouteTables By Specificity
+# Test Number: 8.4
+# Test Description:
+#   - After processing all routes, including additional route tables delegated to, the resulting routes are sorted by specificity to reduce the chance that a more specific route will be short-circuited by a general route. Matchers with exact path matchers are considered more specific than regex path patchers, which are more specific than prefix path matchers. 
+#   - Matchers of the same type are sorted by length of the path in descending order. 
+#   - Only the most specific matcher on each route is used.
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+# establish a listener on the ingress gateway
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: global
+spec:
+  workloads:
+    - selector:
+        istio: ingressgateway
+  listeners:
+    - port:
+        number: 80
+      http: {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: ingress
+  namespace: global
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - delegate:
+      routeTables:
+        - labels:
+            gateway: ingress
+            sortMethod: ROUTE_SPECIFICITY
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend-1
+  namespace: global
+  labels:
+    gateway: ingress
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - matchers:
+    - uri:
+        prefix: /frontend
+    forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-1
+        port:
+          number: 8090
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend-1
+  namespace: global
+  labels:
+    gateway: ingress
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - matchers:
+    - uri:
+        prefix: /frontend/cluster-2
+    forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-2
+        port:
+          number: 8090

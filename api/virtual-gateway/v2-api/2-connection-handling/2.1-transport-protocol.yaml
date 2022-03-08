@@ -1,7 +1,6 @@
 ##################################################
 # Test Name: Transport Protocol (TODO NOT COMPLETE)
 # Test Number: 2.1
-# API Version: 2
-# Test Description:
+# Test Description: 
 #   - Override the default protocol selection for mysql
 ##################################################

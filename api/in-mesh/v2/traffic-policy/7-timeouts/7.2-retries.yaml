@@ -1,0 +1,41 @@
+##################################################
+# Test Name: Traffic Policy Timeouts And Retries
+# Test Number: 7.2
+# Test Description:
+#   - 1s request timeout for requests to frontend.app.svc.cluster.local but retry 3 times
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: RetryTimeoutPolicy
+metadata:
+  name: request-timeout
+  namespace: global
+spec:
+  applyToRoutes:
+  - withDestinations:
+      selector:
+        labels:
+          app: frontend
+  config:
+    requestTimeout: 10s
+    retries:
+      attempts: 2            # retry a total of 2 times
+      perTryTimeout: 1s      # 1s timeout per retry

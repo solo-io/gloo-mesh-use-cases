@@ -1,12 +1,8 @@
 ##################################################
 # Test Name: Virtual Destination Routing
 # Test Number: 5.7
-# API Version: 2
 # Test Description:
 #   - Route to a VirtualDestination
-# Issues
-# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2080
-# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2081
 ##################################################
 apiVersion: admin.gloo.solo.io/v2
 kind: Workspace
@@ -15,46 +11,32 @@ metadata:
   namespace: gloo-mesh
 spec:
   workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
     - name: "*"
 ---
 apiVersion: admin.gloo.solo.io/v2
-kind: RootTrustPolicy
+kind: WorkspaceSettings
 metadata:
-  name: auto-mtls
-  namespace: gloo-mesh
+  name: settings
+  namespace: global
 spec:
-  applyToMeshes:
-    - name: istiod-istio-system-cluster1
-      namespace: gloo-mesh
-    - name: istiod-istio-system-cluster2
-      namespace: gloo-mesh
-  config:
-    rootCertificateAuthority:            # auto generate ca certificates for each istio mesh
-      generated:  {}
+ {}
 ---
+# establish a listener on the ingress gateway
 apiVersion: networking.gloo.solo.io/v2
 kind: VirtualGateway
 metadata:
-  name: ingress                          # applies to all gateways in the mesh 
+  name: ingress
   namespace: global
 spec:
+  workloads:
+    - selector:
+        istio: ingressgateway
   listeners:
     - port:
-        name: http2                      # apply configuration to ingress gateways http port
----
-apiVersion: networking.gloo.solo.io/v2
-kind: RouteTable
-metadata:
-  name: reviews
-  namespace: global
-spec:
-  hosts:
-    - '*'
-  http:
-  - forwardTo:
-      destinations:
-      - name: frontend
-        type: VirtualDestination
+        number: 80
+      http: {}
 ---
 apiVersion: networking.gloo.solo.io/v2
 kind: VirtualDestination
@@ -66,3 +48,20 @@ spec:
     app: frontend
   ports:
   - name: http
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+        kind: VIRTUAL_DESTINATION

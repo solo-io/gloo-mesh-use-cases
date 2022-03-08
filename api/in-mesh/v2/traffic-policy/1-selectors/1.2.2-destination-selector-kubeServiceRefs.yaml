@@ -1,0 +1,57 @@
+##################################################
+# Test Name: Traffic Policy Using Direct Kubernetes Destination Selector
+# Test Number: 1.2.2
+# Test Description:
+#   - Setting request timeouts for requests bound to a destination using kubeServiceRef
+#   - Selecting a single indidual kubernetes service by name
+##################################################
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: VirtualMesh
+metadata:
+  name: virtual-mesh
+  namespace: gloo-mesh
+spec:
+  federation:
+    selectors:
+      - { }
+  meshes:
+    - name: istiod-istio-system-cluster-2
+      namespace: gloo-mesh
+    - name: istiod-istio-system-cluster-1
+      namespace: gloo-mesh
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+  options:
+    serviceIsolation: true
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: RetryTimeoutPolicy
+metadata:
+  name: request-timeout
+  namespace: global
+spec:
+  applyToRoutes:
+  - withDestinations:
+      selector:
+        namespace: {{.EchoContext.AppNamespace.Name}}
+        cluster: cluster-1
+        name: frontend
+  config:
+    requestTimeout: 1s
+---

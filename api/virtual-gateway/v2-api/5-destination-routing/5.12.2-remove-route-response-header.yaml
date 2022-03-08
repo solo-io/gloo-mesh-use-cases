@@ -1,62 +1,65 @@
 ##################################################
-# Test Name: Remove Route Response Header (TODO no header manipulation)
+# Test Name: Remove Route Response Header
 # Test Number: 5.12.2
-# API Version: 2
 # Test Description:
 #   - Remove response header on requests meant for frontend
 # Issues
-# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2083
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/3004
 ##################################################
-# apiVersion: networking.mesh.gloo.solo.io/v1
-# kind: VirtualMesh
-# metadata:
-#   name: virtual-mesh
-#   namespace: gloo-mesh
-# spec:
-#   mtlsConfig:
-#     autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-#     shared:
-#       rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-#         generated: {}
-#   federation:                            # Enable automatic federation of all services to all clusters
-#     selectors:
-#       - {}
-#   meshes:
-#     - name: istiod-istio-system-cluster1
-#       namespace: gloo-mesh
-#     - name: istiod-istio-system-cluster2
-#       namespace: gloo-mesh
-# ---
-# apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
-# kind: VirtualGateway
-# metadata:
-#   name: ingress
-#   namespace: gloo-mesh
-# spec:
-#   ingressGatewaySelectors:
-#   - portName: http2               # match on port name http2
-#     destinationSelectors:
-#     - kubeServiceMatcher:
-#         labels:
-#           istio: ingressgateway  # select all gateways with istio=ingressgateway label
-#         namespaces:
-#         - istio-system            # only include istio-system namespace
-#   connectionHandlers:
-#   - http:
-#       routeConfig:
-#       - virtualHost:
-#           domains:
-#           - "*"
-#           routes:
-#           - name: frontend
-#             routeAction:
-#               destinations:
-#               - kubeService:
-#                   clusterName: cluster1
-#                   name: frontend
-#                   namespace: app
-#                   port: 8080
-#             options:
-#               headerManipulation:
-#                 removeResponseHeaders:
-#                   - X-my-response-header
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+# establish a listener on the ingress gateway
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: global
+spec:
+  workloads:
+    - selector:
+        istio: ingressgateway
+  listeners:
+    - port:
+        number: 80
+      http: {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - 'api.solo.io'
+  virtualGateways:
+    - name: ingress
+  http:
+  - forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-1
+        port:
+          number: 8090
+#      options:
+#        headerManipulation:
+#          removeResponseHeaders:
+#            - X-Envoy-Upstream-Service-Time

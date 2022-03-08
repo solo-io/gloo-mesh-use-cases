@@ -1,0 +1,76 @@
+##################################################
+# Test Name: Virtual Destination Outlier Detection
+# Test Number: 5.2
+# Test Description:
+#   - Setting failover priority when outlier ejection is triggered
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualDestination
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - frontend.solo.internal
+  selectors:
+    labels:
+      app: frontend
+    cluster: cluster-2
+  ports:
+  - name: http
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: OutlierDetectionPolicy
+metadata:
+  name: outlier-detection
+  namespace: bookinfo-frontends
+spec:
+  applyToDestinations:
+  - kind: VIRTUAL_DESTINATION
+    selector:
+      name: frontend
+  config:
+    consecutiveErrors: 5
+    interval: 10s
+    baseEjectionTime: 10s
+    maxEjectionPercent: 100
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: FailoverPolicy
+metadata:
+  name: failover
+  namespace: bookinfo-frontends
+spec:
+  applyToDestinations:
+  - kind: VIRTUAL_DESTINATION
+    selector:
+      name: frontend
+  config:
+    localityMappings:
+      - from:
+          region: us-east-1
+        to:
+          - region: us-west-1
+      - from:
+          region: us-west-1
+        to:
+          - region: us-east-1

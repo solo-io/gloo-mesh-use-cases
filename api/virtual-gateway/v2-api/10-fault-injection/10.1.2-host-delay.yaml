@@ -1,0 +1,79 @@
+##################################################
+# Test Name: Fault Injection Delay
+# Test Number: 10.1
+# Test Description:
+#   - inject 5s delay to requests
+#   - apply at the virtual host level
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2103
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+# establish a listener on the ingress gateway
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: global
+spec:
+  workloads:
+    - selector:
+        istio: ingressgateway
+  listeners:
+    - port:
+        number: 80
+      http: {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - labels:
+      fault-injection: "true"
+    forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-1
+        port:
+          number: 8090
+---
+apiVersion: resilience.policy.gloo.solo.io/v2
+kind: FaultInjectionPolicy
+metadata:
+  name: fault-injection
+  namespace: global
+spec:
+  applyToRoutes:
+  - route:
+      labels:
+        fault-injection: "true"
+  config:
+    delay:
+      fixedDelay: 5s
+      percentage: 100

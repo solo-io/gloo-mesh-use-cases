@@ -1,65 +1,6 @@
 ##################################################
-# Test Name: Cluster Header Destination Routing (TODO does not exist in API)
+# Test Name: Cluster Header Destination Routing (Does not exist in V2)
 # Test Number: 5.5
-# API Version: 2
 # Test Description:
-#   - Route all requests to frontend cluyster based on header X-SOLO-CLUSTER
-# Issues
-# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2056
+#   - Route all requests to frontend cluster based on header X-SOLO-CLUSTER
 ##################################################
-# apiVersion: networking.mesh.gloo.solo.io/v1
-# kind: VirtualMesh
-# metadata:
-#   name: virtual-mesh
-#   namespace: gloo-mesh
-# spec:
-#   mtlsConfig:
-#     autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-#     shared:
-#       rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-#         generated: {}
-#   federation:                            # Enable automatic federation of all services to all clusters
-#     selectors:
-#       - {}
-#   meshes:
-#     - name: istiod-istio-system-cluster1
-#       namespace: gloo-mesh
-#     - name: istiod-istio-system-cluster2
-#       namespace: gloo-mesh
-# ---
-# apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
-# kind: VirtualGateway
-# metadata:
-#   name: ingress
-#   namespace: gloo-mesh
-# spec:
-#   ingressGatewaySelectors:
-#   - portName: http2                      # match on port name http2
-#     destinationSelectors:
-#     - kubeServiceMatcher:
-#         labels:
-#           istio: ingressgateway          # select all gateways with istio=ingressgateway label
-#         namespaces:
-#         - istio-system                   # only include istio-system namespace
-#   connectionHandlers:
-#   - http:
-#       routeConfig:
-#       - virtualHost:
-#           domains:
-#           - "*"
-#           routes:
-#           - name: frontend
-#             routeAction:
-#               destinations:              # route to both cluster1 and cluster2 frontend
-#               - clusterHeader: X-SOLO-CLUSTER  # 
-#                 kubeService:
-#                   clusterName: cluster1
-#                   name: frontend
-#                   namespace: app
-#                   port: 8080
-#               - clusterHeader: X-SOLO-CLUSTER
-#                 kubeService:
-#                   clusterName: cluster2
-#                   name: frontend
-#                   namespace: app
-#                   port: 8080

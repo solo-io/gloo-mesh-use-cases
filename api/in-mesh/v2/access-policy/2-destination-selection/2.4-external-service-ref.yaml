@@ -1,0 +1,70 @@
+##################################################
+# Test Name: Access Policy Destination Selector
+# Test Number: 2.1
+# Test Description:
+#   - Allow all services access to httpbin external service by reference
+# Issues
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/3019
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/3020
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+  options:
+    serviceIsolation: true
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: ExternalEndpoint
+metadata:
+  name: httpbin
+  namespace: global
+  labels:
+    external-service: httpbin
+spec:
+  address: httpbin.org
+  ports:
+    - name: https
+      number: 443
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: ExternalService
+metadata:
+  name: httpbin
+  namespace: global
+spec:
+  selector:
+    external-service: httpbin
+  hosts:
+  - httpbin.org
+  name: httpbin
+  ports:
+  - name: http
+    number: 80                         # internal port match, requires requests be to http://httpbin.org:80 and will be upgraded to HTTPS
+    protocol: HTTP
+---
+apiVersion: security.gloo.solo.io/v2
+kind: AccessPolicy
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  applyToDestinations:
+    - selector:
+        name: httpbin
+      kind: EXTERNAL_SERVICE
+  config:
+    authz: {}                            # omitted to apply to all sources

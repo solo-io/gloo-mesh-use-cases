@@ -1,57 +1,65 @@
 ##################################################
-# Test Name: Multi Gateway Using Cluster Selector (TODO missing cluster selector)
+# Test Name: Multi Gateway Using Cluster Selector
 # Test Number: 1.1
-# Test Description:
+# Test Description: 
 #   - Simple use case with gateway selector and destination route
 # Issues
-# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2077
+# - https://github.com/solo-io/gloo-mesh-enterprise/issues/2963
 ##################################################
-apiVersion: networking.mesh.gloo.solo.io/v1
-kind: VirtualMesh
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
 metadata:
-  name: virtual-mesh
+  name: global                           # workspace contains all connected services
   namespace: gloo-mesh
 spec:
-  mtlsConfig:
-    autoRestartPods: true                # automatically restart pods when ca certificate rotated (NOT recommended for production!!)
-    shared:
-      rootCertificateAuthority:          # auto generate ca certificates for each istio mesh
-        generated: {}
-  federation:                            # Enable automatic federation of all services to all clusters
-    selectors:
-      - {}
-  meshes:
-    - name: istiod-istio-system-cluster1
-      namespace: gloo-mesh
-    - name: istiod-istio-system-cluster2
-      namespace: gloo-mesh
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
 ---
-apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+# establish a listener on the ingress gateway
+apiVersion: networking.gloo.solo.io/v2
 kind: VirtualGateway
 metadata:
   name: ingress
-  namespace: gloo-mesh
+  namespace: global
 spec:
-  ingressGatewaySelectors:
-  - portName: http2                      # match on port name http2
-    destinationSelectors:                # select single specific kubernetes services
-    - kubeServiceRefs:
-        services:
-        - name: istio-ingressgateway     # select cluster1 ingress gateway service
-          namespace: istio-system
-          clusterName: cluster1
-  connectionHandlers:
-  - http:
-      routeConfig:
-      - virtualHost:
-          domains:
-          - "*"                          # Use a catch-all domain
-          routes:
-          - name: frontend
-            routeAction:
-              destinations:
-              - kubeService:
-                  clusterName: cluster1
-                  name: frontend
-                  namespace: app
-                  port: 8080
+  workloads:
+    - selector:
+        istio: ingressgateway
+  listeners:
+    - port:
+        number: 80
+      http: {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - '*'
+  virtualGateways:
+    - name: ingress
+  http:
+  - matchers:
+    - uri:
+        prefix: /
+    forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-1
+        port:
+          number: 8090
+---

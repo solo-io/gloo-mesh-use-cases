@@ -1,0 +1,39 @@
+##################################################
+# Test Name: Virtual Destination Hostnames
+# Test Number: 1.1
+# Test Description:
+#   - Define a custom hostname for a service
+##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualDestination
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - frontend.solo.io
+  selectors:
+    labels:
+      app: frontend
+    cluster: cluster-2
+  ports:
+  - name: http

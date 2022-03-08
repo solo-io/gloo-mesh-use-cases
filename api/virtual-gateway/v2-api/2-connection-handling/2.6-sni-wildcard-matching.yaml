@@ -1,8 +1,98 @@
 ##################################################
-# Test Name: SNI Matching (TODO not implemented in API yet)
+# Test Name: SNI Matching
 # Test Number: 2.5
 # Test Description:
 #   - SNI Routing for TLS or mTLS PASSTRHOUGH connections
 # Issues:
 # - https://github.com/solo-io/gloo-mesh-enterprise/issues/2078
 ##################################################
+apiVersion: admin.gloo.solo.io/v2
+kind: Workspace
+metadata:
+  name: global                           # workspace contains all connected services
+  namespace: gloo-mesh
+spec:
+  workloadClusters:                      # select all clusters and namespaces
+  - name: "*"
+    namespaces:
+    - name: "*"
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: settings
+  namespace: global
+spec:
+ {}
+---
+# establish a listener on the ingress gateway
+apiVersion: networking.gloo.solo.io/v2
+kind: VirtualGateway
+metadata:
+  name: ingress
+  namespace: global
+spec:
+  workloads:
+    - selector:
+        istio: ingressgateway
+  listeners:
+    - port:
+        number: 443
+      tcp: {}  # TODO NO SNI MATCHING CURRENTLY
+      tls:
+        tlsMode: PASSTHROUGH
+
+---
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: frontend
+  namespace: global
+spec:
+  hosts:
+    - 'api.solo.io'
+  virtualGateways:
+    - name: ingress
+  http:
+  - matchers:
+    - uri:
+        prefix: /
+    forwardTo:
+      destinations:
+      - ref:
+          name: frontend
+          namespace: {{.EchoContext.AppNamespace.Name}}
+          cluster: cluster-1
+        port:
+          number: 8090
+---
+#apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+#kind: VirtualGateway
+#metadata:
+#  name: ingress
+#  namespace: gloo-mesh
+#spec:
+#  ingressGatewaySelectors:
+#  - portName: https                      # match on port name https
+#    destinationSelectors:
+#    - kubeServiceMatcher:
+#        labels:
+#          istio: ingressgateway          # select all gateways with istio=ingressgateway label
+#        namespaces:
+#        - istio-system                   # only include istio-system namespace
+#  connectionHandlers:
+#  - connectionOptions:
+#      sslConfig:
+#        tlsMode: PASSTHROUGH             # no tls termination
+#    connectionMatch:
+#      serverNames:
+#      - "*.solo.io"                      # SNI match
+#    tcp:
+#      tcpHosts:
+#      - name: frontend
+#        destination:
+#          kube:
+#            name: frontend
+#            namespace: {{.EchoContext.AppNamespace.Name}}
+#            clusterName: cluster-1
+#            port: 8090
