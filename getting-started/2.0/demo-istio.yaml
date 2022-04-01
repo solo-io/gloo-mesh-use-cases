@@ -9,7 +9,7 @@ spec:
   # Solo.io Istio distribution repository
   hub: $REPO
   # Solo.io Gloo Mesh Istio tag
-  tag: ${ISTIO_VERSION}
+  tag: ${ISTIO_IMAGE}
 
   meshConfig:
     # enable access logging to standard output
