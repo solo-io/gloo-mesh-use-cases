@@ -9,7 +9,7 @@ spec:
   # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
   hub: $REPO
   # The Solo.io Gloo Mesh Istio version
-  tag: $ISTIO_VERSION
+  tag: $ISTIO_IMAGE
   # Istio revision to create resources with
   revision: $REVISION
   
