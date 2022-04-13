@@ -16,7 +16,7 @@ mgmtClusterName: $MGMT_CLUSTER
 # Disable default Prometheus instance to provide your own instance as needed
 prometheus:
   enabled: false
-# Provide the URL (with port) to your Prometheus instance
+# Provide the URL (with port) to your own existing Prometheus instance
 prometheusUrl: ""
 # Enable verbose/debug logging
 verbose: false
