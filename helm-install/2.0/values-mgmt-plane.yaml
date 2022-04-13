@@ -1,5 +1,5 @@
 # Global settings for management plane configuration
-# Namespace to install Gloo Mesh Enterprise and global configuration
+# Namespace to install Gloo Mesh Enterprise
 adminNamespace: ""
 # Set the logger to development mode, which can cause panics. Do not use in production.
 devMode: false
@@ -13,71 +13,9 @@ legacyMode: false
 licenseKey: $GLOO_MESH_LICENSE_KEY
 # Name of the management cluster
 mgmtClusterName: $MGMT_CLUSTER
-# Override Prometheus deployment settings for the Prometheus Helm chart https://github.com/prometheus-community/helm-charts
+# Disable default Prometheus instance to provide your own instance as needed
 prometheus:
-  alertmanager:
-    enabled: false
-  # Disable default Prometheus instance to provide your own instance as needed
   enabled: false
-  kubeStateMetrics:
-    enabled: false
-  nodeExporter:
-    enabled: false
-  podSecurityPolicy:
-    enabled: false
-  pushgateway:
-    enabled: false
-  rbac:
-    create: true
-  server:
-    fullnameOverride: prometheus-server
-    persistentVolume:
-      enabled: false
-  serverFiles:
-    prometheus.yml:
-      scrape_configs:
-      - job_name: gloo-mesh
-        kubernetes_sd_configs:
-        - role: endpoints
-        relabel_configs:
-        - action: keep
-          regex: true
-          source_labels:
-          - __meta_kubernetes_pod_annotation_prometheus_io_scrape
-        - action: replace
-          regex: (.+)
-          source_labels:
-          - __meta_kubernetes_pod_annotation_prometheus_io_path
-          target_label: __metrics_path__
-        - action: replace
-          regex: (.+):(?:\d+);(\d+)
-          replacement: ${1}:${2}
-          source_labels:
-          - __address__
-          - __meta_kubernetes_pod_annotation_prometheus_io_port
-          target_label: __address__
-        - action: labelmap
-          regex: __meta_kubernetes_service_label_(.+)
-        - action: replace
-          source_labels:
-          - __meta_kubernetes_namespace
-          target_label: namespace
-        - action: replace
-          source_labels:
-          - __meta_kubernetes_service_name
-          target_label: service
-        scrape_interval: 15s
-        scrape_timeout: 10s
-  serviceAccounts:
-    alertmanager:
-      create: false
-    nodeExporter:
-      create: false
-    pushgateway:
-      create: false
-    server:
-      create: true
-# Default URL for the Prometheus instance
 prometheusUrl: http://prometheus-server
 # Enable verbose/debug logging
 verbose: false
@@ -273,24 +211,3 @@ glooMeshUi:
 glooMeshRedis:
   # Disable default instance to provide your own Redis instance as needed
   enabled: false
-  env:
-  - name: MASTER
-    value: "true"
-  # Required for OpenShift installations: Allow the pod to be assigned a dynamic user ID.
-  floatingUserId: false
-  image:
-    pullPolicy: IfNotPresent
-    registry: docker.io
-    repository: redis
-    tag: 6.2.6
-  ports:
-    redis: 6379
-  resources:
-    requests:
-      cpu: 125m
-      memory: 256Mi
-  # Static user ID to run the containers as. Unused if floatingUserId is ‘true’
-  runAsUser: 10101
-  serviceType: ClusterIP
-  sidecars: {}
-  addr: ""
