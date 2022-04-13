@@ -27,11 +27,37 @@ prometheus:
     prometheus.yml:
       scrape_configs:
       - job_name: gloo-mesh
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+        - action: replace
+          regex: (.+)
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_path
+          target_label: __metrics_path__
+        - action: replace
+          regex: (.+):(?:\d+);(\d+)
+          replacement: ${1}:${2}
+          source_labels:
+          - __address__
+          - __meta_kubernetes_pod_annotation_prometheus_io_port
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_namespace
+          target_label: namespace
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_service_name
+          target_label: service
         scrape_interval: 15s
         scrape_timeout: 10s
-        static_configs:
-        - targets:
-          - gloo-mesh-mgmt-server-ui.gloo-mesh:9091
   serviceAccounts:
     alertmanager:
       create: false
@@ -75,6 +101,7 @@ glooMeshMgmtServer:
   runAsUser: 10101
   serviceType: LoadBalancer
   sidecars: {}
+  concurrency: 10
   maxGrpcMessageSize: "4294967295"
   relay:
     disableCa: false
@@ -178,4 +205,3 @@ glooMeshRedis:
   serviceType: ClusterIP
   sidecars: {}
   addr: ""
-
