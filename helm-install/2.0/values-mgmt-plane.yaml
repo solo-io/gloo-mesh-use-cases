@@ -44,7 +44,7 @@ glooMeshMgmtServer:
     # see https://docs.solo.io/gloo-mesh-enterprise/main/reference/changelog/
     tag: $GLOO_MESH_VERSION
     # If pulling from a private registry
-    # pullSecret:
+    #pullSecret:
   # Ports for Gloo Mesh agents to connect to
   ports:
     grpc: 9900
@@ -129,7 +129,7 @@ glooMeshUi:
     # Gloo Mesh Enterprise patch version
     tag: $GLOO_MESH_VERSION
     # If pulling from a private registry
-    # pullSecret:
+    #pullSecret:
   # Ports for UI service
   ports:
     console: 8090
@@ -160,7 +160,7 @@ glooMeshUi:
         # Gloo Mesh Enterprise patch version
         tag: $GLOO_MESH_VERSION
         # If pulling from a private registry
-        # pullSecret:
+        #pullSecret:
       resources:
         requests:
           cpu: 125m
@@ -176,7 +176,7 @@ glooMeshUi:
         # Gloo Mesh Enterprise patch version
         tag: $GLOO_MESH_VERSION
         # If pulling from a private registry
-        # pullSecret:
+        #pullSecret:
       resources:
         requests:
           cpu: 500m

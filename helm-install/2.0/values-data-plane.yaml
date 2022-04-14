@@ -1,10 +1,16 @@
+# Global settings for agent configuration
+
 accessLogsBufferSize: 50
+# Name of the workload cluster by which cluster is referenced in all Gloo Mesh configurations
 cluster: $REMOTE_CLUSTER
 devMode: false
+# Install external authentication service in the gloo-mesh namespace.
+# Do not use in production; install in gloo-mesh-addons namespace after registration time.
 ext-auth-service:
   enabled: false
   extraTemplateAnnotations:
     proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+# Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
 insecure: false
 istiodSidecar:
   createRoleBinding: false
@@ -14,25 +20,41 @@ istiodSidecar:
 leaderElection: true
 maxGrpcMessageSize: "4294967295"
 metricsBufferSize: 50
+# Install rate limiting service in the gloo-mesh namespace.
+# Do not use in production; install in gloo-mesh-addons namespace after registration time.
 rate-limiter:
   enabled: false
   extraTemplateAnnotations:
     proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
 relay:
+  # SNI name used to connect to relay forwarding server. Must match server certificate CommonName (DO NOT CHANGE)
   authority: gloo-mesh-mgmt-server.gloo-mesh
+  # Custom certs: Reference to a secret containing TLS certs used to secure the networking gRPC server with TLS.
   clientTlsSecret:
     name: relay-client-tls-secret
+  # Reference to a secret containing a root TLS cert used to verify the relay server cert. 
+  # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
   rootTlsSecret:
     name: relay-root-tls-secret
+  # Address and port by which gloo-mesh-management-server in Gloo Mesh management plane is accessed
   serverAddress: $MGMT_SERVER_NETWORKING_ADDRESS
-  tokenSecret:
-    key: token
-    name: relay-identity-token-secret
-    namespace: ""
+  # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
+  #tokenSecret:
+  #  key: token
+  #  name: relay-identity-token-secret
+  #  namespace: gloo-mesh
 verbose: false
 
-
+# Configuration for the gloo-mesh-agent deployment
 glooMeshAgent:
+  # Optionally set deployment overrides
+  #deploymentOverrides:
+  #  spec:
+  #    template:
+  #      spec:
+  # Provide a node selector to ensure enterprise-agent runs on infra nodes
+  #        nodeSelector:
+  #          node_type: infra
   enabled: true
   env:
   - name: POD_NAMESPACE
@@ -44,14 +66,21 @@ glooMeshAgent:
     pullPolicy: IfNotPresent
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-agent
+    # Gloo Mesh Enterprise patch version. Must match the gloo-mesh-management-server version.
     tag: $GLOO_MESH_VERSION
+    # If pulling from a private registry
+    #pullSecret:
   ports:
     grpc: 9977
     stats: 9091
+  # gloo-mesh-agent pod resources
   resources:
     requests:
       cpu: 50m
       memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
   runAsUser: 10101
   serviceType: ClusterIP
   sidecars: {}
