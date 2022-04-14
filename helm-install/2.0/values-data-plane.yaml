@@ -1,8 +1,9 @@
 # Global settings for agent configuration
-
+# Number of access logs to buffer per Envoy proxy
 accessLogsBufferSize: 50
 # Name of the workload cluster by which cluster is referenced in all Gloo Mesh configurations
 cluster: $REMOTE_CLUSTER
+# Set the logger to development mode, which can cause panics. Do not use in production.
 devMode: false
 # Install external authentication service in the gloo-mesh namespace.
 # Do not use in production; install in gloo-mesh-addons namespace after registration time.
@@ -12,13 +13,19 @@ ext-auth-service:
     proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
 # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
 insecure: false
+# Configuration for the istiod sidecar deployment
 istiodSidecar:
+  # Create the cluster role binding needed by the istiod sidecar
   createRoleBinding: false
+  # Object reference to istiod service account
   istiodServiceAccount:
     name: istiod
     namespace: istio-system
+# Enable leader election for the HA deployment
 leaderElection: true
+# Maximum message size for gRPC messages sent and received by the management server
 maxGrpcMessageSize: "4294967295"
+# Number of metrics messages to buffer per Envoy proxy
 metricsBufferSize: 50
 # Install rate limiting service in the gloo-mesh namespace.
 # Do not use in production; install in gloo-mesh-addons namespace after registration time.
@@ -43,6 +50,7 @@ relay:
   #  key: token
   #  name: relay-identity-token-secret
   #  namespace: gloo-mesh
+# Enable verbose/debug logging
 verbose: false
 
 # Configuration for the gloo-mesh-agent deployment
@@ -61,6 +69,7 @@ glooMeshAgent:
     valueFrom:
       fieldRef:
         fieldPath: metadata.namespace
+  # Required for OpenShift installations: Allow the pod to be assigned a dynamic user ID.
   floatingUserId: false
   image:
     pullPolicy: IfNotPresent
@@ -71,7 +80,9 @@ glooMeshAgent:
     # If pulling from a private registry
     #pullSecret:
   ports:
+    # Port for gloo-mesh-agent service
     grpc: 9977
+    # Port on which to serve internal Prometheus metrics for the agent app
     stats: 9091
   # gloo-mesh-agent pod resources
   resources:
@@ -81,6 +92,9 @@ glooMeshAgent:
     limits:
       cpu: 500m
       memory: 512Mi
+  # Static user ID to run the containers as. Unused if floatingUserId is 'true'
   runAsUser: 10101
+  # Kubernetes service type
   serviceType: ClusterIP
+  # Optional configuration for the deployed containers
   sidecars: {}

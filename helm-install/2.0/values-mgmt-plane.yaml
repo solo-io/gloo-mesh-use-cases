@@ -17,8 +17,7 @@ mgmtClusterName: $MGMT_CLUSTER
 prometheus:
   enabled: false
 # Provide the URL (with port) to your own existing Prometheus instance
-prometheusUrl: ""
-# Enable verbose/debug logging
+prometheusUrl: "" 
 verbose: false
 
 # Configuration for the gloo-mesh-mgmt-server deployment
@@ -45,12 +44,12 @@ glooMeshMgmtServer:
     tag: $GLOO_MESH_VERSION
     # If pulling from a private registry
     #pullSecret:
-  # Ports for Gloo Mesh agents to connect to
   ports:
+    # gloo-mesh-mgmt-server service port for Gloo Mesh agents to connect to
     grpc: 9900
     grpcUI: 11100
     healthcheck: 8090
-    # Port on which to serve internal Prometheus metrics for the Gloo Mesh app
+    # Port on which to serve internal Prometheus metrics for the management server app
     stats: 9091
   # gloo-mesh-mgmt-server pod resources
   resources:
@@ -60,7 +59,7 @@ glooMeshMgmtServer:
     limits:
       cpu: 1000m
       memory: 1Gi
-  # Static user ID to run the containers as. Unused if floatingUserId is ‘true’
+  # Static user ID to run the containers as. Unused if floatingUserId is 'true'
   runAsUser: 10101
   # Additional settings to add to the load balancer service
   serviceOverrides:
@@ -143,7 +142,7 @@ glooMeshUi:
     limits:
       cpu: 500m
       memory: 512Gi
-  # Static user ID to run the containers as. Unused if floatingUserId is ‘true’
+  # Static user ID to run the containers as. Unused if floatingUserId is 'true'
   runAsUser: 10101
   # Additional settings to add to Kubernetes service
   #serviceOverrides:
