@@ -1,4 +1,4 @@
-# Gloo Mesh Enterprise data plane plane configuration
+# Gloo Mesh Enterprise data plane configuration
 relay:
   # SNI name used to connect to relay forwarding server, which must match server certificate CommonName (DO NOT CHANGE)
   authority: enterprise-networking.gloo-mesh
