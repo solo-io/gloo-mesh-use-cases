@@ -38,7 +38,7 @@ relay:
   authority: gloo-mesh-mgmt-server.gloo-mesh
   # Custom certs: Reference to a secret containing TLS certs used to secure the networking gRPC server with TLS.
   clientTlsSecret:
-    name: relay-client-tls-secret
+    name: gloo-mesh-agent-$REMOTE_CLUSTER-tls-cert
   # Reference to a secret containing a root TLS cert used to verify the relay server cert. 
   # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
   rootTlsSecret:
