@@ -43,7 +43,7 @@ relay:
   # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
   rootTlsSecret:
     name: relay-root-tls-secret
-  # Address and port by which gloo-mesh-management-server in Gloo Mesh management plane is accessed
+  # Address and port by which gloo-mesh-mgmt-server in Gloo Mesh management plane is accessed
   serverAddress: $MGMT_SERVER_NETWORKING_ADDRESS
   # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
   #tokenSecret:
@@ -75,7 +75,7 @@ glooMeshAgent:
     pullPolicy: IfNotPresent
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-agent
-    # Gloo Mesh Enterprise patch version. Must match the gloo-mesh-management-server version.
+    # Gloo Mesh Enterprise patch version. Must match the gloo-mesh-mgmt-server version.
     tag: $GLOO_MESH_VERSION
     # If pulling from a private registry
     #pullSecret:
