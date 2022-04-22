@@ -73,6 +73,7 @@ spec:
         istio: eastwestgateway
       k8s:
         env:
+          # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
           # Required by Gloo Mesh for east/west routing
           - name: ISTIO_META_ROUTER_MODE
             value: "sni-dnat"
