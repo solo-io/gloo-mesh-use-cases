@@ -53,6 +53,7 @@ spec:
               cpu: 100m
               memory: 40Mi
           env:
+            # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
             # Required by Gloo Mesh for east/west routing
             - name: ISTIO_META_ROUTER_MODE
               value: "sni-dnat"

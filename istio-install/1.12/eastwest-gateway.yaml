@@ -53,10 +53,13 @@ spec:
               cpu: 100m
               memory: 40Mi
           env:
+            # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
             # Required by Gloo Mesh for east/west routing
             - name: ISTIO_META_ROUTER_MODE
               value: "sni-dnat"
           service:
+            # Required to onboard VMs
+            #type: LoadBalancer
             # Default ports
             ports:
               # Health check port. For AWS ELBs, this port must be listed first.
@@ -68,6 +71,11 @@ spec:
                 targetPort: 15443
                 # Gloo Mesh looks for this default name 'tls' on a gateway
                 name: tls
+              # Port required for VM onboarding
+              - port: 15012
+                targetPort: 15012
+                # Required for VM onboarding discovery address
+                name: tls-istiod
           overlays:
             - apiVersion: apps/v1
               kind: Deployment

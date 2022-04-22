@@ -25,19 +25,21 @@ spec:
     defaultConfig:
       # Wait for the istio-proxy to start before starting application pods
       holdApplicationUntilProxyStarts: true
-      # Enable Gloo Mesh metrics service. Required for Gloo Mesh Dashboard
+      # Enable Gloo Mesh metrics service. Required for Gloo Mesh UI
+      # For Gloo Mesh Enterprise version 1.2, change to enterprise-agent.gloo-mesh:9977
       envoyMetricsService:
-        address: enterprise-agent.gloo-mesh:9977
+        address: gloo-mesh-agent.gloo-mesh:9977
       # Enable Gloo Mesh accesslog service. Required for Gloo Mesh Access Logging
+      # For Gloo Mesh Enterprise version 1.2, change to enterprise-agent.gloo-mesh:9977
       envoyAccessLogService:
-        address: enterprise-agent.gloo-mesh:9977
+        address: gloo-mesh-agent.gloo-mesh:9977
       proxyMetadata:
         # Enable Istio agent to handle DNS requests for known hosts
         # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)
         ISTIO_META_DNS_CAPTURE: "true"
         # Enable automatic address allocation (for proxy-dns)
         ISTIO_META_DNS_AUTO_ALLOCATE: "true"
-        # Used for Gloo Mesh metrics aggregation; required for Gloo Mesh Dashboard
+        # Used for Gloo Mesh metrics aggregation; required for Gloo Mesh UI
         # Must match the trustDomain
         GLOO_MESH_CLUSTER_NAME: $CLUSTER_NAME
 
@@ -56,7 +58,8 @@ spec:
       k8s:
         # Recommended to be >1 in production
         replicaCount: 2
-        # The Istio load tests mesh consists of 1000 services and 2000 sidecars with 70,000 mesh-wide requests per second and Istiod used 1 vCPU and 1.5 GB of memory.
+        # The Istio load tests mesh consists of 1000 services and 2000 sidecars with 70,000 mesh-wide
+        # requests per second and Istiod used 1 vCPU and 1.5 GB of memory.
         resources:
           requests:
             cpu: 200m
@@ -106,7 +109,8 @@ spec:
         clusterName: $CLUSTER_NAME
       # Sidecar resource settings
       # proxy:
-      # The Istio load tests mesh consists of 1000 services and 2000 sidecars with 70,000 mesh-wide requests per second and istio-proxy used 0.35 vCPU and 40 MB memory per 1000 requests per second.
+      # The Istio load tests mesh consists of 1000 services and 2000 sidecars with 70,000 mesh-wide requests
+      # per second and istio-proxy used 0.35 vCPU and 40 MB memory per 1000 requests per second.
       #   resources:
       #     requests:
       #       cpu: 100m
