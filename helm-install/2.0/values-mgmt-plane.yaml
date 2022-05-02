@@ -7,8 +7,6 @@ devMode: false
 insecure: false
 # Enable leader election for the HA deployment
 leaderElection: true
-# Run the management server in legacy mode
-legacyMode: false
 # Your Gloo Mesh Enterprise license that you got from your Solo account representative
 licenseKey: $GLOO_MESH_LICENSE_KEY
 # Name of the management cluster
@@ -47,7 +45,6 @@ glooMeshMgmtServer:
   ports:
     # gloo-mesh-mgmt-server service port for Gloo Mesh agents to connect to
     grpc: 9900
-    grpcUI: 11100
     healthcheck: 8090
     # Port on which to serve internal Prometheus metrics for the management server app
     stats: 9091
@@ -200,10 +197,6 @@ glooMeshUi:
         redis:
           # Point to your own Redis instance as needed
           host: ""
-  # Address for gloo-mesh-mgmt-server-ui service, used for debug page loading
-  mgmtServerUIAddress: gloo-mesh-mgmt-server-ui.gloo-mesh.svc.cluster.local:11100
-  # SNI name used to connect to relay forwarding server, which must match server certificate CommonName (DO NOT CHANGE)
-  relayClientAuthority: gloo-mesh-mgmt-server.gloo-mesh
   # Name of the dashboard settings object to use
   settingsName: settings
 
