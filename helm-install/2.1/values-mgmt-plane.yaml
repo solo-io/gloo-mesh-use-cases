@@ -1,0 +1,206 @@
+# Global settings for management plane configuration
+# Namespace to install Gloo Mesh Enterprise
+adminNamespace: ""
+# Set the logger to development mode, which can cause panics. Do not use in production.
+devMode: false
+# Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
+insecure: false
+# Enable leader election for the HA deployment
+leaderElection: true
+# Your Gloo Mesh Enterprise license that you got from your Solo account representative
+licenseKey: $GLOO_MESH_LICENSE_KEY
+# Name of the management cluster
+mgmtClusterName: $MGMT_CLUSTER
+# Disable default Prometheus instance to provide your own instance as needed
+prometheus:
+  enabled: false
+# Provide the URL (with port) to your own existing Prometheus instance
+prometheusUrl: "" 
+verbose: false
+
+# Configuration for the gloo-mesh-mgmt-server deployment
+glooMeshMgmtServer:
+  enabled: true
+  env:
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: LICENSE_KEY
+    valueFrom:
+      secretKeyRef:
+        key: key
+        name: gloo-mesh-enterprise-license
+  # Required for OpenShift installations: Allow the pod to be assigned a dynamic user ID.
+  floatingUserId: false
+  image:
+    pullPolicy: IfNotPresent
+    registry: gcr.io/gloo-mesh
+    repository: gloo-mesh-mgmt-server
+    # Gloo Mesh Enterprise patch version. For a list of patch versions,
+    # see https://docs.solo.io/gloo-mesh-enterprise/main/reference/changelog/
+    tag: $GLOO_MESH_VERSION
+    # If pulling from a private registry
+    #pullSecret:
+  ports:
+    # gloo-mesh-mgmt-server service port for Gloo Mesh agents to connect to
+    grpc: 9900
+    healthcheck: 8090
+    # Port on which to serve internal Prometheus metrics for the management server app
+    stats: 9091
+  # gloo-mesh-mgmt-server pod resources
+  resources:
+    requests:
+      cpu: 125m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  # Static user ID to run the containers as. Unused if floatingUserId is 'true'
+  runAsUser: 10101
+  # Additional settings to add to the load balancer service
+  serviceOverrides:
+    metadata:
+      annotations:
+        # AWS-specific annotations
+        service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "2"
+        service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "2"
+        service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "10"
+        service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "9900"
+        service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "tcp"
+
+        service.beta.kubernetes.io/aws-load-balancer-type: external
+        service.beta.kubernetes.io/aws-load-balancer-scheme: internal
+        service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+        service.beta.kubernetes.io/aws-load-balancer-backend-protocol: TCP
+        service.beta.kubernetes.io/aws-load-balancer-private-ipv4-addresses: 10.0.50.50, 10.0.64.50
+        service.beta.kubernetes.io/aws-load-balancer-subnets: subnet-0478784f04c486de5, subnet-09d0cf74c0117fcf3
+        service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: deregistration_delay.connection_termination.enabled=true,deregistration_delay.timeout_seconds=1
+  # Kubernetes load balancer service type
+  serviceType: LoadBalancer
+  # Optional configuration for the deployed containers
+  sidecars: {}
+  # Concurrency to use for translation operations
+  concurrency: 10
+  # Maximum message size for gRPC messages sent and received by the management server
+  maxGrpcMessageSize: "4294967295"
+  # Confuguration for the relay server
+  relay:
+    # Disable default relay CA functionality only when supplying custom client certs to the agents for relay mTLS
+    disableCa: true
+    disableCaCertGeneration: true
+    # Push RBAC resources to the management server. Required for multicluster RBAC in the UI
+    pushRbac: true
+    signingTlsSecret:
+      name: relay-tls-signing-secret
+    # Custom certs: Reference to a secret containing TLS certificates used to secure the networking gRPC server with TLS
+    tlsSecret:
+      name: relay-server-tls-secret
+    # (NOT needed with ACM certs) Secret containing a shared token for authenticating relay agents when they first communicate with the management plane
+    #tokenSecret:
+      # Key value of the data within the Kubernetes secret
+      #key: token
+      #name: relay-identity-token-secret
+      #namespace: ""
+
+# Configuration for the Gloo Mesh UI
+glooMeshUi:
+  enabled: true
+  env:
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: LICENSE_KEY
+    valueFrom:
+      secretKeyRef:
+        key: key
+        name: gloo-mesh-enterprise-license
+  # Required for OpenShift installations: Allow the pod to be assigned a dynamic user ID.
+  floatingUserId: false
+  image:
+    pullPolicy: IfNotPresent
+    registry: gcr.io/gloo-mesh
+    repository: gloo-mesh-apiserver
+    # Gloo Mesh Enterprise patch version
+    tag: $GLOO_MESH_VERSION
+    # If pulling from a private registry
+    #pullSecret:
+  # Ports for UI service
+  ports:
+    console: 8090
+    grpc: 10101
+    healthcheck: 8081
+  # UI pod resources
+  resources:
+    requests:
+      cpu: 125m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Gi
+  # Static user ID to run the containers as. Unused if floatingUserId is 'true'
+  runAsUser: 10101
+  # Additional settings to add to Kubernetes service
+  #serviceOverrides:
+  # Kubernetes service type
+  serviceType: ClusterIP
+  # Configuration for the console and envoy containers
+  sidecars:
+    console:
+      env: null
+      image:
+        pullPolicy: IfNotPresent
+        registry: gcr.io/gloo-mesh
+        repository: gloo-mesh-ui
+        # Gloo Mesh Enterprise patch version
+        tag: $GLOO_MESH_VERSION
+        # If pulling from a private registry
+        #pullSecret:
+      resources:
+        requests:
+          cpu: 125m
+          memory: 256Mi
+    envoy:
+      env:
+      - name: ENVOY_UID
+        value: "0"
+      image:
+        pullPolicy: IfNotPresent
+        registry: gcr.io/gloo-mesh
+        repository: gloo-mesh-envoy
+        # Gloo Mesh Enterprise patch version
+        tag: $GLOO_MESH_VERSION
+        # If pulling from a private registry
+        #pullSecret:
+      resources:
+        requests:
+          cpu: 500m
+          memory: 256Mi
+  # Configure OIDC authentication for the UI
+  auth:
+    backend: oidc
+    enabled: true
+    oidc:
+      # URL that UI for OIDC app is available at, from the DNS and other ingress settings that expose OIDC app UI service
+      appUrl: ""
+      # From the OIDC provider
+      clientId: ""
+      # From the OIDC provider, stored in a secret
+      clientSecret: ""
+      clientSecretName: dashboard
+      # Issuer URL from the OIDC provider, such as https://<domain>.<provider_url>/
+      issuerUrl: ""
+      # Redis instance configuration, optionally used for auth session storage
+      session:
+        backend: redis
+        redis:
+          # Point to your own Redis instance as needed
+          host: ""
+  # Name of the dashboard settings object to use
+  settingsName: settings
+
+# Configuration for an optional Redis instance to store ID tokens for UI auth
+glooMeshRedis:
+  # Disable default instance to provide your own Redis instance as needed
+  enabled: false
