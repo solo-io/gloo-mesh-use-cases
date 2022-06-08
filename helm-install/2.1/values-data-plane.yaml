@@ -1,3 +1,10 @@
+####################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL         #
+# installations. You MUST edit some settings in this file to       #
+# provide your own details. For a demo installation instead, see   #
+# https://docs.solo.io/gloo-mesh-enterprise/main/setup/demo-setup/ #
+####################################################################
+
 # Global settings for agent configuration
 # Number of access logs to buffer per Envoy proxy
 accessLogsBufferSize: 50

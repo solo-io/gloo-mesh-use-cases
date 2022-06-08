@@ -1,3 +1,10 @@
+####################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL         #
+# installations. You MUST edit some settings in this file to       #
+# provide your own details. For a demo installation instead, see   #
+# https://docs.solo.io/gloo-mesh-enterprise/main/setup/demo-setup/ #
+####################################################################
+
 # Global settings for management plane configuration
 # Namespace to install Gloo Mesh Enterprise
 adminNamespace: ""
@@ -202,5 +209,26 @@ glooMeshUi:
 
 # Configuration for an optional Redis instance to store ID tokens for UI auth
 glooMeshRedis:
-  # Disable default instance to provide your own Redis instance as needed
-  enabled: false
+  # As needed, disable default instance to provide your own Redis instance
+  enabled: true
+  env:
+  - name: MASTER
+    value: "true"
+  # Required for OpenShift installations: Allow the pod to be assigned a dynamic user ID.
+  floatingUserId: false
+  image:
+    pullPolicy: IfNotPresent
+    registry: docker.io
+    repository: redis
+    tag: 6.2.6
+  ports:
+    redis: 6379
+  resources:
+    requests:
+      cpu: 125m
+      memory: 256Mi
+  # Static user ID to run the containers as. Unused if floatingUserId is 'true'
+  runAsUser: 10101
+  serviceType: ClusterIP
+  sidecars: {}
+  addr: ""
