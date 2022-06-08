@@ -1,9 +1,9 @@
-####################################################################
-# This is an example Helm values file for PRODUCTION-LEVEL         #
-# installations. You MUST edit some settings in this file to       #
-# provide your own details. For a demo installation instead, see   #
-# https://docs.solo.io/gloo-mesh-enterprise/main/setup/demo-setup/ #
-####################################################################
+#################################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL installations.       #
+# You MUST edit some settings in this file to provide your own details.         #
+# To see the default settings instead, run                                      #
+# helm show values gloo-mesh-agent/gloo-mesh-agent --version $GLOO_MESH_VERSION #
+#################################################################################
 
 # Global settings for agent configuration
 # Number of access logs to buffer per Envoy proxy
