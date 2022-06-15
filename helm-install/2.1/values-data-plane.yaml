@@ -89,6 +89,7 @@ glooMeshAgent:
   ports:
     # Port for gloo-mesh-agent service
     grpc: 9977
+    http: 9988
     # Port on which to serve internal Prometheus metrics for the agent app
     stats: 9091
   # gloo-mesh-agent pod resources

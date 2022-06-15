@@ -62,7 +62,7 @@ spec:
             #type: LoadBalancer
             # Default ports
             ports:
-              # Health check port. For AWS ELBs, this port must be listed first.
+              # Port for health checks on path /healthz/ready. For AWS ELBs, this port must be listed first.
               - port: 15021
                 targetPort: 15021
                 name: status-port
@@ -72,10 +72,10 @@ spec:
                 # Gloo Mesh looks for this default name 'tls' on a gateway
                 name: tls
               # Port required for VM onboarding
-              - port: 15012
-                targetPort: 15012
+              #- port: 15012
+                #targetPort: 15012
                 # Required for VM onboarding discovery address
-                name: tls-istiod
+                #name: tls-istiod
           overlays:
             - apiVersion: apps/v1
               kind: Deployment

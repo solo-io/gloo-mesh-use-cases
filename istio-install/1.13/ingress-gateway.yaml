@@ -55,7 +55,7 @@ spec:
           service:
             # Default ports
             ports:
-              # Health check port. For AWS ELBs, this port must be listed first.
+              # Port for health checks on path /healthz/ready. For AWS ELBs, this port must be listed first.
               - name: status-port
                 port: 15021
                 targetPort: 15021

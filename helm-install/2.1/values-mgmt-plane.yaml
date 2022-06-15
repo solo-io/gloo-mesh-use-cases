@@ -18,11 +18,81 @@ leaderElection: true
 licenseKey: $GLOO_MESH_LICENSE_KEY
 # Name of the management cluster
 mgmtClusterName: $MGMT_CLUSTER
-# Disable default Prometheus instance to provide your own instance as needed
+# Enable the default Prometheus server, and deploy a production-level server to scrape
+# metrics from this server. If needed, disable this default Prometheus instance
+# to provide your own.
 prometheus:
-  enabled: false
-# Provide the URL (with port) to your own existing Prometheus instance
-prometheusUrl: "" 
+  alertmanager:
+    enabled: false
+  enabled: true
+  kubeStateMetrics:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  podSecurityPolicy:
+    enabled: false
+  pushgateway:
+    enabled: false
+  rbac:
+    create: true
+  server:
+    fullnameOverride: prometheus-server
+    persistentVolume:
+      enabled: false
+  serverFiles:
+    prometheus.yml:
+      scrape_configs:
+      - job_name: gloo-mesh
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+        - action: keep
+          regex: gloo-mesh-mgmt-server
+          source_labels:
+          - __meta_kubernetes_pod_label_app
+        - action: keep
+          regex: gloo-mesh-mgmt-server
+          source_labels:
+          - __meta_kubernetes_endpoints_name
+        - action: replace
+          regex: (.+)
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_path
+          target_label: __metrics_path__
+        - action: replace
+          regex: (.+):(?:\d+);(\d+)
+          replacement: ${1}:${2}
+          source_labels:
+          - __address__
+          - __meta_kubernetes_pod_annotation_prometheus_io_port
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_namespace
+          target_label: namespace
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_service_name
+          target_label: service
+        scrape_interval: 15s
+        scrape_timeout: 10s
+  serviceAccounts:
+    alertmanager:
+      create: false
+    nodeExporter:
+      create: false
+    pushgateway:
+      create: false
+    server:
+      create: true
+# Default Prometheus server address. Replace with your own as needed.
+prometheusUrl: http://prometheus-server
 verbose: false
 
 # Configuration for the gloo-mesh-mgmt-server deployment
