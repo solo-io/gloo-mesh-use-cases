@@ -33,8 +33,11 @@ spec:
         - containerPort: 9080
           protocol: TCP
       - name: curl
-        image: curlimages/curl
+        image: curlimages/curl:latest
         imagePullPolicy: IfNotPresent
+        command:
+          - "sleep"
+          - "10h"
         resources: {}
         securityContext:
           runAsUser: 1000
