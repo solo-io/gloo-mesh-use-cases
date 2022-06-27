@@ -33,7 +33,7 @@ spec:
         - containerPort: 9080
           protocol: TCP
       - name: curl
-        image: curlimages/curl:7.83.1
+        image: curlimages/curl
         imagePullPolicy: IfNotPresent
         resources: {}
         securityContext:
