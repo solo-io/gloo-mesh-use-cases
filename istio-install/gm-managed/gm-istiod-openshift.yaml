@@ -100,7 +100,8 @@ spec:
           ingressGateways:
           # Enable the default ingress gateway
             - name: istio-ingressgateway
-              namespace: istio-system
+              # Deployed to istio-gateway by default
+              namespace: istio-gateway
               enabled: true
               label:
                 # Set a unique label for the gateway. This is required to ensure Gateways
@@ -145,7 +146,8 @@ spec:
           ingressGateways:
           # Enable the default east-west gateway
             - name: istio-eastwestgateway
-              namespace: istio-system
+              # Deployed to istio-gateway by default
+              namespace: istio-gateway
               enabled: true
               label:
                 # Set a unique label for the gateway. This is required to ensure Gateways
