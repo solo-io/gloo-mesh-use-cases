@@ -8,6 +8,7 @@ spec:
     - name: $REMOTE_CLUSTER1
     - name: $REMOTE_CLUSTER2
   installations:
+
     # OPERATOR SPEC FOR THE ISTIOD CONTROL PLANE
     - name: control-plane
       istioOperatorSpec:
@@ -61,6 +62,7 @@ spec:
           egressGateways:
           - name: istio-egressgateway
             enabled: false
+
     # OPERATOR SPEC FOR THE INGRESS GATEWAY
     - name: ingress-gateway
       istioOperatorSpec:
@@ -107,6 +109,7 @@ spec:
             istio-ingressgateway:
               # Enable gateway injection
               injectionTemplate: gateway
+
     # OPTIONAL: OPERATOR SPEC FOR THE EAST-WEST GATEWAY
     - name: eastwest-gateway
       istioOperatorSpec:
