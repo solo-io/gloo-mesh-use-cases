@@ -95,12 +95,13 @@ spec:
     pilot:
       k8s:
         env:
+          # Disable selecting workload entries for local service routing.
+          # Required for Gloo Mesh VirtualDestinaton functionality.
+          - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
+            value: "false"
           # Allow multiple trust domains (Required for Gloo Mesh east/west routing)
           - name: PILOT_SKIP_VALIDATE_TRUST_DOMAIN
             value: "true"
-          # Disable selecting workload entries for local service routing. Required for proper Gloo Mesh VirtualDestinaton functionality
-          - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
-            value: "false"
   values:
     # https://istio.io/v1.5/docs/reference/config/installation-options/#global-options
     global:
