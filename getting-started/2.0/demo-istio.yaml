@@ -96,7 +96,7 @@ spec:
       k8s:
         env:
           # Disable selecting workload entries for local service routing.
-          # Required for Gloo Mesh VirtualDestinaton functionality.
+          # Required for Gloo Mesh VirtualDestination functionality.
           - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
             value: "false"
           # Allow multiple trust domains (Required for Gloo Mesh east/west routing)
