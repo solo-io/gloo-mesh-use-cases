@@ -15,7 +15,7 @@ insecure: false
 # Enable leader election for the HA deployment
 leaderElection: true
 # Your Gloo Mesh Enterprise license that you got from your Solo account representative
-licenseKey: $GLOO_MESH_LICENSE_KEY
+glooMeshLicenseKey: $GLOO_MESH_LICENSE_KEY
 # Name of the management cluster
 mgmtClusterName: $MGMT_CLUSTER
 # Enable the default Prometheus server, and deploy a production-level server to scrape
@@ -257,7 +257,8 @@ glooMeshUi:
   # Configure OIDC authentication for the UI
   auth:
     backend: oidc
-    enabled: true
+    # Disabled by default. Enable to provide your OIDC auth details
+    enabled: false
     oidc:
       # URL that UI for OIDC app is available at, from the DNS and other ingress settings that expose OIDC app UI service
       appUrl: ""
