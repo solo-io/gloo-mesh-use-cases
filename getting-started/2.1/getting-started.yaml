@@ -329,10 +329,11 @@ registerMgmtPlane:
   cluster: $REMOTE_CLUSTER
   # Set the logger to development mode, which can cause panics. Do not use in production.
   devMode: false
+  # Install the Gloo Mesh agent alongside the management server
+  enabled: true
   # Install external authentication service in the gloo-mesh namespace.
-  # Do not use in production; install in gloo-mesh-addons namespace after registration time.
   ext-auth-service:
-    enabled: false
+    enabled: true
     extraTemplateAnnotations:
       proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
   # Install the Gloo Network-specific agent functionality only if you installed Gloo Network.
@@ -350,32 +351,42 @@ registerMgmtPlane:
       namespace: istio-system
   # Enable leader election for the HA deployment
   leaderElection: true
-  # Configuration for managed Istio control plane and gateway installations by using the Istio lifecycle manager
-  # Do not use in production. Instead, install Istio manually, or configure settings in an IstioLifecycleManager CR
-  # after installation.
+  # Configuration for managed Istio control plane and gateway installations by using the Istio Lifecycle Manager
   managedInstallations:
+    cluster: $REMOTE_CLUSTER
+    # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
+    hub: $REPO
+    # Any Solo.io Gloo Mesh Istio tag
+    tag: $ISTIO_IMAGE
+    # Deploy the istiod control plane
     controlPlane:
-      enabled: false
+      enabled: true
+      overrides: {}
+    # Deploy an Istio east-west gateway
     eastWestGateways:
-      enabled: false
+    - enabled: true
+      name: istio-eastwestgateway
+      overrides: {}
+    # Deploy an Istio ingress gateway
     northSouthGateways:
-      enabled: false
+    - enabled: true
+      name: istio-ingressgateway
+      overrides: {}
   # Maximum message size for gRPC messages sent and received by the management server
   maxGrpcMessageSize: "4294967295"
   # Number of metrics messages to buffer per Envoy proxy
   metricsBufferSize: 50
   # Install rate limiting service in the gloo-mesh namespace.
-  # Do not use in production; install in gloo-mesh-addons namespace after registration time.
   rate-limiter:
-    enabled: false
+    enabled: true
     extraTemplateAnnotations:
       proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
   relay:
     # SNI name used to connect to relay forwarding server. Must match server certificate CommonName (DO NOT CHANGE)
     authority: gloo-mesh-mgmt-server.gloo-mesh
-    # Custom certs: Reference to a secret containing TLS certs used to secure the networking gRPC server with TLS.
+    # Reference to a secret containing TLS certs used to secure the networking gRPC server with TLS.
     clientTlsSecret:
-      name: gloo-mesh-agent-$REMOTE_CLUSTER-tls-cert
+      name: relay-client-tls-secret
     # Reference to a secret containing a root TLS cert used to verify the relay server cert. 
     # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
     rootTlsSecret:
@@ -383,10 +394,10 @@ registerMgmtPlane:
     # Address and port by which gloo-mesh-mgmt-server in Gloo Mesh management plane is accessed
     serverAddress: $MGMT_SERVER_NETWORKING_ADDRESS
     # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
-    #tokenSecret:
-    #  key: token
-    #  name: relay-identity-token-secret
-    #  namespace: gloo-mesh
+    tokenSecret:
+      key: token
+      name: relay-identity-token-secret
+      namespace: gloo-mesh
   # Enable eBPF sidecar acceleration to reduce network latency in your service mesh. Do not use in production.
   sidecar-accel:
     enabled: false

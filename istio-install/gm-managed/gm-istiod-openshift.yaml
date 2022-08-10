@@ -44,6 +44,8 @@ spec:
           # Set the default behavior of the sidecar for handling outbound traffic from the application
           outboundTrafficPolicy:
             mode: ALLOW_ANY
+          # The administrative root namespace for Istio configuration
+          rootNamespace: istio-system
         # Traffic management
         components:
           pilot:
@@ -98,12 +100,13 @@ spec:
         hub: $REPO
         # The Solo.io Gloo Mesh Istio tag
         tag: $ISTIO_IMAGE
+        namespace: istio-system
         components:
           ingressGateways:
           # Enable the default ingress gateway
             - name: istio-ingressgateway
-              # Deployed to istio-gateways by default
-              namespace: istio-gateways
+              # Deployed to istio-gateway by default
+              namespace: istio-gateway
               enabled: true
               label:
                 # Set a unique label for the gateway. This is required to ensure Gateways
@@ -149,8 +152,8 @@ spec:
           ingressGateways:
           # Enable the default east-west gateway
             - name: istio-eastwestgateway
-              # Deployed to istio-gateways by default
-              namespace: istio-gateways
+              # Deployed to istio-gateway by default
+              namespace: istio-gateway
               enabled: true
               label:
                 # Set a unique label for the gateway. This is required to ensure Gateways

@@ -66,12 +66,16 @@ sidecar-accel:
 # Enable verbose/debug logging
 verbose: false
 
-# Configuration for managed Istio control plane and gateway installations by using the Istio Lifecycle Manager
+# Configuration for managed Istio control plane and gateway installations by using the Istio lifecycle manager
+# Do not use in production. Instead, install Istio manually, or configure settings in an IstioLifecycleManager CR
+# after installation.
 managedInstallations:
   controlPlane:
     enabled: false
-  eastWestGateways: null
-  northSouthGateways: null
+  eastWestGateways:
+    enabled: false
+  northSouthGateways:
+    enabled: false
 
 # Configuration for the gloo-mesh-agent deployment
 glooMeshAgent:
