@@ -68,26 +68,7 @@ verbose: false
 
 # Configuration for managed Istio control plane and gateway installations by using the Istio Lifecycle Manager
 managedInstallations:
-  cluster: $REMOTE_CLUSTER
-  images:
-    # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
-    hub: $REPO
-    # Any Solo.io Gloo Mesh Istio tag
-    tag: $ISTIO_IMAGE
-  # Install the istiod control plane
-  controlPlane:
-    enabled: true
-    overrides: {}
-  # Install the east-west gateway
-  eastWestGateways:
-  - enabled: true
-    name: istio-eastwestgateway
-    overrides: {}
-  # Install the north-south (ingress) gateway only if you provided a Gloo Gateway license key
-  northSouthGateways:
-  - enabled: false
-    name: gloo-gateway
-    overrides: {}
+!!!
 
 # Configuration for the gloo-mesh-agent deployment
 glooMeshAgent:
