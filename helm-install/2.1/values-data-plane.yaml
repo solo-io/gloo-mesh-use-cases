@@ -73,9 +73,9 @@ managedInstallations:
   controlPlane:
     enabled: false
   eastWestGateways:
-    enabled: false
+  - enabled: false
   northSouthGateways:
-    enabled: false
+  - enabled: false
 
 # Configuration for the gloo-mesh-agent deployment
 glooMeshAgent:
