@@ -26,10 +26,10 @@ registerMgmtPlane:
 # License settings
 # Your Gloo Mesh Enterprise license that you got from your Solo account representative
 glooMeshLicenseKey: $GLOO_MESH_LICENSE_KEY
-# Uncomment to also install Gloo Gateway with your Gloo Gateway license
-glooGatewayLicenseKey: #$GLOO_GATEWAY_LICENSE_KEY
-# Uncomment to also install Gloo Network with your Gloo Network license
-glooNetworkLicenseKey: #$GLOO_NETWORK_LICENSE_KEY
+# Provide your $GLOO_GATEWAY_LICENSE_KEY to also install Gloo Gateway
+glooGatewayLicenseKey: ""
+# Provide your $GLOO_NETWORK_LICENSE_KEY to also install Gloo Gateway
+glooNetworkLicenseKey: ""
 # To provide license keys in a secret in the cluster instead, specify the secret name.
 licenseSecretName: ""
 
@@ -181,6 +181,7 @@ glooMeshMgmtServer:
     # Disable default relay CA functionality only when supplying custom client certs to the agents for relay mTLS
     disableCa: true
     disableCaCertGeneration: true
+    disableTokenGeneration: true
     # Push RBAC resources to the management server. Required for multicluster RBAC in the UI
     pushRbac: true
     signingTlsSecret:
