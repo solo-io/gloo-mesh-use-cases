@@ -27,7 +27,7 @@ glooMeshLicenseKey: $GLOO_MESH_LICENSE_KEY
 glooGatewayLicenseKey: ""
 # Provide your $GLOO_NETWORK_LICENSE_KEY to also install Gloo Gateway
 glooNetworkLicenseKey: ""
-# To provide license keys in a secret in the cluster instead, specify the secret name.
+# To instead provide license keys in a secret in the gloo-mesh namespace of the management cluster, specify the secret name.
 licenseSecretName: ""
 
 # Enable the default Prometheus server, and deploy a production-level server to scrape
