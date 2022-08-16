@@ -2,8 +2,8 @@
 global:
   cluster: $CLUSTER_NAME
 
-# Provide your Gloo Mesh Enterprise license key that you got from your Solo account representative
-glooMeshLicenseKey: $GLOO_MESH_LICENSE_KEY 
+# Provide your Gloo Gateway license key that you got from your Solo account representative
+glooGatewayLicenseKey: $GLOO_GATEWAY_LICENSE_KEY 
 
 # Install the Gloo agent alongside the management server,
 # such as to run the management cluster also as a workload cluster in a single-cluster setup
@@ -15,7 +15,7 @@ registerMgmtPlane:
     images:
       # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
       hub: $REPO
-      # Any Solo.io Gloo Mesh Istio tag
+      # The Solo.io Gloo Mesh Istio version
       tag: $ISTIO_IMAGE
     eastWestGateways:
     - enabled: true
