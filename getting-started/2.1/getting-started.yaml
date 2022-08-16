@@ -19,14 +19,14 @@ insecure: false
 # Enable leader election for the HA deployment
 leaderElection: true
 
-# License settings
-# Your Gloo Mesh Enterprise license that you got from your Solo account representative
-glooMeshLicenseKey: $GLOO_MESH_LICENSE_KEY
-# Provide your $GLOO_GATEWAY_LICENSE_KEY to also install Gloo Gateway
+# For each Gloo product that you want to install, provide the license keys that you got from your Solo account representative
+# Provide your $GLOO_MESH_LICENSE_KEY to install Gloo Mesh Enterprise
+glooMeshLicenseKey: ""
+# Provide your $GLOO_GATEWAY_LICENSE_KEY to install Gloo Mesh Gateway
 glooGatewayLicenseKey: ""
-# Provide your $GLOO_NETWORK_LICENSE_KEY to also install Gloo Network
+# Provide your $GLOO_NETWORK_LICENSE_KEY to install Gloo Network
 glooNetworkLicenseKey: ""
-# To provide license keys in a secret in the cluster instead, specify the secret name.
+# To provide license keys in a secret in the cluster instead, specify the secret name
 licenseSecretName: ""
 
 # Settings for the default Prometheus server
@@ -126,42 +126,14 @@ glooMeshMgmtServer:
     # Gloo Mesh Enterprise patch version. For a list of patch versions,
     # see https://docs.solo.io/gloo-mesh-enterprise/main/reference/changelog/
     tag: $GLOO_MESH_VERSION
-    # If pulling from a private registry
-    #pullSecret:
   ports:
     # gloo-mesh-mgmt-server service port for Gloo agents to connect to
     grpc: 9900
     healthcheck: 8090
     # Port on which to serve internal Prometheus metrics for the management server app
     stats: 9091
-  # gloo-mesh-mgmt-server pod resources
-  resources:
-    requests:
-      cpu: 125m
-      memory: 256Mi
-    limits:
-      cpu: 1000m
-      memory: 1Gi
   # Static user ID to run the containers as. Unused if floatingUserId is 'true'
   runAsUser: 10101
-  # Additional settings to add to the load balancer service
-  serviceOverrides:
-    metadata:
-      annotations:
-        # AWS-specific annotations
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "2"
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "2"
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "10"
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "9900"
-        service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "tcp"
-
-        service.beta.kubernetes.io/aws-load-balancer-type: external
-        service.beta.kubernetes.io/aws-load-balancer-scheme: internal
-        service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-        service.beta.kubernetes.io/aws-load-balancer-backend-protocol: TCP
-        service.beta.kubernetes.io/aws-load-balancer-private-ipv4-addresses: 10.0.50.50, 10.0.64.50
-        service.beta.kubernetes.io/aws-load-balancer-subnets: subnet-0478784f04c486de5, subnet-09d0cf74c0117fcf3
-        service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: deregistration_delay.connection_termination.enabled=true,deregistration_delay.timeout_seconds=1
   # Kubernetes load balancer service type
   serviceType: LoadBalancer
   # Optional configuration for the deployed containers
@@ -211,8 +183,6 @@ glooMeshUi:
     repository: gloo-mesh-apiserver
     # Gloo Mesh Enterprise patch version
     tag: $GLOO_MESH_VERSION
-    # If pulling from a private registry
-    #pullSecret:
   # Ports for UI service
   ports:
     console: 8090
@@ -228,8 +198,6 @@ glooMeshUi:
       memory: 512Gi
   # Static user ID to run the containers as. Unused if floatingUserId is 'true'
   runAsUser: 10101
-  # Additional settings to add to Kubernetes service
-  #serviceOverrides:
   # Kubernetes service type
   serviceType: ClusterIP
   # Configuration for the console and envoy containers
@@ -242,8 +210,6 @@ glooMeshUi:
         repository: gloo-mesh-ui
         # Gloo Mesh Enterprise patch version
         tag: $GLOO_MESH_VERSION
-        # If pulling from a private registry
-        #pullSecret:
       resources:
         requests:
           cpu: 125m
@@ -258,33 +224,6 @@ glooMeshUi:
         repository: gloo-mesh-envoy
         # Gloo Mesh Enterprise patch version
         tag: $GLOO_MESH_VERSION
-        # If pulling from a private registry
-        #pullSecret:
-      resources:
-        requests:
-          cpu: 500m
-          memory: 256Mi
-  # Configure OIDC authentication for the UI
-  auth:
-    backend: oidc
-    # Disabled by default. Enable to provide your OIDC auth details
-    enabled: false
-    oidc:
-      # URL that UI for OIDC app is available at, from the DNS and other ingress settings that expose OIDC app UI service
-      appUrl: ""
-      # From the OIDC provider
-      clientId: ""
-      # From the OIDC provider, stored in a secret
-      clientSecret: ""
-      clientSecretName: dashboard
-      # Issuer URL from the OIDC provider, such as https://<domain>.<provider_url>/
-      issuerUrl: ""
-      # Redis instance configuration, optionally used for auth session storage
-      session:
-        backend: redis
-        redis:
-          # Point to your own Redis instance as needed
-          host: ""
   # To use the license keys in your provided secret instead of referencing the
   # secret generated by this Helm chart, specify the secret name.
   licenseSecretName: ""
@@ -293,7 +232,6 @@ glooMeshUi:
 
 # Configuration for an optional Redis instance to store ID tokens for UI auth
 glooMeshRedis:
-  # As needed, disable default instance to provide your own Redis instance
   enabled: true
   env:
   - name: MASTER
