@@ -1,0 +1,125 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: production-istio
+  namespace: istio-system
+spec:
+  # Only the control plane components are installed (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
+  profile: minimal
+  # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
+  hub: $REPO
+  # Any Solo.io Gloo Mesh Istio tag
+  tag: $ISTIO_IMAGE
+  # Istio revision to create resources with
+  revision: $REVISION
+
+  # Mesh configuration
+  meshConfig:
+    # Enable access logging only if using.
+    #accessLogFile: /dev/stdout
+    # Encoding for the proxy access log (TEXT or JSON). Default value is TEXT.
+    #accessLogEncoding: JSON
+    # Enable span tracing only if using.
+    #enableTracing: true
+
+    defaultConfig:
+      # Wait for the istio-proxy to start before starting application pods
+      holdApplicationUntilProxyStarts: true
+      # Enable Gloo Mesh metrics service. Required for Gloo Mesh UI
+      # For Gloo Mesh Enterprise version 1.2, change to enterprise-agent.gloo-mesh:9977
+      envoyMetricsService:
+        address: gloo-mesh-agent.gloo-mesh:9977
+      # Enable Gloo Mesh accesslog service. Required for Gloo Mesh Access Logging
+      # For Gloo Mesh Enterprise version 1.2, change to enterprise-agent.gloo-mesh:9977
+      envoyAccessLogService:
+        address: gloo-mesh-agent.gloo-mesh:9977
+      proxyMetadata:
+        # Enable Istio agent to handle DNS requests for known hosts
+        # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)
+        ISTIO_META_DNS_CAPTURE: "true"
+        # Enable automatic address allocation (for proxy-dns)
+        ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+        # Used for Gloo Mesh metrics aggregation; required for Gloo Mesh UI
+        # Must match the trustDomain
+        GLOO_MESH_CLUSTER_NAME: $CLUSTER_NAME
+
+    # Set the default behavior of the sidecar for handling outbound traffic from the application
+    outboundTrafficPolicy:
+      mode: ALLOW_ANY
+    # The trust root of a system, which is the name of the cluster that corresponds with the CA certificate CommonName identity
+    trustDomain: $CLUSTER_NAME
+    # The administrative root namespace for Istio configuration
+    rootNamespace: istio-config
+
+  # Traffic management
+  components:
+    pilot:
+      enabled: true
+      k8s:
+        # Recommended to be >1 in production
+        replicaCount: 2
+        # The Istio load tests mesh consists of 1000 services and 2000 sidecars with 70,000 mesh-wide
+        # requests per second and Istiod used 1 vCPU and 1.5 GB of memory.
+        resources:
+          requests:
+            cpu: 200m
+            memory: 200Mi
+        strategy:
+          rollingUpdate:
+            maxSurge: 100%
+            maxUnavailable: 25%
+        # Recommended to scale istiod under load
+        hpaSpec:
+          maxReplicas: 5
+          minReplicas: 2
+          scaleTargetRef:
+            apiVersion: apps/v1
+            kind: Deployment
+            name: istiod-$REVISION
+          metrics:
+            - resource:
+                name: cpu
+                targetAverageUtilization: 60
+              type: Resource
+        env:
+          # Disable selecting workload entries for local service routing.
+          # Required for Gloo Mesh VirtualDestination functionality.
+          - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
+            value: "false"
+          # Allow multiple trust domains (Required for Gloo Mesh east/west routing)
+          - name: PILOT_SKIP_VALIDATE_TRUST_DOMAIN
+            value: "true"
+
+    # Istio Gateway feature
+    # Disable gateways deployments, which are deployed in separate IstioOperator configurations
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: false
+    - name: istio-eastwestgateway
+      enabled: false
+    egressGateways:
+    - name: istio-egressgateway
+      enabled: false
+
+  # Helm values overrides
+  values:
+    # https://istio.io/v1.5/docs/reference/config/installation-options/#global-options
+    global:
+      # Required for connecting VirtualMachines to the mesh
+      network: $CLUSTER_NAME
+      # Required for annotating Istio metrics with the cluster name.
+      # Must match the trustDomain and GLOO_MESH_CLUSTER_NAME
+      multiCluster:
+        clusterName: $CLUSTER_NAME
+      # Sidecar resource settings
+      # proxy:
+      # The Istio load tests mesh consists of 1000 services and 2000 sidecars with 70,000 mesh-wide requests
+      # per second and istio-proxy used 0.35 vCPU and 40 MB memory per 1000 requests per second.
+      #   resources:
+      #     requests:
+      #       cpu: 100m
+      #       memory: 128Mi
+      #     limits: 
+      #       cpu: 2000m
+      #       memory: 1024Mi
+      #   logLevel: warning
