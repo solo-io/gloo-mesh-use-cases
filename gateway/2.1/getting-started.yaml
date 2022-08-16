@@ -29,9 +29,7 @@ glooNetworkLicenseKey: ""
 # To provide license keys in a secret in the cluster instead, specify the secret name.
 licenseSecretName: ""
 
-# Enable the default Prometheus server, and deploy a production-level server to scrape
-# metrics from this server. If needed, disable this default Prometheus instance
-# to provide your own.
+# Settings for the default Prometheus server
 prometheus:
   alertmanager:
     enabled: false
@@ -101,7 +99,7 @@ prometheus:
       create: false
     server:
       create: true
-# Default Prometheus server address. Replace with your own as needed.
+# Default Prometheus server address
 prometheusUrl: http://prometheus-server
 verbose: false
 
