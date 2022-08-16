@@ -1,0 +1,272 @@
+adminNamespace: ""
+devMode: false
+global:
+  cluster: mgmt-cluster
+glooGatewayLicenseKey: ""
+glooMeshLicenseKey: ""
+glooNetworkLicenseKey: ""
+insecure: false
+leaderElection: true
+licenseKey: ""
+licenseSecretName: ""
+mgmtClusterName: ""
+prometheus:
+  alertmanager:
+    enabled: false
+  enabled: true
+  kubeStateMetrics:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  podSecurityPolicy:
+    enabled: false
+  pushgateway:
+    enabled: false
+  rbac:
+    create: true
+  server:
+    fullnameOverride: prometheus-server
+    persistentVolume:
+      enabled: false
+  serverFiles:
+    prometheus.yml:
+      scrape_configs:
+      - job_name: gloo-mesh-pods
+        kubernetes_sd_configs:
+        - namespaces:
+            names:
+            - gloo-mesh
+          role: pod
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+        - action: replace
+          regex: (.+)
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_path
+          target_label: __metrics_path__
+        - action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          source_labels:
+          - __address__
+          - __meta_kubernetes_pod_annotation_prometheus_io_port
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_namespace
+          target_label: namespace
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_pod_name
+          target_label: pod
+        - action: keep
+          regex: gloo-mesh-mgmt-server
+          source_labels:
+          - __meta_kubernetes_pod_label_app
+        scrape_interval: 15s
+        scrape_timeout: 10s
+  serviceAccounts:
+    alertmanager:
+      create: false
+    nodeExporter:
+      create: false
+    pushgateway:
+      create: false
+    server:
+      create: true
+prometheusUrl: http://prometheus-server
+registerMgmtPlane:
+  accessLogsBufferSize: 50
+  cluster: ""
+  devMode: false
+  enabled: false
+  ext-auth-service:
+    enabled: false
+    extraTemplateAnnotations:
+      proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  gloo-network-agent:
+    enabled: false
+  insecure: false
+  istiodSidecar:
+    createRoleBinding: false
+    istiodServiceAccount:
+      name: istiod
+      namespace: istio-system
+  leaderElection: true
+  managedInstallations:
+    cluster: ""
+    controlPlane:
+      enabled: true
+      overrides: {}
+    eastWestGateways: null
+    images:
+      hub: us-docker.pkg.dev/gloo-mesh/istio-a9797008feb0
+      tag: 1.13.5
+    northSouthGateways:
+    - enabled: true
+      name: north-south-gateway
+      overrides: {}
+  maxGrpcMessageSize: "4294967295"
+  metricsBufferSize: 50
+  rate-limiter:
+    enabled: false
+    extraTemplateAnnotations:
+      proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  relay:
+    authority: gloo-mesh-mgmt-server.gloo-mesh
+    clientTlsSecret:
+      name: relay-client-tls-secret
+    rootTlsSecret:
+      name: relay-root-tls-secret
+    serverAddress: gloo-mesh-mgmt-server:9900
+    tokenSecret:
+      key: token
+      name: relay-identity-token-secret
+      namespace: ""
+  sidecar-accel:
+    enabled: false
+  verbose: false
+verbose: false
+
+
+glooMeshMgmtServer:
+  enabled: true
+  env:
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: LICENSE_KEY
+    valueFrom:
+      secretKeyRef:
+        key: key
+        name: gloo-mesh-enterprise-license
+        optional: true
+  floatingUserId: false
+  image:
+    pullPolicy: IfNotPresent
+    registry: gcr.io/gloo-mesh
+    repository: gloo-mesh-mgmt-server
+    tag: 2.1.0-beta16
+  ports:
+    grpc: 9900
+    healthcheck: 8090
+    stats: 9091
+  resources:
+    requests:
+      cpu: 125m
+      memory: 256Mi
+  runAsUser: 10101
+  serviceType: LoadBalancer
+  sidecars: {}
+  concurrency: 10
+  enableClusterLoadBalancing: false
+  maxGrpcMessageSize: "4294967295"
+  relay:
+    disableCa: false
+    disableCaCertGeneration: false
+    disableTokenGeneration: false
+    pushRbac: true
+    signingTlsSecret:
+      name: relay-tls-signing-secret
+    tlsSecret:
+      name: relay-server-tls-secret
+    tokenSecret:
+      key: token
+      name: relay-identity-token-secret
+      namespace: ""
+glooMeshUi:
+  enabled: true
+  env:
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: LICENSE_KEY
+    valueFrom:
+      secretKeyRef:
+        key: key
+        name: gloo-mesh-enterprise-license
+        optional: true
+  floatingUserId: false
+  image:
+    pullPolicy: IfNotPresent
+    registry: gcr.io/gloo-mesh
+    repository: gloo-mesh-apiserver
+    tag: 2.1.0-beta16
+  ports:
+    console: 8090
+    grpc: 10101
+    healthcheck: 8081
+  resources:
+    requests:
+      cpu: 125m
+      memory: 256Mi
+  runAsUser: 10101
+  serviceType: ClusterIP
+  sidecars:
+    console:
+      env: null
+      image:
+        pullPolicy: IfNotPresent
+        registry: gcr.io/gloo-mesh
+        repository: gloo-mesh-ui
+        tag: 2.1.0-beta16
+      resources:
+        requests:
+          cpu: 125m
+          memory: 256Mi
+    envoy:
+      env:
+      - name: ENVOY_UID
+        value: "0"
+      image:
+        pullPolicy: IfNotPresent
+        registry: gcr.io/gloo-mesh
+        repository: gloo-mesh-envoy
+        tag: 2.1.0-beta16
+      resources:
+        requests:
+          cpu: 500m
+          memory: 256Mi
+  auth:
+    backend: ""
+    enabled: false
+    oidc:
+      appUrl: ""
+      clientId: ""
+      clientSecret: ""
+      clientSecretName: ""
+      issuerUrl: ""
+      session:
+        backend: ""
+        redis:
+          host: ""
+  licenseSecretName: ""
+  settingsName: settings
+glooMeshRedis:
+  enabled: true
+  env:
+  - name: MASTER
+    value: "true"
+  floatingUserId: false
+  image:
+    pullPolicy: IfNotPresent
+    registry: docker.io
+    repository: redis
+    tag: 6.2.6
+  ports:
+    redis: 6379
+  resources:
+    requests:
+      cpu: 125m
+      memory: 256Mi
+  runAsUser: 10101
+  serviceType: ClusterIP
+  sidecars: {}
+  addr: ""
