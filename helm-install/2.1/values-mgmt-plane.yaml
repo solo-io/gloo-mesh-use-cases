@@ -26,9 +26,9 @@ registerMgmtPlane:
 # License settings
 # Your Gloo Mesh Enterprise license that you got from your Solo account representative
 glooMeshLicenseKey: $GLOO_MESH_LICENSE_KEY
-# Provide your $GLOO_GATEWAY_LICENSE_KEY to also install Gloo Gateway
+# Provide your $ GLOO_GATEWAY_LICENSE_KEY to also install Gloo Gateway
 glooGatewayLicenseKey: ""
-# Provide your $GLOO_NETWORK_LICENSE_KEY to also install Gloo Gateway
+# Provide your $ GLOO_NETWORK_LICENSE_KEY to also install Gloo Gateway
 glooNetworkLicenseKey: ""
 # To provide license keys in a secret in the cluster instead, specify the secret name.
 licenseSecretName: ""
