@@ -106,12 +106,6 @@ spec:
                     - port: 443
                       targetPort: 8443
                       name: https
-        # Helm values overrides
-        values:
-          gateways:
-            istio-ingressgateway:
-              # Enable gateway injection
-              injectionTemplate: gateway
 
     # OPTIONAL: OPERATOR SPEC FOR THE EAST-WEST GATEWAY
     - name: eastwest-gateway
@@ -155,9 +149,3 @@ spec:
                       targetPort: 15443
                       # Gloo Mesh looks for this default name 'tls' on a gateway
                       name: tls
-        # Helm values overrides
-        values:
-          gateways:
-            istio-ingressgateway:
-              # Enable gateway injection
-              injectionTemplate: gateway
