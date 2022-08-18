@@ -105,8 +105,8 @@ spec:
           ingressGateways:
           # Enable the default ingress gateway
             - name: istio-ingressgateway
-              # Deployed to istio-gateway by default
-              namespace: istio-gateway
+              # Deployed to gloo-mesh-gateways by default
+              namespace: gloo-mesh-gateways
               enabled: true
               label:
                 # Set a unique label for the gateway. This is required to ensure Gateways
@@ -146,8 +146,8 @@ spec:
           ingressGateways:
           # Enable the default east-west gateway
             - name: istio-eastwestgateway
-              # Deployed to istio-gateway by default
-              namespace: istio-gateway
+              # Deployed to gloo-mesh-gateways by default
+              namespace: gloo-mesh-gateways
               enabled: true
               label:
                 # Set a unique label for the gateway. This is required to ensure Gateways
