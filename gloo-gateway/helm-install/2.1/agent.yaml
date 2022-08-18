@@ -70,12 +70,7 @@ verbose: false
 # Do not use in production. Instead, install Istio manually, or configure settings in an IstioLifecycleManager CR
 # after installation.
 managedInstallations:
-  controlPlane:
-    enabled: false
-  eastWestGateways:
-  - enabled: false
-  northSouthGateways:
-  - enabled: false
+  enabled: false
 
 # Configuration for the gloo-mesh-agent deployment
 glooMeshAgent:

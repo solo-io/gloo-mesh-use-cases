@@ -15,7 +15,7 @@ registerMgmtPlane:
       # The Solo.io Gloo Mesh Istio version
       tag: $ISTIO_IMAGE
     controlPlane:
-    - enabled: true
+      enabled: true
       overrides: {}
     eastWestGateways:
     - enabled: true

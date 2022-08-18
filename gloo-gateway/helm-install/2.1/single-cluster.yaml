@@ -354,12 +354,7 @@ registerMgmtPlane:
   # Do not use in production. Instead, install Istio manually, or configure settings in an IstioLifecycleManager CR
   # after installation.
   managedInstallations:
-    controlPlane:
-      enabled: false
-    eastWestGateways:
-    - enabled: false
-    northSouthGateways:
-    - enabled: false
+    enabled: false
   # Maximum message size for gRPC messages sent and received by the management server
   maxGrpcMessageSize: "4294967295"
   # Number of metrics messages to buffer per Envoy proxy
