@@ -1,9 +1,9 @@
-#################################################################################
-# This is an example Helm values file for PRODUCTION-LEVEL installations.       #
-# You MUST edit some settings in this file to provide your own details.         #
-# To see the default settings instead, run                                      #
-# helm show values gloo-mesh-agent/gloo-mesh-agent --version $GLOO_MESH_VERSION #
-#################################################################################
+####################################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL installations.          #
+# You MUST edit some settings in this file to provide your own details.            #
+# To see the default settings instead, run                                         #
+# helm show values gloo-mesh-agent/gloo-mesh-agent --version $GLOO_GATEWAY_VERSION #
+####################################################################################
 
 # Global settings for agent configuration
 # Number of access logs to buffer per Envoy proxy
@@ -67,8 +67,7 @@ sidecar-accel:
 verbose: false
 
 # Configuration for managed Istio control plane and gateway installations by using the Istio lifecycle manager
-# Do not use in production. Instead, install Istio manually, or configure settings in an IstioLifecycleManager CR
-# after installation.
+# Do not use in production. Instead, configure settings in an IstioLifecycleManager CR after installation.
 managedInstallations:
   enabled: false
 
@@ -95,7 +94,7 @@ glooMeshAgent:
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-agent
     # Gloo Mesh Enterprise patch version. Must match the gloo-mesh-mgmt-server version.
-    tag: $GLOO_MESH_VERSION
+    tag: $GLOO_GATEWAY_VERSION
     # If pulling from a private registry
     #pullSecret:
   ports:

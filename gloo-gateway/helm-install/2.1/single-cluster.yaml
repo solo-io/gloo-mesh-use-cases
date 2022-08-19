@@ -1,9 +1,9 @@
-###########################################################################################
-# This is an example Helm values file for PRODUCTION-LEVEL installations.                 #
-# You MUST edit some settings in this file to provide your own details.                   #
-# To see the default settings instead, run                                                #
-# helm show values gloo-mesh-enterprise/gloo-mesh-enterprise --version $GLOO_MESH_VERSION #
-###########################################################################################
+##############################################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL installations.                    #
+# You MUST edit some settings in this file to provide your own details.                      #
+# To see the default settings instead, run                                                   #
+# helm show values gloo-mesh-enterprise/gloo-mesh-enterprise --version $GLOO_GATEWAY_VERSION #
+##############################################################################################
 
 # Global settings for management plane configuration
 # Namespace to install Gloo Platform components
@@ -21,11 +21,11 @@ insecure: false
 leaderElection: true
 
 # License settings
-# Provide your $GLOO_MESH_LICENSE_KEY to also install Gloo Mesh Enterprise
+# Provide your $ GLOO_MESH_LICENSE_KEY to also install Gloo Mesh Enterprise
 glooMeshLicenseKey: ""
 # Your Gloo Gateway license that you got from your Solo account representative
 glooGatewayLicenseKey: $GLOO_GATEWAY_LICENSE_KEY
-# Provide your $GLOO_NETWORK_LICENSE_KEY to also install Gloo Network
+# Provide your $ GLOO_NETWORK_LICENSE_KEY to also install Gloo Network
 glooNetworkLicenseKey: ""
 # To provide license keys in a secret in the cluster instead, specify the secret name.
 licenseSecretName: ""
@@ -128,7 +128,7 @@ glooMeshMgmtServer:
     repository: gloo-mesh-mgmt-server
     # Gloo Mesh Enterprise patch version. For a list of patch versions,
     # see https://docs.solo.io/gloo-mesh-enterprise/main/reference/changelog/
-    tag: $GLOO_MESH_VERSION
+    tag: $GLOO_GATEWAY_VERSION
     # If pulling from a private registry
     #pullSecret:
   ports:
@@ -213,7 +213,7 @@ glooMeshUi:
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-apiserver
     # Gloo Mesh Enterprise patch version
-    tag: $GLOO_MESH_VERSION
+    tag: $GLOO_GATEWAY_VERSION
     # If pulling from a private registry
     #pullSecret:
   # Ports for UI service
@@ -244,7 +244,7 @@ glooMeshUi:
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-ui
         # Gloo Mesh Enterprise patch version
-        tag: $GLOO_MESH_VERSION
+        tag: $GLOO_GATEWAY_VERSION
         # If pulling from a private registry
         #pullSecret:
       resources:
@@ -260,7 +260,7 @@ glooMeshUi:
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-envoy
         # Gloo Mesh Enterprise patch version
-        tag: $GLOO_MESH_VERSION
+        tag: $GLOO_GATEWAY_VERSION
         # If pulling from a private registry
         #pullSecret:
       resources:
@@ -326,9 +326,11 @@ registerMgmtPlane:
   # Number of access logs to buffer per Envoy proxy
   accessLogsBufferSize: 50
   # Name of the workload cluster by which cluster is referenced in all Gloo configurations
-  cluster: $REMOTE_CLUSTER
+  cluster: $CLUSTER_NAME
   # Set the logger to development mode, which can cause panics. Do not use in production.
   devMode: false
+  # Deploy the agent alongside the mgmt-server
+  enabled: true
   # Install external authentication service in the gloo-mesh namespace.
   # Do not use in production; install in gloo-mesh-addons namespace after registration time.
   ext-auth-service:
@@ -351,8 +353,7 @@ registerMgmtPlane:
   # Enable leader election for the HA deployment
   leaderElection: true
   # Configuration for managed Istio control plane and gateway installations by using the Istio lifecycle manager
-  # Do not use in production. Instead, install Istio manually, or configure settings in an IstioLifecycleManager CR
-  # after installation.
+  # Do not use in production. Instead, configure settings in an IstioLifecycleManager CR after installation.
   managedInstallations:
     enabled: false
   # Maximum message size for gRPC messages sent and received by the management server
@@ -366,22 +367,16 @@ registerMgmtPlane:
     extraTemplateAnnotations:
       proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
   relay:
-    # SNI name used to connect to relay forwarding server. Must match server certificate CommonName (DO NOT CHANGE)
     authority: gloo-mesh-mgmt-server.gloo-mesh
-    # Custom certs: Reference to a secret containing TLS certs used to secure the networking gRPC server with TLS.
     clientTlsSecret:
-      name: gloo-mesh-agent-$REMOTE_CLUSTER-tls-cert
-    # Reference to a secret containing a root TLS cert used to verify the relay server cert. 
-    # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
+      name: relay-client-tls-secret
     rootTlsSecret:
       name: relay-root-tls-secret
-    # Address and port by which gloo-mesh-mgmt-server in the Gloo management plane is accessed
-    serverAddress: $MGMT_SERVER_NETWORKING_ADDRESS
-    # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
-    #tokenSecret:
-    #  key: token
-    #  name: relay-identity-token-secret
-    #  namespace: gloo-mesh
+    serverAddress: gloo-mesh-mgmt-server:9900
+    tokenSecret:
+      key: token
+      name: relay-identity-token-secret
+      namespace: ""
   # Enable eBPF sidecar acceleration to reduce network latency in your service mesh. Do not use in production.
   sidecar-accel:
     enabled: false
