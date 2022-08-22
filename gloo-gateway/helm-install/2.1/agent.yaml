@@ -12,10 +12,9 @@ accessLogsBufferSize: 50
 cluster: $REMOTE_CLUSTER
 # Set the logger to development mode, which can cause panics. Do not use in production.
 devMode: false
-# Install external authentication service in the gloo-mesh namespace.
-# Do not use in production; install in gloo-mesh-addons namespace after registration time.
+# Install external authentication service in the gloo-mesh namespace
 ext-auth-service:
-  enabled: false
+  enabled: true
   extraTemplateAnnotations:
     proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
 # Install the Gloo Network-specific agent functionality only if you provided a Gloo Network license key.
@@ -37,10 +36,9 @@ leaderElection: true
 maxGrpcMessageSize: "4294967295"
 # Number of metrics messages to buffer per Envoy proxy
 metricsBufferSize: 50
-# Install rate limiting service in the gloo-mesh namespace.
-# Do not use in production; install in gloo-mesh-addons namespace after registration time.
+# Install rate limiting service in the gloo-mesh namespace
 rate-limiter:
-  enabled: false
+  enabled: true
   extraTemplateAnnotations:
     proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
 relay:
