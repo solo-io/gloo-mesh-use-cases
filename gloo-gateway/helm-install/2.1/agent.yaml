@@ -14,7 +14,7 @@ cluster: $REMOTE_CLUSTER
 devMode: false
 # Install external authentication service in the gloo-mesh namespace
 ext-auth-service:
-  enabled: true
+  enabled: false
   extraTemplateAnnotations:
     proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
 # Install the Gloo Network-specific agent functionality only if you provided a Gloo Network license key.
@@ -38,7 +38,7 @@ maxGrpcMessageSize: "4294967295"
 metricsBufferSize: 50
 # Install rate limiting service in the gloo-mesh namespace
 rate-limiter:
-  enabled: true
+  enabled: false
   extraTemplateAnnotations:
     proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
 relay:
