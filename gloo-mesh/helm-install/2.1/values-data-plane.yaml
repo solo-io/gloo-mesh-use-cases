@@ -53,7 +53,7 @@ relay:
   # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
   rootTlsSecret:
     name: relay-root-tls-secret
-  # Address and port by which gloo-mesh-mgmt-server in Gloo Mesh management plane is accessed
+  # Address and port by which gloo-mesh-mgmt-server in the Gloo management plane is accessed
   serverAddress: $MGMT_SERVER_NETWORKING_ADDRESS
   # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
   #tokenSecret:
@@ -70,12 +70,7 @@ verbose: false
 # Do not use in production. Instead, install Istio manually, or configure settings in an IstioLifecycleManager CR
 # after installation.
 managedInstallations:
-  controlPlane:
-    enabled: false
-  eastWestGateways:
-  - enabled: false
-  northSouthGateways:
-  - enabled: false
+  enabled: false
 
 # Configuration for the gloo-mesh-agent deployment
 glooMeshAgent:

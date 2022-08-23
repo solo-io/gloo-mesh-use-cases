@@ -79,8 +79,8 @@ spec:
           ingressGateways:
           # Enable the default ingress gateway
             - name: istio-ingressgateway
-              # Deployed to istio-gateway by default
-              namespace: istio-gateway
+              # Deployed to gloo-mesh-gateways by default
+              namespace: gloo-mesh-gateways
               enabled: true
               label:
                 # Set a unique label for the gateway. This is required to ensure Gateways
@@ -106,12 +106,6 @@ spec:
                     - port: 443
                       targetPort: 8443
                       name: https
-        # Helm values overrides
-        values:
-          gateways:
-            istio-ingressgateway:
-              # Enable gateway injection
-              injectionTemplate: gateway
 
     # OPTIONAL: OPERATOR SPEC FOR THE EAST-WEST GATEWAY
     - name: eastwest-gateway
@@ -126,8 +120,8 @@ spec:
           ingressGateways:
           # Enable the default east-west gateway
             - name: istio-eastwestgateway
-              # Deployed to istio-gateway by default
-              namespace: istio-gateway
+              # Deployed to gloo-mesh-gateways by default
+              namespace: gloo-mesh-gateways
               enabled: true
               label:
                 # Set a unique label for the gateway. This is required to ensure Gateways
@@ -155,9 +149,3 @@ spec:
                       targetPort: 15443
                       # Gloo Mesh looks for this default name 'tls' on a gateway
                       name: tls
-        # Helm values overrides
-        values:
-          gateways:
-            istio-ingressgateway:
-              # Enable gateway injection
-              injectionTemplate: gateway

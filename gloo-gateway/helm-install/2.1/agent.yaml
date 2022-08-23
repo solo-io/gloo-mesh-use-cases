@@ -1,0 +1,118 @@
+####################################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL installations.          #
+# You MUST edit some settings in this file to provide your own details.            #
+# To see the default settings instead, run                                         #
+# helm show values gloo-mesh-agent/gloo-mesh-agent --version $GLOO_GATEWAY_VERSION #
+####################################################################################
+
+# Global settings for agent configuration
+# Number of access logs to buffer per Envoy proxy
+accessLogsBufferSize: 50
+# Name of the workload cluster by which cluster is referenced in all Gloo configurations
+cluster: $REMOTE_CLUSTER
+# Set the logger to development mode, which can cause panics. Do not use in production.
+devMode: false
+# Install external authentication service in the gloo-mesh namespace
+ext-auth-service:
+  enabled: false
+  extraTemplateAnnotations:
+    proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+# Install the Gloo Network-specific agent functionality only if you provided a Gloo Network license key.
+gloo-network-agent:
+  enabled: false
+# Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
+insecure: false
+# Configuration for the istiod sidecar deployment
+istiodSidecar:
+  # Create the cluster role binding needed by the istiod sidecar
+  createRoleBinding: false
+  # Object reference to istiod service account
+  istiodServiceAccount:
+    name: istiod
+    namespace: istio-system
+# Enable leader election for the HA deployment
+leaderElection: true
+# Maximum message size for gRPC messages sent and received by the management server
+maxGrpcMessageSize: "4294967295"
+# Number of metrics messages to buffer per Envoy proxy
+metricsBufferSize: 50
+# Install rate limiting service in the gloo-mesh namespace
+rate-limiter:
+  enabled: false
+  extraTemplateAnnotations:
+    proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+relay:
+  # SNI name used to connect to relay forwarding server. Must match server certificate CommonName (DO NOT CHANGE)
+  authority: gloo-mesh-mgmt-server.gloo-mesh
+  # Custom certs: Reference to a secret containing TLS certs used to secure the networking gRPC server with TLS.
+  clientTlsSecret:
+    name: gloo-mesh-agent-$REMOTE_CLUSTER-tls-cert
+  # Reference to a secret containing a root TLS cert used to verify the relay server cert. 
+  # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
+  rootTlsSecret:
+    name: relay-root-tls-secret
+  # Address and port by which gloo-mesh-mgmt-server in the Gloo management plane is accessed
+  serverAddress: $MGMT_SERVER_NETWORKING_ADDRESS
+  # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
+  #tokenSecret:
+  #  key: token
+  #  name: relay-identity-token-secret
+  #  namespace: gloo-mesh
+# Gloo Mesh Enterprise feature only.
+# Do not enable eBPF sidecar acceleration in production.
+sidecar-accel:
+  enabled: false
+# Enable verbose/debug logging
+verbose: false
+
+# Configuration for managed Istio control plane and gateway installations by using the Istio lifecycle manager
+# Do not use in production. Instead, configure settings in an IstioLifecycleManager CR after installation.
+managedInstallations:
+  enabled: false
+
+# Configuration for the gloo-mesh-agent deployment
+glooMeshAgent:
+  # Optionally set deployment overrides
+  #deploymentOverrides:
+  #  spec:
+  #    template:
+  #      spec:
+  # Provide a node selector to ensure enterprise-agent runs on infra nodes
+  #        nodeSelector:
+  #          node_type: infra
+  enabled: true
+  env:
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  # Required for OpenShift installations: Allow the pod to be assigned a dynamic user ID.
+  floatingUserId: false
+  image:
+    pullPolicy: IfNotPresent
+    registry: gcr.io/gloo-mesh
+    repository: gloo-mesh-agent
+    # Gloo Gateway patch version. Must match the gloo-mesh-mgmt-server version.
+    tag: $GLOO_GATEWAY_VERSION
+    # If pulling from a private registry
+    #pullSecret:
+  ports:
+    # Port for gloo-mesh-agent service
+    grpc: 9977
+    http: 9988
+    # Port on which to serve internal Prometheus metrics for the agent app
+    stats: 9091
+  # gloo-mesh-agent pod resources
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Static user ID to run the containers as. Unused if floatingUserId is 'true'
+  runAsUser: 10101
+  # Kubernetes service type
+  serviceType: ClusterIP
+  # Optional configuration for the deployed containers
+  sidecars: {}

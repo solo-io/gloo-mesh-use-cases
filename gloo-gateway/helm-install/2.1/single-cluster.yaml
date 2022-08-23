@@ -1,34 +1,31 @@
-###########################################################################################
-# This is an example Helm values file for PRODUCTION-LEVEL installations.                 #
-# You MUST edit some settings in this file to provide your own details.                   #
-# To see the default settings instead, run                                                #
-# helm show values gloo-mesh-enterprise/gloo-mesh-enterprise --version $GLOO_MESH_VERSION #
-###########################################################################################
+##############################################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL installations.                    #
+# You MUST edit some settings in this file to provide your own details.                      #
+# To see the default settings instead, run                                                   #
+# helm show values gloo-mesh-enterprise/gloo-mesh-enterprise --version $GLOO_GATEWAY_VERSION #
+##############################################################################################
 
 # Global settings for management plane configuration
-# Namespace to install Gloo Mesh Enterprise
+# Namespace to install Gloo Platform components
 adminNamespace: gloo-mesh
 # Name of the management cluster
 global:
-  cluster: $MGMT_CLUSTER
+  cluster: $CLUSTER_NAME
 # Name of the management cluster
-mgmtClusterName: $MGMT_CLUSTER
+mgmtClusterName: $CLUSTER_NAME
 # Set the logger to development mode, which can cause panics. Do not use in production.
 devMode: false
 # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
 insecure: false
 # Enable leader election for the HA deployment
 leaderElection: true
-# Do not install the Gloo Mesh agent into the management cluster in a multicluster setup
-registerMgmtPlane:
-  enabled: false
 
 # License settings
-# Your Gloo Mesh Enterprise license that you got from your Solo account representative
-glooMeshLicenseKey: $GLOO_MESH_LICENSE_KEY
-# Provide your $GLOO_GATEWAY_LICENSE_KEY to also install Gloo Gateway
-glooGatewayLicenseKey: ""
-# Provide your $GLOO_NETWORK_LICENSE_KEY to also install Gloo Gateway
+# Provide your $ GLOO_MESH_LICENSE_KEY to also install Gloo Mesh Enterprise
+glooMeshLicenseKey: ""
+# Your Gloo Gateway license that you got from your Solo account representative
+glooGatewayLicenseKey: $GLOO_GATEWAY_LICENSE_KEY
+# Provide your $ GLOO_NETWORK_LICENSE_KEY to also install Gloo Network
 glooNetworkLicenseKey: ""
 # To provide license keys in a secret in the cluster instead, specify the secret name.
 licenseSecretName: ""
@@ -129,13 +126,13 @@ glooMeshMgmtServer:
     pullPolicy: IfNotPresent
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-mgmt-server
-    # Gloo Mesh Enterprise patch version. For a list of patch versions,
-    # see https://docs.solo.io/gloo-mesh-enterprise/main/reference/changelog/
-    tag: $GLOO_MESH_VERSION
+    # Gloo Gateway patch version. For a list of patch versions,
+    # see https://docs.solo.io/gloo-gateway/main/reference/changelog/
+    tag: $GLOO_GATEWAY_VERSION
     # If pulling from a private registry
     #pullSecret:
   ports:
-    # gloo-mesh-mgmt-server service port for Gloo Mesh agents to connect to
+    # gloo-mesh-mgmt-server service port for Gloo agents to connect to
     grpc: 9900
     healthcheck: 8090
     # Port on which to serve internal Prometheus metrics for the management server app
@@ -176,12 +173,11 @@ glooMeshMgmtServer:
   concurrency: 10
   # Maximum message size for gRPC messages sent and received by the management server
   maxGrpcMessageSize: "4294967295"
-  # Confuguration for the relay server
+  # Configuration for certificates to secure server-agent relay communication
   relay:
     # Disable default relay CA functionality only when supplying custom client certs to the agents for relay mTLS
     disableCa: true
     disableCaCertGeneration: true
-    disableTokenGeneration: true
     # Push RBAC resources to the management server. Required for multicluster RBAC in the UI
     pushRbac: true
     signingTlsSecret:
@@ -196,7 +192,7 @@ glooMeshMgmtServer:
       #name: relay-identity-token-secret
       #namespace: ""
 
-# Configuration for the Gloo Mesh UI
+# Configuration for the Gloo UI
 glooMeshUi:
   enabled: true
   env:
@@ -216,8 +212,8 @@ glooMeshUi:
     pullPolicy: IfNotPresent
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-apiserver
-    # Gloo Mesh Enterprise patch version
-    tag: $GLOO_MESH_VERSION
+    # Gloo Gateway patch version
+    tag: $GLOO_GATEWAY_VERSION
     # If pulling from a private registry
     #pullSecret:
   # Ports for UI service
@@ -247,8 +243,8 @@ glooMeshUi:
         pullPolicy: IfNotPresent
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-ui
-        # Gloo Mesh Enterprise patch version
-        tag: $GLOO_MESH_VERSION
+        # Gloo Gateway patch version
+        tag: $GLOO_GATEWAY_VERSION
         # If pulling from a private registry
         #pullSecret:
       resources:
@@ -263,8 +259,8 @@ glooMeshUi:
         pullPolicy: IfNotPresent
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-envoy
-        # Gloo Mesh Enterprise patch version
-        tag: $GLOO_MESH_VERSION
+        # Gloo Gateway patch version
+        tag: $GLOO_GATEWAY_VERSION
         # If pulling from a private registry
         #pullSecret:
       resources:
@@ -323,3 +319,67 @@ glooMeshRedis:
   serviceType: ClusterIP
   sidecars: {}
   addr: ""
+
+# Install the Gloo agent alongside the management server,
+# such as to run the management cluster also as a workload cluster in a single-cluster setup.
+registerMgmtPlane:
+  # Number of access logs to buffer per Envoy proxy
+  accessLogsBufferSize: 50
+  # Name of the workload cluster by which cluster is referenced in all Gloo configurations
+  cluster: $CLUSTER_NAME
+  # Set the logger to development mode, which can cause panics. Do not use in production.
+  devMode: false
+  # Deploy the agent alongside the mgmt-server
+  enabled: true
+  # Install external authentication service in the gloo-mesh namespace.
+  # Do not use in production; install in gloo-mesh-addons namespace after registration time.
+  ext-auth-service:
+    enabled: false
+    extraTemplateAnnotations:
+      proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  # Install the Gloo Network-specific agent functionality only if you installed Gloo Network.
+  gloo-network-agent:
+    enabled: false
+  # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
+  insecure: false
+  # Configuration for the istiod sidecar deployment
+  istiodSidecar:
+    # Create the cluster role binding needed by the istiod sidecar
+    createRoleBinding: false
+    # Object reference to istiod service account
+    istiodServiceAccount:
+      name: istiod
+      namespace: istio-system
+  # Enable leader election for the HA deployment
+  leaderElection: true
+  # Configuration for managed Istio control plane and gateway installations by using the Istio lifecycle manager
+  # Do not use in production. Instead, configure settings in an IstioLifecycleManager CR after installation.
+  managedInstallations:
+    enabled: false
+  # Maximum message size for gRPC messages sent and received by the management server
+  maxGrpcMessageSize: "4294967295"
+  # Number of metrics messages to buffer per Envoy proxy
+  metricsBufferSize: 50
+  # Install rate limiting service in the gloo-mesh namespace.
+  # Do not use in production; install in gloo-mesh-addons namespace after registration time.
+  rate-limiter:
+    enabled: false
+    extraTemplateAnnotations:
+      proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  relay:
+    authority: gloo-mesh-mgmt-server.gloo-mesh
+    clientTlsSecret:
+      name: relay-client-tls-secret
+    rootTlsSecret:
+      name: relay-root-tls-secret
+    serverAddress: gloo-mesh-mgmt-server:9900
+    tokenSecret:
+      key: token
+      name: relay-identity-token-secret
+      namespace: ""
+  # Gloo Mesh Enterprise feature only.
+  # Do not enable eBPF sidecar acceleration in production.
+  sidecar-accel:
+    enabled: false
+  # Enable verbose/debug logging
+  verbose: false
