@@ -9,7 +9,7 @@ registerMgmtPlane:
   managedInstallations:
     enabled: true
     images:
-      # Solo.io Istio distribution repository; required for Gloo Mesh Istio.
+      # Solo.io Istio distribution repository; required for Gloo Istio.
       # You get the repo key from your Solo Account Representative.
       hub: $REPO
       # The Solo.io Gloo Istio version
