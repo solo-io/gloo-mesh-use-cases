@@ -8,7 +8,7 @@
 # Global settings for agent configuration
 # Number of access logs to buffer per Envoy proxy
 accessLogsBufferSize: 50
-# Name of the workload cluster by which cluster is referenced in all Gloo Mesh configurations
+# Name of the workload cluster by which cluster is referenced in all Gloo configurations
 cluster: $REMOTE_CLUSTER
 # Set the logger to development mode, which can cause panics. Do not use in production.
 devMode: false
@@ -91,7 +91,7 @@ glooMeshAgent:
     pullPolicy: IfNotPresent
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-agent
-    # Gloo Mesh Enterprise patch version. Must match the gloo-mesh-mgmt-server version.
+    # Gloo Gateway patch version. Must match the gloo-mesh-mgmt-server version.
     tag: $GLOO_GATEWAY_VERSION
     # If pulling from a private registry
     #pullSecret:

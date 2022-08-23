@@ -129,7 +129,7 @@ glooMeshMgmtServer:
     pullPolicy: IfNotPresent
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-mgmt-server
-    # Gloo Mesh Enterprise patch version. For a list of patch versions,
+    # Gloo Gateway patch version. For a list of patch versions,
     # see https://docs.solo.io/gloo-mesh-enterprise/main/reference/changelog/
     tag: $GLOO_GATEWAY_VERSION
     # If pulling from a private registry
@@ -247,7 +247,7 @@ glooMeshUi:
         pullPolicy: IfNotPresent
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-ui
-        # Gloo Mesh Enterprise patch version
+        # Gloo Gateway patch version
         tag: $GLOO_GATEWAY_VERSION
         # If pulling from a private registry
         #pullSecret:
@@ -263,7 +263,7 @@ glooMeshUi:
         pullPolicy: IfNotPresent
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-envoy
-        # Gloo Mesh Enterprise patch version
+        # Gloo Gateway patch version
         tag: $GLOO_GATEWAY_VERSION
         # If pulling from a private registry
         #pullSecret:
