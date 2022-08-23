@@ -58,7 +58,8 @@ relay:
   #  key: token
   #  name: relay-identity-token-secret
   #  namespace: gloo-mesh
-# Enable eBPF sidecar acceleration to reduce network latency in your service mesh. Do not use in production.
+# Gloo Mesh Enterprise feature only.
+# Do not enable eBPF sidecar acceleration in production.
 sidecar-accel:
   enabled: false
 # Enable verbose/debug logging

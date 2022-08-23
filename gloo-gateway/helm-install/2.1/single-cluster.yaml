@@ -126,8 +126,8 @@ glooMeshMgmtServer:
     pullPolicy: IfNotPresent
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-mgmt-server
-    # Gloo Mesh Enterprise patch version. For a list of patch versions,
-    # see https://docs.solo.io/gloo-mesh-enterprise/main/reference/changelog/
+    # Gloo Gateway patch version. For a list of patch versions,
+    # see https://docs.solo.io/gloo-gateway/main/reference/changelog/
     tag: $GLOO_GATEWAY_VERSION
     # If pulling from a private registry
     #pullSecret:
@@ -212,7 +212,7 @@ glooMeshUi:
     pullPolicy: IfNotPresent
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-apiserver
-    # Gloo Mesh Enterprise patch version
+    # Gloo Gateway patch version
     tag: $GLOO_GATEWAY_VERSION
     # If pulling from a private registry
     #pullSecret:
@@ -243,7 +243,7 @@ glooMeshUi:
         pullPolicy: IfNotPresent
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-ui
-        # Gloo Mesh Enterprise patch version
+        # Gloo Gateway patch version
         tag: $GLOO_GATEWAY_VERSION
         # If pulling from a private registry
         #pullSecret:
@@ -259,7 +259,7 @@ glooMeshUi:
         pullPolicy: IfNotPresent
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-envoy
-        # Gloo Mesh Enterprise patch version
+        # Gloo Gateway patch version
         tag: $GLOO_GATEWAY_VERSION
         # If pulling from a private registry
         #pullSecret:
@@ -377,7 +377,8 @@ registerMgmtPlane:
       key: token
       name: relay-identity-token-secret
       namespace: ""
-  # Enable eBPF sidecar acceleration to reduce network latency in your service mesh. Do not use in production.
+  # Gloo Mesh Enterprise feature only.
+  # Do not enable eBPF sidecar acceleration in production.
   sidecar-accel:
     enabled: false
   # Enable verbose/debug logging
