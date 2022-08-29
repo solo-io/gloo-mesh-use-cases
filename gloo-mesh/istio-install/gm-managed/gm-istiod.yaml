@@ -14,9 +14,9 @@ spec:
       istioOperatorSpec:
         # Only the control plane components are installed (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
         profile: minimal
-        # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
+        # Solo.io Istio distribution repository; required for Gloo Istio. You get the repo key from your Solo Account Representative.
         hub: $REPO
-        # Any Solo.io Gloo Mesh Istio tag
+        # Any Solo.io Gloo Istio tag
         tag: $ISTIO_IMAGE
         namespace: istio-system
         # Mesh configuration
@@ -30,10 +30,10 @@ spec:
           defaultConfig:
             # Wait for the istio-proxy to start before starting application pods
             holdApplicationUntilProxyStarts: true
-            # Enable Gloo Mesh metrics service. Required for Gloo Mesh UI
+            # Enable Gloo metrics service. Required for Gloo UI
             envoyMetricsService:
               address: gloo-mesh-agent.gloo-mesh:9977
-            # Enable Gloo Mesh accesslog service. Required for Gloo Mesh Access Logging
+            # Enable Gloo accesslog service. Required for Gloo Access Logging
             envoyAccessLogService:
               address: gloo-mesh-agent.gloo-mesh:9977
             proxyMetadata:
@@ -53,7 +53,7 @@ spec:
             k8s:
               env:
                 # Disable selecting workload entries for local service routing.
-                # Required for Gloo Mesh VirtualDestinaton functionality.
+                # Required for Gloo VirtualDestinaton functionality.
                 - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
                   value: "false"
           # Disable gateways deployments, which are deployed in separate IstioOperator configurations
@@ -71,9 +71,9 @@ spec:
       istioOperatorSpec:
         # No control plane components are installed
         profile: empty
-        # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
+        # Solo.io Istio distribution repository; required for Gloo Istio. You get the repo key from your Solo Account Representative.
         hub: $REPO
-        # The Solo.io Gloo Mesh Istio tag
+        # The Solo.io Gloo Istio tag
         tag: $ISTIO_IMAGE
         components:
           ingressGateways:
@@ -107,14 +107,14 @@ spec:
                       targetPort: 8443
                       name: https
 
-    # OPTIONAL: OPERATOR SPEC FOR THE EAST-WEST GATEWAY
+    # OPERATOR SPEC FOR THE EAST-WEST GATEWAY
     - name: eastwest-gateway
       istioOperatorSpec:
         # No control plane components are installed
         profile: empty
-        # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
+        # Solo.io Istio distribution repository; required for Gloo Istio. You get the repo key from your Solo Account Representative.
         hub: $REPO
-        # The Solo.io Gloo Mesh Istio version
+        # The Solo.io Gloo Istio version
         tag: $ISTIO_IMAGE
         components:
           ingressGateways:
@@ -131,7 +131,7 @@ spec:
               k8s:
                 env:
                   # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
-                  # Required by Gloo Mesh for east/west routing
+                  # Required by Gloo for east/west routing
                   - name: ISTIO_META_ROUTER_MODE
                     value: "sni-dnat"
                 service:
@@ -144,8 +144,8 @@ spec:
                     - port: 15021
                       targetPort: 15021
                       name: status-port
-                    # Port for multicluster mTLS passthrough; required for Gloo Mesh east/west routing
+                    # Port for multicluster mTLS passthrough; required for Gloo east/west routing
                     - port: 15443
                       targetPort: 15443
-                      # Gloo Mesh looks for this default name 'tls' on a gateway
+                      # Gloo looks for this default name 'tls' on a gateway
                       name: tls
