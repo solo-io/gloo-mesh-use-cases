@@ -7,16 +7,15 @@ registerMgmtPlane:
   enabled: true
   # Configuration for managed Istio control plane and gateway installations by using the Istio Lifecycle Manager
   managedInstallations:
-    cluster: $CLUSTER_NAME
+    enabled: true
     images:
       # Solo.io Istio distribution repository; required for Gloo Istio.
       # You get the repo key from your Solo Account Representative.
       hub: $REPO
       # The Solo.io Gloo Istio version
       tag: $ISTIO_IMAGE
-    eastWestGateways:
-    - enabled: true
-      name: istio-eastwestgateway
+    controlPlane:
+      enabled: true
       overrides: {}
     northSouthGateways:
     - enabled: true
