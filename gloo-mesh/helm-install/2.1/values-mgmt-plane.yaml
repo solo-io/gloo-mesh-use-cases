@@ -138,8 +138,6 @@ glooMeshMgmtServer:
     # gloo-mesh-mgmt-server service port for Gloo agents to connect to
     grpc: 9900
     healthcheck: 8090
-    # Port on which to serve internal Prometheus metrics for the management server app
-    stats: 9091
   # gloo-mesh-mgmt-server pod resources
   resources:
     requests:
@@ -174,6 +172,11 @@ glooMeshMgmtServer:
   sidecars: {}
   # Concurrency to use for translation operations
   concurrency: 10
+  # Allows mgmt-server replicas to auto-balance the number of connected clusters based on the number of replicas and total clusters.
+  # Experimental; do not use in production.
+  enableClusterLoadBalancing: false
+  # Port on which to serve internal Prometheus metrics for the management server app
+  statsPort: 9091
   # Maximum message size for gRPC messages sent and received by the management server
   maxGrpcMessageSize: "4294967295"
   # Configuration for certificates to secure server-agent relay communication

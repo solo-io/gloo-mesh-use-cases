@@ -17,10 +17,6 @@ registerMgmtPlane:
     controlPlane:
       enabled: true
       overrides: {}
-    eastWestGateways:
-    - enabled: true
-      name: east-west-gateway
-      overrides: {}
     northSouthGateways:
     - enabled: true
       name: north-south-gateway
