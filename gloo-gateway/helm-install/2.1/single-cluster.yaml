@@ -8,11 +8,9 @@
 # Global settings for management plane configuration
 # Namespace to install Gloo Platform components
 adminNamespace: gloo-mesh
-# Name of the management cluster
+# Name of the cluster
 global:
   cluster: $CLUSTER_NAME
-# Name of the management cluster
-mgmtClusterName: $CLUSTER_NAME
 # Set the logger to development mode, which can cause panics. Do not use in production.
 devMode: false
 # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.

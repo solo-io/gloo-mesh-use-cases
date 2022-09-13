@@ -11,8 +11,6 @@ adminNamespace: gloo-mesh
 # Name of the management cluster
 global:
   cluster: $MGMT_CLUSTER
-# Name of the management cluster
-mgmtClusterName: $MGMT_CLUSTER
 # Set the logger to development mode, which can cause panics. Do not use in production.
 devMode: false
 # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
