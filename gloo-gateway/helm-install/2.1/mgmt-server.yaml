@@ -11,8 +11,6 @@ adminNamespace: gloo-mesh
 # Name of the management cluster
 global:
   cluster: $MGMT_CLUSTER
-# Name of the management cluster
-mgmtClusterName: $MGMT_CLUSTER
 # Set the logger to development mode, which can cause panics. Do not use in production.
 devMode: false
 # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
@@ -30,6 +28,8 @@ glooMeshLicenseKey: ""
 glooGatewayLicenseKey: $GLOO_GATEWAY_LICENSE_KEY
 # Provide your $ GLOO_NETWORK_LICENSE_KEY to also install Gloo Network
 glooNetworkLicenseKey: ""
+# Provide your $ GLOO_TRIAL_LICENSE_KEY for a trial installation of all products
+glooTrialLicenseKey: ""
 # To provide license keys in a secret in the cluster instead, specify the secret name.
 licenseSecretName: ""
 

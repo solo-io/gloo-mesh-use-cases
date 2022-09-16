@@ -19,5 +19,5 @@ registerMgmtPlane:
       overrides: {}
     northSouthGateways:
     - enabled: true
-      name: north-south-gateway
+      name: istio-ingressgateway
       overrides: {}
