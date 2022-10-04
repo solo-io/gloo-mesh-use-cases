@@ -56,13 +56,6 @@ spec:
           rootNamespace: istio-system
         # Traffic management
         components:
-          pilot:
-            k8s:
-              env:
-                # Disable selecting workload entries for local service routing.
-                # Required for Gloo VirtualDestinaton functionality.
-                - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
-                  value: "false"
           # Disable gateways deployments, which are deployed in separate resources
           ingressGateways:
           - name: istio-ingressgateway
@@ -72,3 +65,10 @@ spec:
           egressGateways:
           - name: istio-egressgateway
             enabled: false
+          pilot:
+            k8s:
+              env:
+                # Disable selecting workload entries for local service routing.
+                # Required for Gloo VirtualDestinaton functionality.
+                - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
+                  value: "false"

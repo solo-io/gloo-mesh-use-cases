@@ -1,0 +1,59 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: GatewayLifecycleManager
+metadata:
+  name: istio-eastwestgateway
+  namespace: gloo-mesh
+spec:
+  installations:
+      # The revision for this installation, such as 1-14-5
+    - revision: $REVISION
+      # List all workload clusters to install Istio into
+      clusters:
+      - name: $REMOTE_CLUSTER1
+        # If set to true, the spec for this revision is applied in the cluster
+        activeGateway: true
+      - name: $REMOTE_CLUSTER2
+        activeGateway: true
+      istioOperatorSpec:
+        # No control plane components are installed
+        profile: empty
+        # Solo.io Istio distribution repository; required for Gloo Istio.
+        # You get the repo key from your Solo Account Representative.
+        hub: $REPO
+        # The Solo.io Gloo Istio version
+        tag: $ISTIO_IMAGE
+        components:
+          ingressGateways:
+          # Enable the default east-west gateway
+            - name: istio-eastwestgateway
+              # Deployed to gloo-mesh-gateways by default
+              namespace: gloo-mesh-gateways
+              enabled: true
+              label:
+                # Set a unique label for the gateway. This is required to
+                # ensure Gateways can select this workload.
+                istio: eastwestgateway
+                app: istio-eastwestgateway
+              k8s:
+                env:
+                  # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
+                  # Required by Gloo for east-west routing
+                  - name: ISTIO_META_ROUTER_MODE
+                    value: "sni-dnat"
+                service:
+                  type: LoadBalancer
+                  selector:
+                    istio: eastwestgateway
+                  # Default ports
+                  ports:
+                    # Port for health checks on path /healthz/ready.
+                    # For AWS ELBs, this port must be listed first.
+                    - port: 15021
+                      targetPort: 15021
+                      name: status-port
+                    # Port for multicluster mTLS passthrough
+                    # Required for Gloo east/west routing
+                    - port: 15443
+                      targetPort: 15443
+                      # Gloo looks for this default name 'tls' on a gateway
+                      name: tls

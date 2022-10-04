@@ -56,13 +56,6 @@ spec:
           rootNamespace: istio-system
         # Traffic management
         components:
-          pilot:
-            k8s:
-              env:
-                # Disable selecting workload entries for local service routing.
-                # Required for Gloo VirtualDestinaton functionality.
-                - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
-                  value: "false"
           # Openshift requires the Istio CNI feature to be enabled
           cni:
             enabled: true
@@ -83,6 +76,13 @@ spec:
           egressGateways:
           - name: istio-egressgateway
             enabled: false
+          pilot:
+            k8s:
+              env:
+                # Disable selecting workload entries for local service routing.
+                # Required for Gloo VirtualDestinaton functionality.
+                - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
+                  value: "false"
         # Helm values overrides
         values:
           # CNI options for OpenShift
