@@ -6,7 +6,7 @@ metadata:
 spec:
   installations:
       # The revision for this installation, such as 1-14-5
-    - revision: $REVISION
+    - gatewayRevision: $REVISION
       # List all workload clusters to install Istio into
       clusters:
       - name: $REMOTE_CLUSTER1
