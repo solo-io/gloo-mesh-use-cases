@@ -1,9 +1,9 @@
-####################################################################################
-# This is an example Helm values file for PRODUCTION-LEVEL installations.          #
-# You MUST edit some settings in this file to provide your own details.            #
-# To see the default settings instead, run                                         #
-# helm show values gloo-mesh-agent/gloo-mesh-agent --version $GLOO_GATEWAY_VERSION #
-####################################################################################
+############################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL installations.  #
+# You MUST edit some settings in this file to provide your own details.    #
+# To see the default settings instead, run                                 #
+# helm show values gloo-mesh-agent/gloo-mesh-agent --version $GLOO_VERSION #
+############################################################################
 
 # Global settings for agent configuration
 # Number of access logs to buffer per Envoy proxy
@@ -93,7 +93,7 @@ glooMeshAgent:
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-agent
     # Gloo Gateway patch version. Must match the gloo-mesh-mgmt-server version.
-    tag: $GLOO_GATEWAY_VERSION
+    tag: $GLOO_VERSION
     # If pulling from a private registry
     #pullSecret:
   ports:
