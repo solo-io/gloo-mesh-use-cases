@@ -1,9 +1,9 @@
-####################################################################################
-# This is an example Helm values file for PRODUCTION-LEVEL installations.          #
-# You MUST edit some settings in this file to provide your own details.            #
-# To see the default settings instead, run                                         #
-# helm show values gloo-mesh-agent/gloo-mesh-agent --version $GLOO_GATEWAY_VERSION #
-####################################################################################
+############################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL installations.  #
+# You MUST edit some settings in this file to provide your own details.    #
+# To see the default settings instead, run                                 #
+# helm show values gloo-mesh-agent/gloo-mesh-agent --version $GLOO_VERSION #
+############################################################################
 
 # Global settings for agent configuration
 # Number of access logs to buffer per Envoy proxy
@@ -12,7 +12,8 @@ accessLogsBufferSize: 50
 cluster: $REMOTE_CLUSTER
 # Set the logger to development mode, which can cause panics. Do not use in production.
 devMode: false
-# Install external authentication service in the gloo-mesh namespace
+# Install external authentication service in the gloo-mesh namespace.
+# Do not use in production; install in gloo-mesh-addons namespace after registration time.
 ext-auth-service:
   enabled: false
   extraTemplateAnnotations:
@@ -36,7 +37,8 @@ leaderElection: true
 maxGrpcMessageSize: "4294967295"
 # Number of metrics messages to buffer per Envoy proxy
 metricsBufferSize: 50
-# Install rate limiting service in the gloo-mesh namespace
+# Install rate limiting service in the gloo-mesh namespace.
+# Do not use in production; install in gloo-mesh-addons namespace after registration time.
 rate-limiter:
   enabled: false
   extraTemplateAnnotations:
@@ -66,7 +68,8 @@ sidecar-accel:
 verbose: false
 
 # Configuration for managed Istio control plane and gateway installations by using the Istio lifecycle manager
-# Do not use in production. Instead, configure settings in an IstioLifecycleManager CR after installation.
+# Do not use in production. Instead, install Istio manually, or configure settings in an IstioLifecycleManager CR
+# after installation.
 managedInstallations:
   enabled: false
 
@@ -93,7 +96,7 @@ glooMeshAgent:
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-agent
     # Gloo Gateway patch version. Must match the gloo-mesh-mgmt-server version.
-    tag: $GLOO_GATEWAY_VERSION
+    tag: $GLOO_VERSION
     # If pulling from a private registry
     #pullSecret:
   ports:

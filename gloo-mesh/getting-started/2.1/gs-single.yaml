@@ -7,6 +7,10 @@ registerMgmtPlane:
   enabled: true
   # Configuration for managed Istio control plane and gateway installations by using the Istio Lifecycle Manager
   managedInstallations:
+    controlPlane:
+      enabled: true
+      overrides: {}
+    defaultRevision: true
     enabled: true
     images:
       # Solo.io Istio distribution repository; required for Gloo Istio.
@@ -14,10 +18,8 @@ registerMgmtPlane:
       hub: $REPO
       # The Solo.io Gloo Istio version
       tag: $ISTIO_IMAGE
-    controlPlane:
-      enabled: true
-      overrides: {}
     northSouthGateways:
     - enabled: true
       name: istio-ingressgateway
       overrides: {}
+    revision: gm

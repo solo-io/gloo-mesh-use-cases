@@ -1,30 +1,35 @@
-###########################################################################################
-# This is an example Helm values file for PRODUCTION-LEVEL installations.                 #
-# You MUST edit some settings in this file to provide your own details.                   #
-# To see the default settings instead, run                                                #
-# helm show values gloo-mesh-enterprise/gloo-mesh-enterprise --version $GLOO_MESH_VERSION #
-###########################################################################################
+######################################################################################
+# This is an example Helm values file for PRODUCTION-LEVEL installations.            #
+# You MUST edit some settings in this file to provide your own details.              #
+# To see the default settings instead, run                                           #
+# helm show values gloo-mesh-enterprise/gloo-mesh-enterprise --version $GLOO_VERSION #
+######################################################################################
 
 # Global settings for management plane configuration
 # Namespace to install Gloo Platform components
 adminNamespace: gloo-mesh
+# Set the logger to development mode, which can cause panics. Do not use in production.
+devMode: false
 # Name of the cluster
 global:
   cluster: $CLUSTER_NAME
-# Set the logger to development mode, which can cause panics. Do not use in production.
-devMode: false
 # Set to true to permit unencrypted and unauthenticated communication between management plane and data planes. Do not use in production.
 insecure: false
 # Enable leader election for the HA deployment
 leaderElection: true
+# Name of the cluster
+mgmtClusterName: $CLUSTER_NAME
+verbose: false
 
 # License settings
-# Your Gloo Mesh Enterprise license that you got from your Solo account representative
-glooMeshLicenseKey: $GLOO_MESH_LICENSE_KEY
 # Provide your $ GLOO_GATEWAY_LICENSE_KEY to also install Gloo Gateway
 glooGatewayLicenseKey: ""
-# Provide your $ GLOO_NETWORK_LICENSE_KEY to also install Gloo Gateway
+# Your Gloo Mesh Enterprise license that you got from your Solo account representative
+glooMeshLicenseKey: $GLOO_MESH_LICENSE_KEY
+# Provide your $ GLOO_NETWORK_LICENSE_KEY to also install Gloo Network
 glooNetworkLicenseKey: ""
+# Provide your $ GLOO_TRIAL_LICENSE_KEY for a trial installation of all products
+glooTrialLicenseKey: ""
 # To instead provide license keys in a secret in the gloo-mesh namespace of the management cluster, specify the secret name.
 licenseSecretName: ""
 
@@ -50,9 +55,67 @@ prometheus:
     persistentVolume:
       enabled: false
   serverFiles:
+    alerting_rules.yml:
+      groups:
+      - name: GlooPlatformAlerts
+        rules:
+        - alert: GlooPlatformTranslationLatencyIsHigh
+          annotations:
+            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
+            summary: The translation time has increased above 5 sec. It's currently
+              {{ $value | humanize }}.
+          expr: histogram_quantile(0.99, sum(rate(gloo_mesh_translation_time_sec_bucket[5m]))
+            by(le)) > 5
+          for: 15m
+          labels:
+            severity: warning
+        - alert: GlooPlatformReconscilerLatencyIsHigh
+          annotations:
+            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
+            summary: The reconciliation time has increased above 3 sec. It's currently
+              {{ $value | humanize }}.
+          expr: histogram_quantile(0.99, sum(rate(gloo_mesh_reconciler_time_sec_bucket[5m]))
+            by(le)) > 3
+          for: 15m
+          labels:
+            severity: warning
+        - alert: GlooPlatformAgentsAreDisconnected
+          annotations:
+            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
+            summary: 'The following cluster is disconnected: {{ $labels.cluster }}.
+              Check the Gloo Platform Agent pod in the cluster!'
+          expr: count by(cluster) (sum by(cluster) (relay_push_clients_warmed == 0))
+            > 0
+          for: 5m
+          labels:
+            severity: warning
+        - alert: GlooPlatformTranslationWarnings
+          annotations:
+            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
+            summary: Gloo Platform has detected {{$value | humanize}} translation
+              warnings in the last 5m. Check your {{ $labels.gvk }} resources!
+          expr: increase(translation_warning[5m]) > 0
+          labels:
+            severity: warning
+        - alert: GlooPlatformTranslationErrors
+          annotations:
+            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
+            summary: Gloo Platform has detected {{$value | humanize}} translation
+              errors in the last 5m. Check your {{ $labels.gvk }} resources!
+          expr: increase(translation_error[5m]) > 0
+          labels:
+            severity: warning
+        - alert: GlooPlatformRedisErrors
+          annotations:
+            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
+            summary: Gloo Platform has detected {{$value | humanize}} Redis sync errors
+              in the last 5m.
+          expr: increase(gloo_mesh_redis_sync_err[5m]) > 0
+          labels:
+            severity: warning
     prometheus.yml:
       scrape_configs:
-      - job_name: gloo-mesh-pods
+      - job_name: gloo-plaform-pods
         kubernetes_sd_configs:
         - namespaces:
             names:
@@ -102,7 +165,6 @@ prometheus:
       create: true
 # Default Prometheus server address. Replace with your own as needed.
 prometheusUrl: http://prometheus-server
-verbose: false
 
 # Configuration for the gloo-mesh-mgmt-server deployment
 glooMeshMgmtServer:
@@ -126,7 +188,7 @@ glooMeshMgmtServer:
     repository: gloo-mesh-mgmt-server
     # Gloo Mesh Enterprise patch version. For a list of patch versions,
     # see https://docs.solo.io/gloo-mesh-enterprise/main/reference/changelog/
-    tag: $GLOO_MESH_VERSION
+    tag: $GLOO_VERSION
     # If pulling from a private registry
     #pullSecret:
   ports:
@@ -210,7 +272,7 @@ glooMeshUi:
     registry: gcr.io/gloo-mesh
     repository: gloo-mesh-apiserver
     # Gloo Mesh Enterprise patch version
-    tag: $GLOO_MESH_VERSION
+    tag: $GLOO_VERSION
     # If pulling from a private registry
     #pullSecret:
   # Ports for UI service
@@ -241,7 +303,7 @@ glooMeshUi:
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-ui
         # Gloo Mesh Enterprise patch version
-        tag: $GLOO_MESH_VERSION
+        tag: $GLOO_VERSION
         # If pulling from a private registry
         #pullSecret:
       resources:
@@ -257,7 +319,7 @@ glooMeshUi:
         registry: gcr.io/gloo-mesh
         repository: gloo-mesh-envoy
         # Gloo Mesh Enterprise patch version
-        tag: $GLOO_MESH_VERSION
+        tag: $GLOO_VERSION
         # If pulling from a private registry
         #pullSecret:
       resources:
@@ -304,7 +366,7 @@ glooMeshRedis:
     pullPolicy: IfNotPresent
     registry: docker.io
     repository: redis
-    tag: 6.2.6
+    tag: 7.0.4
   ports:
     redis: 6379
   resources:
@@ -323,9 +385,11 @@ registerMgmtPlane:
   # Number of access logs to buffer per Envoy proxy
   accessLogsBufferSize: 50
   # Name of the workload cluster by which cluster is referenced in all Gloo configurations
-  cluster: $REMOTE_CLUSTER
+  cluster: $CLUSTER_NAME
   # Set the logger to development mode, which can cause panics. Do not use in production.
   devMode: false
+  # Deploy the agent alongside the mgmt-server
+  enabled: true
   # Install external authentication service in the gloo-mesh namespace.
   # Do not use in production; install in gloo-mesh-addons namespace after registration time.
   ext-auth-service:
@@ -363,22 +427,16 @@ registerMgmtPlane:
     extraTemplateAnnotations:
       proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
   relay:
-    # SNI name used to connect to relay forwarding server. Must match server certificate CommonName (DO NOT CHANGE)
     authority: gloo-mesh-mgmt-server.gloo-mesh
-    # Custom certs: Reference to a secret containing TLS certs used to secure the networking gRPC server with TLS.
     clientTlsSecret:
-      name: gloo-mesh-agent-$REMOTE_CLUSTER-tls-cert
-    # Reference to a secret containing a root TLS cert used to verify the relay server cert. 
-    # The secret can also optionally specify a 'tls.key' which will be used to generate the agent client cert.
+      name: relay-client-tls-secret
     rootTlsSecret:
       name: relay-root-tls-secret
-    # Address and port by which gloo-mesh-mgmt-server in the Gloo management plane is accessed
-    serverAddress: $MGMT_SERVER_NETWORKING_ADDRESS
-    # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
-    #tokenSecret:
-    #  key: token
-    #  name: relay-identity-token-secret
-    #  namespace: gloo-mesh
+    serverAddress: gloo-mesh-mgmt-server:9900
+    tokenSecret:
+      key: token
+      name: relay-identity-token-secret
+      namespace: ""
   # Enable eBPF sidecar acceleration to reduce network latency in your service mesh. Do not use in production.
   sidecar-accel:
     enabled: false
