@@ -240,6 +240,8 @@ glooMeshMgmtServer:
   # Maximum message size for gRPC messages sent and received by the management server
   maxGrpcMessageSize: "4294967295"
   # Configuration for certificates to secure server-agent relay communication
+  # IMPORTANT: These settings assume you are bringing your own custom certificates.
+  # To use default certificates instead, see the commented-out relay section below.
   relay:
     # Disable default relay CA functionality only when supplying custom client certs to the agents for relay mTLS
     disableCa: true
@@ -258,6 +260,20 @@ glooMeshMgmtServer:
       #key: token
       #name: relay-identity-token-secret
       #namespace: ""
+  # To use default certificates instead of custom, you can comment out the above section and uncomment this section:
+  #relay:
+  #  disableCa: false
+  #  disableCaCertGeneration: false
+  #  disableTokenGeneration: false
+  #  pushRbac: true
+  #  signingTlsSecret:
+  #    name: relay-tls-signing-secret
+  #  tlsSecret:
+  #    name: relay-server-tls-secret
+  #  tokenSecret:
+  #    key: token
+  #    name: relay-identity-token-secret
+  #    namespace: ""
 
 # Configuration for the Gloo UI
 glooMeshUi:
