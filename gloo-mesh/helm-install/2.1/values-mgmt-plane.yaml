@@ -118,7 +118,7 @@ prometheus:
             severity: warning
     prometheus.yml:
       scrape_configs:
-      - job_name: gloo-plaform-pods
+      - job_name: gloo-platform-pods
         kubernetes_sd_configs:
         - namespaces:
             names:
