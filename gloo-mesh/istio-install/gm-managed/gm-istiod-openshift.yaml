@@ -1,23 +1,29 @@
 apiVersion: admin.gloo.solo.io/v2
 kind: IstioLifecycleManager
 metadata:
-  name: managed-installation
+  name: istiod-control-plane
   namespace: gloo-mesh
 spec:
-  clusters:
-    - name: $REMOTE_CLUSTER1
-    - name: $REMOTE_CLUSTER2
   installations:
-
-    # OPERATOR SPEC FOR THE ISTIOD CONTROL PLANE
-    - name: control-plane
+      # The revision for this installation, such as 1-14-5
+    - revision: $REVISION
+      # List all workload clusters to install Istio into
+      clusters:
+      - name: $REMOTE_CLUSTER1
+        # If set to true, the spec for this revision is applied in the cluster
+        defaultRevision: true
+      - name: $REMOTE_CLUSTER2
+        defaultRevision: true
       istioOperatorSpec:
-        # Only the control plane components are installed (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
+        # Only the control plane components are installed
+        # (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
         profile: minimal
-        # Solo.io Istio distribution repository; required for Gloo Istio. You get the repo key from your Solo Account Representative.
+        # Solo.io Istio distribution repository; required for Gloo Istio.
+        # You get the repo key from your Solo Account Representative.
         hub: $REPO
         # Any Solo.io Gloo Istio tag
         tag: $ISTIO_IMAGE
+        namespace: istio-system
         # Mesh configuration
         meshConfig:
           # Enable access logging only if using.
@@ -37,24 +43,19 @@ spec:
               address: gloo-mesh-agent.gloo-mesh:9977
             proxyMetadata:
               # Enable Istio agent to handle DNS requests for known hosts
-              # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)
+              # Unknown hosts are automatically resolved using upstream DNS servers
+              # in resolv.conf (for proxy-dns)
               ISTIO_META_DNS_CAPTURE: "true"
               # Enable automatic address allocation (for proxy-dns)
               ISTIO_META_DNS_AUTO_ALLOCATE: "true"
-          # Set the default behavior of the sidecar for handling outbound traffic from the application
+          # Set the default behavior of the sidecar for handling outbound traffic
+          # from the application
           outboundTrafficPolicy:
             mode: ALLOW_ANY
           # The administrative root namespace for Istio configuration
           rootNamespace: istio-system
         # Traffic management
         components:
-          pilot:
-            k8s:
-              env:
-                # Disable selecting workload entries for local service routing.
-                # Required for Gloo VirtualDestinaton functionality.
-                - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
-                  value: "false"
           # Openshift requires the Istio CNI feature to be enabled
           cni:
             enabled: true
@@ -66,7 +67,7 @@ spec:
                   patches:
                     - path: spec.template.spec.containers[0].securityContext.privileged
                       value: true
-          # Disable gateways deployments, which are deployed in separate IstioOperator configurations
+          # Disable gateways deployments, which are deployed in separate resources
           ingressGateways:
           - name: istio-ingressgateway
             enabled: false
@@ -75,6 +76,13 @@ spec:
           egressGateways:
           - name: istio-egressgateway
             enabled: false
+          pilot:
+            k8s:
+              env:
+                # Disable selecting workload entries for local service routing.
+                # Required for Gloo VirtualDestinaton functionality.
+                - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
+                  value: "false"
         # Helm values overrides
         values:
           # CNI options for OpenShift
@@ -90,88 +98,3 @@ spec:
           sidecarInjectorWebhook:
             injectedAnnotations:
               k8s.v1.cni.cncf.io/networks: istio-cni
-
-    # OPERATOR SPEC FOR THE INGRESS GATEWAY
-    - name: ingress-gateway
-      istioOperatorSpec:
-        # No control plane components are installed
-        profile: empty
-        # Solo.io Istio distribution repository; required for Gloo Istio. You get the repo key from your Solo Account Representative.
-        hub: $REPO
-        # The Solo.io Gloo Istio tag
-        tag: $ISTIO_IMAGE
-        namespace: istio-system
-        components:
-          ingressGateways:
-          # Enable the default ingress gateway
-            - name: istio-ingressgateway
-              # Deployed to gloo-mesh-gateways by default
-              namespace: gloo-mesh-gateways
-              enabled: true
-              label:
-                # Set a unique label for the gateway. This is required to ensure Gateways
-                # can select this workload
-                istio: ingressgateway
-                app: istio-ingressgateway
-              k8s:
-                service:
-                  type: LoadBalancer
-                  selector:
-                    istio: ingressgateway
-                  # Default ports
-                  ports:
-                    # Port for health checks on path /healthz/ready. For AWS ELBs, this port must be listed first.
-                    - name: status-port
-                      port: 15021
-                      targetPort: 15021
-                    # Main HTTP ingress port
-                    - port: 80
-                      targetPort: 8080
-                      name: http2
-                    # Main HTTPS ingress port
-                    - port: 443
-                      targetPort: 8443
-                      name: https
-
-    # OPERATOR SPEC FOR THE EAST-WEST GATEWAY
-    - name: eastwest-gateway
-      istioOperatorSpec:
-        # No control plane components are installed
-        profile: empty
-        # Solo.io Istio distribution repository; required for Gloo Istio. You get the repo key from your Solo Account Representative.
-        hub: $REPO
-        # The Solo.io Gloo Istio version
-        tag: $ISTIO_IMAGE
-        components:
-          ingressGateways:
-          # Enable the default east-west gateway
-            - name: istio-eastwestgateway
-              # Deployed to gloo-mesh-gateways by default
-              namespace: gloo-mesh-gateways
-              enabled: true
-              label:
-                # Set a unique label for the gateway. This is required to ensure Gateways
-                # can select this workload.
-                istio: eastwestgateway
-                app: istio-eastwestgateway
-              k8s:
-                env:
-                  # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
-                  # Required by Gloo for east/west routing
-                  - name: ISTIO_META_ROUTER_MODE
-                    value: "sni-dnat"
-                service:
-                  type: LoadBalancer
-                  selector:
-                    istio: eastwestgateway
-                  # Default ports
-                  ports:
-                    # Port for health checks on path /healthz/ready. For AWS ELBs, this port must be listed first.
-                    - port: 15021
-                      targetPort: 15021
-                      name: status-port
-                    # Port for multicluster mTLS passthrough; required for Gloo east/west routing
-                    - port: 15443
-                      targetPort: 15443
-                      # Gloo looks for this default name 'tls' on a gateway
-                      name: tls
