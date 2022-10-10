@@ -22,4 +22,4 @@ registerMgmtPlane:
     - enabled: true
       name: istio-ingressgateway
       overrides: {}
-    revision: gm
+    revision: $REVISION
