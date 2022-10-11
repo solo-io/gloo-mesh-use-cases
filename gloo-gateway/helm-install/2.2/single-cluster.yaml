@@ -61,46 +61,46 @@ prometheus:
         rules:
         - alert: GlooPlatformTranslationLatencyIsHigh
           annotations:
-            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
-            summary: The translation time has increased above 5 sec. It's currently {{ $value | humanize }}.
+            runbook: "https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/"
+            summary: "The translation time has increased above 5 sec. It's currently {{ $value | humanize }}."
           expr: histogram_quantile(0.99, sum(rate(gloo_mesh_translation_time_sec_bucket[5m])) by(le)) > 5
           for: 15m
           labels:
             severity: warning
         - alert: GlooPlatformReconscilerLatencyIsHigh
           annotations:
-            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
-            summary: The reconciliation time has increased above 3 sec. It's currently {{ $value | humanize }}.
+            runbook: "https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/"
+            summary: "The reconciliation time has increased above 3 sec. It's currently {{ $value | humanize }}."
           expr: histogram_quantile(0.99, sum(rate(gloo_mesh_reconciler_time_sec_bucket[5m])) by(le)) > 3
           for: 15m
           labels:
             severity: warning
         - alert: GlooPlatformAgentsAreDisconnected
           annotations:
-            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
-            summary: 'The following cluster is disconnected: {{ $labels.cluster }}. Check the Gloo Platform Agent pod in the cluster!'
+            runbook: "https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/"
+            summary: "The following cluster is disconnected: {{ $labels.cluster }}. Check the Gloo Platform Agent pod in the cluster!"
           expr: count by(cluster) (sum by(cluster) (relay_push_clients_warmed == 0)) > 0
           for: 5m
           labels:
             severity: warning
         - alert: GlooPlatformTranslationWarnings
           annotations:
-            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
-            summary: Gloo Platform has detected {{$value | humanize}} translation warnings in the last 5m. Check your {{ $labels.gvk }} resources!
+            runbook: "https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/"
+            summary: "Gloo Platform has detected {{$value | humanize}} translation warnings in the last 5m. Check your {{ $labels.gvk }} resources!"
           expr: increase(translation_warning[5m]) > 0
           labels:
             severity: warning
         - alert: GlooPlatformTranslationErrors
           annotations:
-            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
-            summary: Gloo Platform has detected {{$value | humanize}} translation errors in the last 5m. Check your {{ $labels.gvk }} resources!
+            runbook: "https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/"
+            summary: "Gloo Platform has detected {{$value | humanize}} translation errors in the last 5m. Check your {{ $labels.gvk }} resources!"
           expr: increase(translation_error[5m]) > 0
           labels:
             severity: warning
         - alert: GlooPlatformRedisErrors
           annotations:
-            runbook: https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/
-            summary: Gloo Platform has detected {{$value | humanize}} Redis sync errors in the last 5m.
+            runbook: "https://docs.solo.io/gloo-mesh-enterprise/latest/troubleshooting/gloo/"
+            summary: "Gloo Platform has detected {{$value | humanize}} Redis sync errors in the last 5m."
           expr: increase(gloo_mesh_redis_sync_err[5m]) > 0
           labels:
             severity: warning
