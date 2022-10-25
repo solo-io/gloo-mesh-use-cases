@@ -43,6 +43,9 @@ rate-limiter:
   enabled: false
   extraTemplateAnnotations:
     proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+# Configuration for certificates to secure server-agent relay communication
+# IMPORTANT: These settings assume you are bringing your own custom certificates.
+# To use default certificates instead, see the commented-out relay section below.
 relay:
   # SNI name used to connect to relay forwarding server. Must match server certificate CommonName (DO NOT CHANGE)
   authority: gloo-mesh-mgmt-server.gloo-mesh
@@ -55,11 +58,23 @@ relay:
     name: relay-root-tls-secret
   # Address and port by which gloo-mesh-mgmt-server in the Gloo management plane is accessed
   serverAddress: $MGMT_SERVER_NETWORKING_ADDRESS
-  # Default self-signed certs: Reference to a secret containing a shared token for authenticating to the relay server
+  # (NOT needed with ACM certs) Secret containing a shared token for authenticating relay agents when they first communicate with the management plane
   #tokenSecret:
-  #  key: token
-  #  name: relay-identity-token-secret
-  #  namespace: gloo-mesh
+    #key: token
+    #name: relay-identity-token-secret
+    #namespace: gloo-mesh
+# To use default certificates instead of custom, you can comment out the above section and uncomment this section:
+#relay:
+#  authority: gloo-mesh-mgmt-server.gloo-mesh
+#  clientTlsSecret:
+#    name: relay-client-tls-secret
+#  rootTlsSecret:
+#    name: relay-root-tls-secret
+#  serverAddress: $MGMT_SERVER_NETWORKING_ADDRESS
+#  tokenSecret:
+#    key: token
+#    name: relay-identity-token-secret
+#    namespace: gloo-mesh
 # Enable eBPF sidecar acceleration to reduce network latency in your service mesh. Do not use in production.
 sidecar-accel:
   enabled: false

@@ -24,3 +24,10 @@ registerMgmtPlane:
       name: istio-ingressgateway
       overrides: {}
     revision: $REVISION
+# Required for OpenShift
+glooMeshMgmtServer:
+  floatingUserId: true
+glooMeshUi:
+  floatingUserId: true
+glooMeshRedis:
+  floatingUserId: true

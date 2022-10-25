@@ -15,9 +15,9 @@ spec:
       - name: $REMOTE_CLUSTER2
         defaultRevision: true
       istioOperatorSpec:
-        # Only the control plane components are installed
+        # Openshift-specific installation
         # (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
-        profile: minimal
+        profile: openshift
         # Solo.io Istio distribution repository; required for Gloo Istio.
         # You get the repo key from your Solo Account Representative.
         hub: $REPO

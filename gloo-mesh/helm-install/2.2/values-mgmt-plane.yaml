@@ -247,10 +247,9 @@ glooMeshMgmtServer:
       name: relay-server-tls-secret
     # (NOT needed with ACM certs) Secret containing a shared token for authenticating relay agents when they first communicate with the management plane
     #tokenSecret:
-      # Key value of the data within the Kubernetes secret
       #key: token
       #name: relay-identity-token-secret
-      #namespace: ""
+      #namespace: gloo-mesh
   # To use default certificates instead of custom, you can comment out the above section and uncomment this section:
   #relay:
   #  disableCa: false
@@ -264,7 +263,7 @@ glooMeshMgmtServer:
   #  tokenSecret:
   #    key: token
   #    name: relay-identity-token-secret
-  #    namespace: ""
+  #    namespace: gloo-mesh
 
 # Configuration for the Gloo UI
 glooMeshUi:
