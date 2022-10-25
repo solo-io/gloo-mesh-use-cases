@@ -1,6 +1,7 @@
 # Name of the management cluster
 global:
   cluster: $CLUSTER_NAME
+mgmtClusterName: $CLUSTER_NAME
 # Install the Gloo agent alongside the management server,
 # such as to run the management cluster also as a workload cluster in a single-cluster setup
 registerMgmtPlane:
