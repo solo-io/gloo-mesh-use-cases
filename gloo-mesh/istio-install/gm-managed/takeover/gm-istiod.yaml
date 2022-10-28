@@ -5,7 +5,8 @@ metadata:
   namespace: gloo-mesh
 spec:
   installations:
-      # The revision for this installation, such as 1-14
+      # The revision for this installation, such as 1-15.
+      # This MUST be different than the revision that your existing Istio installation uses.
     - revision: $REVISION
       # List all workload clusters to install Istio into
       clusters:
