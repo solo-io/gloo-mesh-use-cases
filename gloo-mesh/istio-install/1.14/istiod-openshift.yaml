@@ -39,9 +39,6 @@ spec:
         ISTIO_META_DNS_CAPTURE: "true"
         # Enable automatic address allocation (for proxy-dns)
         ISTIO_META_DNS_AUTO_ALLOCATE: "true"
-        # Used for Gloo Mesh metrics aggregation; required for Gloo Mesh UI
-        # Must match the trustDomain
-        GLOO_MESH_CLUSTER_NAME: $CLUSTER_NAME
 
     # Set the default behavior of the sidecar for handling outbound traffic from the application
     outboundTrafficPolicy:
@@ -135,7 +132,7 @@ spec:
       # Required for connecting VirtualMachines to the mesh
       network: $CLUSTER_NAME
       # Required for annotating Istio metrics with the cluster name.
-      # Must match the trustDomain and GLOO_MESH_CLUSTER_NAME
+      # Must match the trustDomain
       multiCluster:
         clusterName: $CLUSTER_NAME
       # Sidecar resource settings
