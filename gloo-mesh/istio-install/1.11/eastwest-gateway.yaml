@@ -108,6 +108,6 @@ spec:
       # Required for connecting VirtualMachines to the mesh
       network: $CLUSTER_NAME
       # Required for annotating Istio metrics with the cluster name.
-      # Must match the trustDomain and GLOO_MESH_CLUSTER_NAME
+      # Must match the trustDomain
       multiCluster:
         clusterName: $CLUSTER_NAME
