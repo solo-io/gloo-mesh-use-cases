@@ -1,0 +1,100 @@
+revision: ${ISTIO_REVISION}
+
+global:
+  hub: ${ISTIO_IMAGE_REPO}
+  tag: ${ISTIO_IMAGE_TAG}
+  # To output all istio components logs in json format by adding --log_as_json argument to each container argument
+  logAsJson: false
+  # Comma-separated minimum per-scope logging level of messages to output, in the form of <scope>:<level>,<scope>:<level>
+  # The control plane has different scopes depending on component, but can configure default log level across all components
+  # If empty, default scope and level will be used as configured in code
+  logging:
+    level: "default:info"
+
+  proxy:
+    # Log level for proxy, applies to gateways and sidecars.
+    # Expected values are: trace|debug|info|warning|error|critical|off
+    logLevel: warning
+    # Resources for the sidecar.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 2000m
+        memory: 1024Mi
+    # Controls if sidecar is injected at the front of the container list and blocks the start of the other containers until the proxy is ready
+    holdApplicationUntilProxyStarts: false
+
+meshConfig:
+  # The namespace to treat as the administrative root namespace for Istio configuration. (formerly istio-system)
+  rootNamespace: istio-config
+  # The trust domain corresponds to the trust root of a system. 
+  # For Gloo this should be the name of the cluster that cooresponds with the CA certificate CommonName identity
+  trustDomain: ${CLUSTER1}
+  # enable access logging to standard output
+  # accessLogFile: "/dev/stdout"
+  accessLogEncoding: JSON
+  # enable metrics merging
+  enablePrometheusMerge: true
+  defaultConfig:
+    # wait for the istio-proxy to start before application pods
+    holdApplicationUntilProxyStarts: true
+    # enable Gloo metrics service (required for Gloo UI)
+    envoyMetricsService:
+      address: gloo-mesh-agent.gloo-mesh:9977
+
+    # The amount of time allowed for connections to complete on proxy shutdown.
+    # On receiving SIGTERM or SIGINT, istio-agent tells the active Envoy to
+    # start draining, preventing any new connections and allowing existing
+    # connections to complete. It then sleeps for the
+    # termination_drain_duration and then kills any remaining active
+    # Envoy processes. If not set, a default of 5s will be applied.
+    #
+    # This process will occur after the preStop lifecycle hook.
+    # https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-terminating-with-grace
+    terminationDrainDuration: 10s
+
+    proxyMetadata:
+      # Enable Istio agent to handle DNS requests for known hosts
+      # Unknown hosts will automatically be resolved using upstream dns servers in resolv.conf
+      # (for proxy-dns)
+      ISTIO_META_DNS_CAPTURE: "true"
+      # Enable automatic address allocation (for proxy-dns)
+      ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+      # Used for gloo mesh metrics aggregation
+      # should match trustDomain (required for Gloo UI)
+      GLOO_MESH_CLUSTER_NAME: ${CLUSTER1}
+pilot:
+  autoscaleEnabled: true
+  autoscaleMin: 1
+  autoscaleMax: 5
+  replicaCount: 1
+  rollingMaxSurge: 100%
+  rollingMaxUnavailable: 25%
+  env:
+    # Allow multiple trust domains (Required for Gloo east/west routing)
+    PILOT_SKIP_VALIDATE_TRUST_DOMAIN: "true"
+    # Reload cacerts when it changes
+    AUTO_RELOAD_PLUGIN_CERTS: "true"
+    # The delay added to config/registry events for debouncing. This will delay the push by at least this interval. If no change is detected within this period, the push will happen, otherwise we'll keep delaying until things settle, up to a max of PILOT_DEBOUNCE_MAX.
+    PILOT_DEBOUNCE_AFTER: 300ms
+    # The maximum amount of time to wait for events while debouncing. If events keep showing up with no breaks for this time, we'll trigger a push.
+    PILOT_DEBOUNCE_MAX: 10s
+    # the number of push requests that istiod should run concurrently
+    PILOT_PUSH_THROTTLE: "1000"
+  # Resources for a small pilot install
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2048Mi
+  # Pod Anti Affinity
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - istiod-${ISTIO_REVISION}
