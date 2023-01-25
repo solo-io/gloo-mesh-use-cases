@@ -1,0 +1,74 @@
+# Istio revision to create resources with
+revision: ${REVISION}
+
+global:
+  # Solo.io Istio distribution repository; required for Gloo Mesh Istio.
+  # You get the repo key from your Solo Account Representative.
+  hub: ${REPO}
+  # Any Solo.io Gloo Mesh Istio tag
+  tag: ${ISTIO_IMAGE}
+  # Required for connecting VirtualMachines to the mesh
+  network: ${CLUSTER_NAME}
+  # Required for annotating Istio metrics with the cluster name.
+  # Must match the trustDomain
+  multiCluster:
+    clusterName: ${CLUSTER_NAME}
+
+name: istio-ingressgateway-${REVISION}
+labels:
+  # Set a unique label for the gateway so that virtual gateways
+  # can select this workload.
+  app: istio-ingressgateway-${REVISION}
+  istio: ingressgateway
+  revision: ${REVISION}
+  # Matches spec.values.global.network in the istiod deployment
+  topology.istio.io/network: $CLUSTER_NAME
+
+service:
+  type: LoadBalancer
+  # Add any cloud provider-specific annotations
+  annotations: {}
+  ports:
+  # Port for health checks on path /healthz/ready.
+  # For AWS ELBs, this port must be listed first.
+  - name: tcp-status-port
+    port: 15021
+    targetPort: 15021
+  # Main http ingress port
+  - port: 80
+    targetPort: 8080
+    name: http2
+  # Main https ingress port
+  - port: 443
+    targetPort: 8443
+    name: https
+
+# Gateway pod resources
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 2000m
+    memory: 1024Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+tolerations: []
+
+nodeSelector: {}
+
+# Schedule pods on separate nodes if possible
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - istio-ingressgateway-${REVISION}
