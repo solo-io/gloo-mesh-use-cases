@@ -29,7 +29,7 @@ global:
       limits:
         cpu: 2000m
         memory: 1024Mi
-    # Wait for the sidecar to be injected into the isito-proxy container
+    # Wait for the sidecar to be injected into the istio-proxy container
     # and block the start of the other containers until the proxy is ready.
     holdApplicationUntilProxyStarts: false
     # Required for connecting VirtualMachines to the mesh.
