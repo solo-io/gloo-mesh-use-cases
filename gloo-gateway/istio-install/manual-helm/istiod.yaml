@@ -1,0 +1,123 @@
+# Istio revision to create resources with
+revision: ${REVISION}
+
+global:
+  # Solo.io Istio distribution repository; required for Gloo Mesh Istio.
+  # You get the repo key from your Solo Account Representative.
+  hub: ${REPO}
+  # Any Solo.io Gloo Mesh Istio tag
+  tag: ${ISTIO_IMAGE}
+  # Output all Istio components logs in JSON format by adding the 
+  # --log_as_json argument to each container argument.
+  logAsJson: false
+  # Comma-separated minimum per-scope logging level of messages to output, in the form of <scope>:<level>,<scope>:<level>
+  # The control plane has different scopes depending on component, but can configure default log level across all components.
+  # If empty, the default scope and level are used.
+  logging:
+    level: "default:info"
+  proxy:
+    # Log level for proxy gateways and sidecars.
+    # Supported values: trace|debug|info|warning|error|critical|off
+    logLevel: warning
+    # Sidecar resource settings.
+    # The Istio load tests mesh consists of 1000 services and 2000 sidecars with 70,000 mesh-wide requests
+    # per second and istio-proxy used 0.35 vCPU and 40 MB memory per 1000 requests per second.
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 2000m
+        memory: 1024Mi
+    # Wait for the sidecar to be injected into the istio-proxy container
+    # and block the start of the other containers until the proxy is ready.
+    holdApplicationUntilProxyStarts: false
+    # Required for connecting VirtualMachines to the mesh.
+    network: $CLUSTER_NAME
+    # Required for annotating Istio metrics with the cluster name.
+    # Must match the trustDomain.
+    multiCluster:
+      clusterName: $CLUSTER_NAME
+
+# Mesh configuration options
+meshConfig:
+  # The administrative root namespace for Istio configuration
+  rootNamespace: istio-config
+  # The trust root of a system, which is the name of the cluster that 
+  # corresponds with the CA certificate CommonName identity.
+  trustDomain: ${CLUSTER_NAME}
+  # Enable access logging to standard output only if using.
+  #accessLogFile: "/dev/stdout"
+  # Encoding for the proxy access log (TEXT or JSON). Default value is TEXT.
+  accessLogEncoding: JSON
+  # Enable metrics merging
+  enablePrometheusMerge: true
+
+  defaultConfig:
+    # Wait for the istio-proxy to start before starting application pods
+    holdApplicationUntilProxyStarts: true
+    # Enable Gloo Mesh metrics service. Required for Gloo Mesh UI.
+    envoyMetricsService:
+      address: gloo-mesh-agent.gloo-mesh:9977
+    # Enable Gloo Mesh accesslog service. Required for Gloo Mesh Access Logging.
+    envoyAccessLogService:
+      address: gloo-mesh-agent.gloo-mesh:9977
+    # The amount of time allowed for connections to complete upon proxy shutdown.
+    # When istio-agent receives SIGTERM or SIGINT, it tells the active Envoy instance 
+    # to start draining, which prevents any new connections but allows existing
+    # connections to complete. Envoy then sleeps for the termination_drain_duration,
+    # and then kills any remaining active Envoy processes. If not set, a default of 
+    # 5s is applied.
+    # This process occurs after the preStop lifecycle hook.
+    # https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-terminating-with-grace
+    terminationDrainDuration: 10s
+    proxyMetadata:
+      # Enable Istio agent to handle DNS requests for known hosts.
+      # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)
+      ISTIO_META_DNS_CAPTURE: "true"
+      # Enable automatic address allocation (for proxy-dns).
+      ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+      # Used for Gloo Mesh metrics aggregation. Required for Gloo Mesh UI.
+      # Must match the trustDomain.
+      GLOO_MESH_CLUSTER_NAME: ${CLUSTER_NAME}
+
+pilot:
+  autoscaleEnabled: true
+  autoscaleMin: 1
+  autoscaleMax: 5
+  # Recommended to be >1 in production
+  replicaCount: 1
+  rollingMaxSurge: 100%
+  rollingMaxUnavailable: 25%
+  env:
+    # Disable selecting workload entries for local service routing.
+    # Required for Gloo Mesh VirtualDestination functionality.
+    PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES: "false"
+    # Allow multiple trust domains (Required for Gloo Mesh east/west routing).
+    PILOT_SKIP_VALIDATE_TRUST_DOMAIN: "true"
+    # Reload cacerts when it changes
+    AUTO_RELOAD_PLUGIN_CERTS: "true"
+    # The delay added to config/registry events for debouncing, which delays the push 
+    # by at least this interval. If no change is detected within this period, 
+    # the push occurs. Otherwise, the delay continues until no changes are detected,
+    # up to a max of PILOT_DEBOUNCE_MAX.
+    PILOT_DEBOUNCE_AFTER: 300ms
+    # The maximum amount of time to wait for events while debouncing.
+    PILOT_DEBOUNCE_MAX: 10s
+    # The number of push requests that istiod runs concurrently.
+    PILOT_PUSH_THROTTLE: "1000"
+  # Resources for a small pilot installation
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2048Mi
+  # Pod anti-affinity
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - istiod-${REVISION}
