@@ -1,0 +1,27 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: ApiDoc
+metadata:
+  name: reviews-graphql-apidoc
+  namespace: bookinfo
+spec:
+  graphql:
+    schemaDefinition: |-
+      type Query {
+          GetReviews(id: String): Reviews
+        }
+        type Reviews {
+          reviews: [Review]
+        }
+        """A book review"""
+        type Review {
+          """Name of the reviewer"""
+          reviewer: String
+          """Review details"""
+          text: String
+          """Reviewer Rating, this field is provided by the reviews REST service, which queries the ratings REST service"""
+          rating: ReviewerRating
+        }
+        type ReviewerRating {
+          stars: Int
+          color: String
+        }

@@ -1,0 +1,16 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: GraphQLSchema
+metadata:
+  name: reviews-graphql-schema
+  namespace: bookinfo
+spec:
+  resolved:
+    options: {}
+    resolverMapRefs:
+    - clusterName: $CLUSTER_NAME
+      name: reviews-resolver-map
+      namespace: bookinfo
+  schemaRef:
+    clusterName: $CLUSTER_NAME
+    name: reviews-graphql-apidoc
+    namespace: bookinfo

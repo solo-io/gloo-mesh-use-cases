@@ -1,0 +1,31 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: GraphQLStitchedSchema
+metadata:
+  name: stitched-graphql-schema
+  namespace: bookinfo
+spec:
+  subschemas:
+  - schema:
+      clusterName: $CLUSTER_NAME
+      name: products-graphql-schema
+      namespace: bookinfo
+  - schema:
+      clusterName: $CLUSTER_NAME
+      name: ratings-graphql-schema
+      namespace: bookinfo
+    typeMerge:
+      Ratings:
+        args:
+          id: id
+        queryName: GetRatings
+        selectionSet: '{ id }'
+  - schema:
+      clusterName: $CLUSTER_NAME
+      name: reviews-graphql-schema
+      namespace: bookinfo
+    typeMerge:
+      Reviews:
+        args:
+          id: id
+        queryName: GetReviews
+        selectionSet: '{ id }'

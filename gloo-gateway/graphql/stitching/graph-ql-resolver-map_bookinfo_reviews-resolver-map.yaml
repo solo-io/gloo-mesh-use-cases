@@ -1,0 +1,30 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: GraphQLResolverMap
+metadata:
+  name: reviews-resolver-map
+  namespace: bookinfo
+spec:
+  types:
+    Query:
+      fields:
+        GetReviews:
+          resolvers:
+          - resolverResultTransform:
+              jq: '{reviews: .resolverResultVar.reviews}'
+            restResolver:
+              destinations:
+              - port:
+                  number: 9080
+                ref:
+                  cluster: $CLUSTER_NAME
+                  name: reviews
+                  namespace: bookinfo
+              request:
+                headers:
+                  :path:
+                    jq: '"/reviews/" + (.idVar | tostring)'
+          variables:
+            idVar:
+              graphqlArg: id
+            resolverResultVar:
+              resolverResult: {}
