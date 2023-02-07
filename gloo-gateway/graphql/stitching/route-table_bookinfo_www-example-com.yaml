@@ -14,7 +14,7 @@ spec:
     graphql:
       stitchedSchema:
         clusterName: $CLUSTER_NAME
-        name: bookinfo-stitched-schema
+        name: stitched-graphql-schema
         namespace: bookinfo
     matchers:
     - uri:
