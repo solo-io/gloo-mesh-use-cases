@@ -1,0 +1,1 @@
+This directory contains example Gloo GraphQL resources for a stitched Bookinfo schema setup that involves type merging. For more information, see the [Gloo Gateway GraphQL stitching docs](https://docs.solo.io/gloo-gateway/latest/graphql/stitching/type_merge).
