@@ -1,0 +1,23 @@
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: graphql-bookinfo
+  namespace: bookinfo
+spec:
+  hosts:
+  - www.example.com
+  http:
+  - name: graphql-bookinfo
+    labels: 
+      route: graphql-bookinfo
+      graphql: "true"
+    graphql:
+      stitchedSchema:
+        clusterName: $CLUSTER_NAME
+        name: stitched-graphql-schema
+        namespace: bookinfo
+    matchers:
+    - uri:
+        prefix: /graphql
+  virtualGateways:
+  - name: istio-ingressgateway

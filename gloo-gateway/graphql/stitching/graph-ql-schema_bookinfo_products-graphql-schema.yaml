@@ -1,0 +1,16 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: GraphQLSchema
+metadata:
+  name: products-graphql-schema
+  namespace: bookinfo
+spec:
+  resolved:
+    options: {}
+    resolverMapRefs:
+    - clusterName: $CLUSTER_NAME
+      name: products-resolver-map
+      namespace: bookinfo
+  schemaRef:
+    clusterName: $CLUSTER_NAME
+    name: products-graphql-apidoc
+    namespace: bookinfo

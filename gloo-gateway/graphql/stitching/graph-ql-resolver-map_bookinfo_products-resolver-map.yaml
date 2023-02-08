@@ -1,0 +1,46 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: GraphQLResolverMap
+metadata:
+  name: products-resolver-map
+  namespace: bookinfo
+spec:
+  types:
+    Product:
+      fields:
+        ratings:
+          resolvers:
+          - mockResolver:
+              syncResponse:
+                jq: '{id: .parentVar.id}'
+          variables:
+            parentVar:
+              graphqlParent: {}
+        reviews:
+          resolvers:
+          - mockResolver:
+              syncResponse:
+                jq: '{id: .parentVar.id}'
+          variables:
+            parentVar:
+              graphqlParent: {}
+    Query:
+      fields:
+        productsForHome:
+          resolvers:
+          - restResolver:
+              destinations:
+              - port:
+                  number: 9080
+                ref:
+                  cluster: $CLUSTER_NAME
+                  name: productpage
+                  namespace: bookinfo
+              request:
+                headers:
+                  :path:
+                    json: /api/v1/products
+          variables:
+            idVar:
+              graphqlArg: id
+            resolverResultVar:
+              resolverResult: {}

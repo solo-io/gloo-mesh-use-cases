@@ -1,0 +1,30 @@
+apiVersion: apimanagement.gloo.solo.io/v2
+kind: ApiDoc
+metadata:
+  name: products-graphql-apidoc
+  namespace: bookinfo
+spec:
+  graphql:
+    schemaDefinition: |-
+      type Query {
+          productsForHome: [Product]
+        }
+        """Each book has a product entry"""
+        type Product {
+          """Unique identifier for books"""
+          id: String
+          """The book title"""
+          title: String
+          """Description of a book in HTML"""
+          descriptionHtml: String
+          """List of reader reviews for this book. Queries the reviews REST service"""
+          reviews: Reviews
+          """List of reader ratings for this book. Queries the ratings REST service"""
+          ratings: Ratings
+        }
+        type Reviews {
+          id: String
+        }
+        type Ratings {
+          id: String
+        }
