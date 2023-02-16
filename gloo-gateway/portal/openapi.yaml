@@ -1,0 +1,347 @@
+info:
+  title: 'Gloo Platform Portal API'
+  version: 1.0.0
+  description: Review the following reference documentation for the Gloo Platform portal APIs, which contains the endpoint specifications for managing user access to both the developer portal and resources exposed by the portal. For more information, see the [product docs](https://docs.solo.io/gloo-gateway/main/portal/).
+openapi: 3.0.0
+servers:
+  - url: https://api.gloo-platform-portal.com/v1
+paths:
+  /login:
+    get:
+      description: Logs you in to the developer portal via the Open ID Connect (OIDC) provider that the system administrator set up. When you are done, you can use the GET /logout endpoint to end your session and optionally clear your browser cookie.
+      operationId: login
+      responses:
+        '302':
+          description: Successfully redirected to OIDC provider.
+        '400':
+          description: Set up OIDC for this portal before logging in.
+        '500':
+          description: Failed to load the OIDC provider. Revise the portal resource configuration and try again.
+      summary: Redirects to the OIDC provider to authenticate you to the developer portal.
+      tags:
+        - User
+  /logout:
+    get:
+      description: Logs you out of the developer portal. To log back in, use the GET /login endpoint.
+      operationId: logout
+      responses:
+        '200':
+          description: Successfully logged out.
+          headers:
+            Set-Cookie:
+              description: >
+                Clear the session ID cookie in your browser upon logout.
+              schema:
+                type: string
+        '500':
+          description: Encountered error logging out.
+      summary: Logs you out of the developer portal.
+      tags:
+        - User
+  /me:
+    get:
+      description: Looks up the user for the current session. Returns your user information if the user session exists and is not expired. You might use this endpoint to confirm your identity before performing other actions for the developer portal, like issuing an API key.
+      summary: Gets the user for the current session.
+      operationId: getCurrentUser
+      security:
+        - cookieAuth: []
+        - {} # allow unauthenticated access
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successfully got user information.
+        '500':
+          description: Internal server error. Try again in a few moments.
+      tags:
+        - User
+  /apis:
+    get:
+      description: Lists the APIs that the developer portal is set up to expose, based on request parameters. By default, the developer portal has public visibility and returns all the APIs. You can also configure the developer portal to verify user authentication and authorization. If so, then this endpoint returns only the APIs that the current user has access to. You can check the current user with the /me endpoint.
+      operationId: listAPIs
+      security:
+        - cookieAuth: []
+        - {} # allow unauthenticated access
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/API'
+          description: Successfully listed APIs.
+        '500':
+          description: Unexpected error fetching APIs
+      summary: Lists APIs visible to the current user.
+      tags:
+        - APIs
+  /apis/{id}/schema:
+    get:
+      description: Gets the details of the schema for a specific API ID, if the API ID exists. When authentication and authorization are enforced, returns the schema only if the user has access to the API.
+      summary: Gets the schema for an API.
+      operationId: getApiSchema
+      security:
+        - cookieAuth: []
+        - {} # allow unauthenticated access
+      parameters:
+        - in: path
+          name: id
+          description: The API ID to get schema details for. To get the ID, use the GET /apis endpoint.
+          schema:
+            example: petstoreAPI-petstoreNamespace-cluster1
+            type: string
+          required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 'swagger: "2.0"
+                          info:
+                            title: Sample API
+                            description: API description in Markdown.
+                            version: 1.0.0
+                          host: api.example.com
+                          basePath: /v1
+                          schemes:
+                            - https
+                          paths:
+                            /users:
+                              get:
+                                summary: Returns a list of users.
+                                description: Optional extended description in Markdown.
+                                produces:
+                                  - application/json
+                                responses:
+                                  200:
+                                    description: OK'
+          description: successfully fetched schema for API
+        '500':
+          description: Failed to fetch schema for API
+      tags:
+        - APIs
+  /usage-plans:
+    get:
+      description: Returns a list of all available usage plans in the Portal. If you configured portal with public visibility, all usage plans are returned. If you configured portal to verify user identity or require users to have the correct access scope, the appropriate access and authorization is required.
+      security:
+        - cookieAuth: []
+        - {} # allow unauthenticated access
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UsagePlan'
+          description: Successfully got usage plans and the APIs that the usage plans apply to.
+        '500':
+          description: Unexpected error fetching Usage plans. Try again in a few moments.
+      summary: Lists all usage plans for the developer portal.
+      tags:
+        - APIs
+  /api-keys:
+    get:
+      description: Lists the API keys for the current user, filterable by usage plans or API IDs. A usage plan can have multiple API keys, which can each be tied to multiple API IDs. An API key belongs to only one usage plan. To check the current user, use the GET /me endpoint. To create an API key, use the POST /api-keys endpoint.
+      operationId: listAPIKeys
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: "apis"
+          description: Optionally filter API keys by API ID. To get the ID, use the GET /apis endpoint.
+          schema:
+            type: array
+            items:
+              type: string
+              example: petstoreAPI-petstoreNamespace-cluster1
+        - in: query
+          name: "usagePlans"
+          description: Optionally filter API keys by usage plan. To get the usage plan, use the GET /usage-plans endpoint.
+          schema:
+            type: array
+            items:
+              type: string
+              example: bronze-plan
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    usagePlan:
+                      type: string
+                      example: bronze-plan
+                    apiKeys:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/APIKey'
+          description: Successfully listed API keys.
+        '500':
+          description: Unexpected error fetching API keys. Try again in a few moments.
+      summary: Lists API keys for the current user, filterable by usage plans or API IDs.
+      tags:
+        - APIs
+    post:
+      description: Creates an API key for the current user for a specific API ID and usage plan. To check the current user, use the GET /me endpoint. If you have multiple APIs or usage plans that you want to create API keys for, send a request for each combination to this endpoint.
+      operationId: createAPIKey
+      security:
+        - cookieAuth: []
+      requestBody:
+        description: Send the API ID and usage plan details for this API key in the request body.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                usagePlan:
+                  type: string
+                  example: bronze plan
+                apiId:
+                  type: string
+                  example: petstoreAPI-petstoreNamespace-cluster1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIKey'
+          description: Successfully created API key.
+        '500':
+          description: Unexpected error creating API key. Try again in a few moments.
+      summary: Creates an API key for the current user for a specific API ID and usage plan.
+      tags:
+        - APIs
+  /api-keys/{id}:
+    delete:
+      description: Deletes the current user's API key(s) for a specified API ID. To check the current user, use the GET /me endpoint.
+      operationId: deleteAPIKey
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: The API ID to delete the API keys for. To get the API ID, use the GET /apis endpoint.
+          schema:
+            type: string
+            example: petstoreAPI-petstoreNamespace-cluster1
+          required: true
+      responses:
+        '200':
+          description: Successfully deleted API keys.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    usagePlan:
+                      type: string
+                      example: bronze-plan
+                    apiKey:
+                      example: 3be5a92cb7598f4f48c6d68688b10e5bfa3cbbc2a512c7ba9fcfe22c3eab971a
+                      type: string
+        '500':
+          description: Unexpected error deleting API keys. Try again in a few moments.
+      summary: Deletes the current user's API key(s) for a specified API ID.
+      tags:
+        - APIs
+components:
+  schemas:
+    User:
+      properties:
+        id:
+          example: 1311ebc09c6d22b207949679
+          type: string
+        name:
+          example: John Doe
+          type: string
+        email:
+          example: 123@email.com
+          type: string
+        username:
+          example: exampleUser
+          type: string
+      type: object
+    UsagePlan:
+      properties:
+        name:
+          example: bronze plan
+          type: string
+        authPolicies:
+          type: array
+          items:
+            type: object
+            properties:
+              authType:
+                type: string
+                example: apiKeyAuth
+        rateLimitPolicy:
+          type: object
+          properties:
+            unit:
+              type: string
+              example: MINUTE
+            requestsPerUnit:
+              type: integer
+              example: 1
+        apiIds:
+          type: array
+          items:
+            type: string
+            example: petstoreAPI-petstoreNamespace-cluster-1
+      type: object
+    APIKey:
+      properties:
+        apiId:
+          type: string
+          example: petstoreAPI-petstoreNamespace-cluster1
+        apiKey:
+          example: 3be5a92cb7598f4f48c6d68688b10e5bfa3cbbc2a512c7ba9fcfe22c3eab971a
+          type: string
+    API:
+      properties:
+        apiId:
+          example: petstoreAPI-petstoreNamespace-cluster-1
+          type: string
+        title:
+          example: pet store
+          type: string
+        description:
+          example: "list of pet store apis"
+          type: string
+        termsOfService:
+          example: "example terms of service"
+          type: string
+        contact:
+          example: "123@email.com"
+          type: string
+        license:
+          example: "MIT"
+          type: string
+        usagePlans:
+          type: array
+          items:
+            type: string
+          example: ["bronze plan", "silver plan", "gold plan"]
+        customMetadata:
+          type: object
+          example: {
+            "category": ["orders", "customers"],
+          }
+      type: object
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: identityCookie
+      description: Identity cookie containing sessionId, and access and refresh token info stored as a JWT.
