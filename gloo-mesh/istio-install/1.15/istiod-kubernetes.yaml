@@ -76,7 +76,6 @@ spec:
           metrics:
             - resource:
                 name: cpu
-                targetAverageUtilization: 60
               type: Resource
         env:
           # Disable selecting workload entries for local service routing.
