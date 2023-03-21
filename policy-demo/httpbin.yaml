@@ -74,6 +74,3 @@ spec:
             - "tail"
             - "-f"
             - "/dev/null"
-        - name: hey
-          image: hey:v0.1.4
-          imagePullPolicy: IfNotPresent
