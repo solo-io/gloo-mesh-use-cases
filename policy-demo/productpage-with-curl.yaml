@@ -1,58 +1,82 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: productpage-v1
   labels:
+    kind: deployment
     app: productpage
     version: v1
-  name: productpage-v1
-  namespace: bookinfo
 spec:
-  progressDeadlineSeconds: 600
   replicas: 1
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: productpage
       version: v1
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/proxyCPU: 100m
+        sidecar.istio.io/proxyMemory: 128Mi
+        proxy.istio.io/config: |
+          proxyStatsMatcher:
+            inclusionRegexps:
+            - .*ext_authz.*
       labels:
         app: productpage
         version: v1
+        security.policy.gloo.solo.io/service_account: bookinfo-productpage
+        security.policy.gloo.solo.io/service_account_namespace: bookinfo
     spec:
-      containers:
-      - image: docker.io/istio/examples-bookinfo-productpage-v1:1.16.2
-        imagePullPolicy: IfNotPresent
-        name: productpage
-        ports:
-        - containerPort: 9080
-          protocol: TCP
-      - name: curl
-        image: curlimages/curl:latest
-        imagePullPolicy: IfNotPresent
-        command:
-          - "sleep"
-          - "10h"
-        resources: {}
-        securityContext:
-          runAsUser: 1000
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-        volumeMounts:
-        - mountPath: /tmp
-          name: tmp
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      serviceAccount: bookinfo-productpage
       serviceAccountName: bookinfo-productpage
       terminationGracePeriodSeconds: 30
+      containers:
+      - name: productpage
+        image: docker.io/istio/examples-bookinfo-productpage-v1:1.15.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        readinessProbe: # Curl is not installed on this image
+          httpGet:
+            scheme: HTTP
+            path: /health
+            port: 9080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
+      - name: curl
+        image: curlimages/curl:7.83.1
+        imagePullPolicy: IfNotPresent
+        command:
+          - "tail"
+          - "-f"
+          - "/dev/null"
+        readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          exec:
+            command:
+              - sh
+              - -c
+              - echo "ready"
+      # Include netcat container for e2e testing, allows sending traffic mediated by the proxy sidecar
+      - name: netcat
+        image: subfuzion/netcat
+        imagePullPolicy: IfNotPresent
+        command:
+          - "tail"
+          - "-f"
+          - "/dev/null"
+        readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          exec:
+            command:
+              - sh
+              - -c
+              - echo "ready"
       volumes:
-      - emptyDir: {}
-        name: tmp
+      - name: tmp
+        emptyDir: {}
