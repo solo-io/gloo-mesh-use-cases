@@ -1,0 +1,264 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: helloworld
+  labels:
+    app: helloworld
+    service: helloworld
+spec:
+  ports:
+  - port: 5000
+    name: http
+  # Intentionally including other services on the container to ensure we are testing multi-port destinations
+  # helloworld is easily pre-configured to tell how we load-balanced; tcp echo may prove useful in other future tests
+  - name: tcp
+    port: 9000
+  - name: tcp-other
+    port: 9001
+  # Port 9002 is omitted intentionally for testing the pass through filter chain.
+  selector:
+    app: helloworld
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-v1
+  labels:
+    app: helloworld
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: helloworld
+        version: v1
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: helloworld
+        env:
+        - name: SERVICE_VERSION
+          value: v1
+        - name: FAIL_READINESS
+          value: "False"
+        - name: DISABLE_CONTAINER
+          value: "False"
+        image: docker.io/istio/examples-helloworld-v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          exec:
+            command:
+              - /bin/bash
+              - -c
+              - |
+                if [ $FAIL_READINESS = "True" ]; then exit 1;
+                elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
+                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
+      # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
+      - name: curl
+        image: curlimages/curl:7.83.1
+        imagePullPolicy: IfNotPresent
+        command:
+          - "tail"
+          - "-f"
+          - "/dev/null"
+      - name: tcp-echo
+        image: docker.io/istio/tcp-echo-server:1.2
+        imagePullPolicy: IfNotPresent
+        args: [ "9000,9001,9002", "hello-v1" ]
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-v2
+  labels:
+    app: helloworld
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: helloworld
+        version: v2
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: helloworld
+        env:
+        - name: SERVICE_VERSION
+          value: v2
+        - name: FAIL_READINESS
+          value: "False"
+        - name: DISABLE_CONTAINER
+          value: "False"
+        image: docker.io/istio/examples-helloworld-v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          exec:
+            command:
+              - /bin/bash
+              - -c
+              - |
+                if [ $FAIL_READINESS = "True" ]; then exit 1;
+                elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
+                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
+      # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
+      - name: curl
+        image: curlimages/curl:7.83.1
+        imagePullPolicy: IfNotPresent
+        command:
+          - "tail"
+          - "-f"
+          - "/dev/null"
+      - name: tcp-echo
+        image: docker.io/istio/tcp-echo-server:1.2
+        imagePullPolicy: IfNotPresent
+        args: [ "9000,9001,9002", "hello-v2" ]
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-v3
+  labels:
+    app: helloworld
+    version: v3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld
+      version: v3
+  template:
+    metadata:
+      labels:
+        app: helloworld
+        version: v3
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: helloworld
+        env:
+        - name: SERVICE_VERSION
+          value: v3
+        - name: FAIL_READINESS
+          value: "False"
+        - name: DISABLE_CONTAINER
+          value: "False"
+        image: docker.io/istio/examples-helloworld-v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          exec:
+            command:
+              - /bin/bash
+              - -c
+              - |
+                if [ $FAIL_READINESS = "True" ]; then exit 1;
+                elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
+                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
+      # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
+      - name: curl
+        image: curlimages/curl:7.83.1
+        imagePullPolicy: IfNotPresent
+        command:
+          - "tail"
+          - "-f"
+          - "/dev/null"
+      - name: tcp-echo
+        image: docker.io/istio/tcp-echo-server:1.2
+        imagePullPolicy: IfNotPresent
+        args: [ "9000,9001,9002", "hello-v3" ]
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-v4
+  labels:
+    app: helloworld
+    version: v4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld
+      version: v4
+  template:
+    metadata:
+      labels:
+        app: helloworld
+        version: v4
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: helloworld
+        env:
+        - name: SERVICE_VERSION
+          value: v4
+        - name: FAIL_READINESS
+          value: "False"
+        - name: DISABLE_CONTAINER
+          value: "False"
+        image: docker.io/istio/examples-helloworld-v1
+        imagePullPolicy: IfNotPresent #Always
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          exec:
+            command:
+              - /bin/bash
+              - -c
+              - |
+                if [ $FAIL_READINESS = "True" ]; then exit 1;
+                elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
+                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
+      # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
+      - name: curl
+        image: curlimages/curl:7.83.1
+        imagePullPolicy: IfNotPresent
+        command:
+          - "tail"
+          - "-f"
+          - "/dev/null"
+      - name: tcp-echo
+        image: docker.io/istio/tcp-echo-server:1.2
+        imagePullPolicy: IfNotPresent
+        args: [ "9000,9001,9002", "hello-v4" ]
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
