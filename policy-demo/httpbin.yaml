@@ -52,6 +52,7 @@ spec:
       labels:
         app: httpbin
         version: v1
+        istio.io/rev: 1-16 
     spec:
       serviceAccountName: httpbin
       containers:
