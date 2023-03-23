@@ -9,13 +9,10 @@ spec:
   ports:
   - port: 5000
     name: http
-  # Intentionally including other services on the container to ensure we are testing multi-port destinations
-  # helloworld is easily pre-configured to tell how we load-balanced; tcp echo may prove useful in other future tests
   - name: tcp
     port: 9000
   - name: tcp-other
     port: 9001
-  # Port 9002 is omitted intentionally for testing the pass through filter chain.
   selector:
     app: helloworld
 ---
@@ -64,7 +61,6 @@ spec:
                 if [ $FAIL_READINESS = "True" ]; then exit 1;
                 elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
                 else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
-      # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
       - name: curl
         image: curlimages/curl:7.83.1
         imagePullPolicy: IfNotPresent
@@ -125,7 +121,6 @@ spec:
                 if [ $FAIL_READINESS = "True" ]; then exit 1;
                 elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
                 else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
-      # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
       - name: curl
         image: curlimages/curl:7.83.1
         imagePullPolicy: IfNotPresent
@@ -186,7 +181,6 @@ spec:
                 if [ $FAIL_READINESS = "True" ]; then exit 1;
                 elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
                 else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
-      # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
       - name: curl
         image: curlimages/curl:7.83.1
         imagePullPolicy: IfNotPresent
@@ -247,7 +241,6 @@ spec:
                 if [ $FAIL_READINESS = "True" ]; then exit 1;
                 elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
                 else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
-      # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
       - name: curl
         image: curlimages/curl:7.83.1
         imagePullPolicy: IfNotPresent
