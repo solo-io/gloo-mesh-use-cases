@@ -1,0 +1,110 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: ingress-gateway
+  namespace: istio-system
+spec:
+  # No control plane components are installed
+  profile: empty
+  # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
+  hub: $REPO
+  # The Solo.io Gloo Mesh Istio tag
+  tag: $ISTIO_IMAGE
+  # Istio revision to create resources with
+  revision: $REVISION
+  
+  components:
+    ingressGateways:
+    # Enable the default ingress gateway
+      - name: istio-ingressgateway
+        # Deploy to the ingress gateway namespace. If using one namespace for gateways, specify 'istio-gateways' instead.
+        namespace: istio-ingress
+        enabled: true
+        label:
+          # Set a unique label for the gateway. This is required to ensure Gateways
+          # can select this workload
+          istio: ingressgateway
+          version: $REVISION
+          app: istio-ingressgateway
+          # Matches spec.values.global.network in the istiod deployment
+          topology.istio.io/network: $CLUSTER_NAME
+        k8s:
+          hpaSpec:
+            maxReplicas: 5
+            metrics:
+              - resource:
+                  name: cpu
+                type: Resource
+            minReplicas: 2
+            scaleTargetRef:
+              apiVersion: apps/v1
+              kind: Deployment
+              name: istio-ingressgateway
+          strategy:
+            rollingUpdate:
+              maxSurge: 100%
+              maxUnavailable: 25%
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 1024Mi
+            requests:
+              cpu: 100m
+              memory: 40Mi
+          service:
+            # Default ports
+            ports:
+              # Port for health checks on path /healthz/ready. For AWS ELBs, this port must be listed first.
+              - name: status-port
+                port: 15021
+                targetPort: 15021
+              # Main HTTP ingress port
+              - port: 80
+                targetPort: 8080
+                name: http2
+              # Main HTTPS ingress port
+              - port: 443
+                targetPort: 8443
+                name: https
+          overlays:
+            - apiVersion: apps/v1
+              kind: Deployment
+              name: istio-ingressgateway
+              patches:
+                # Sleep 25s on pod shutdown to allow connections to drain
+                - path: spec.template.spec.containers.[name:istio-proxy].lifecycle
+                  value:
+                    preStop:
+                      exec:
+                        command:
+                        - sleep
+                        - "25"
+                # Schedule pods on separate nodes if possible
+                - path: spec.template.spec.affinity
+                  value:
+                    podAntiAffinity:
+                      preferredDuringSchedulingIgnoredDuringExecution:
+                      - podAffinityTerm:
+                          labelSelector:
+                            matchExpressions:
+                            - key: app
+                              operator: In
+                              values:
+                              - istio-ingressgateway
+                          topologyKey: kubernetes.io/hostname
+                        weight: 100
+
+  # Helm values overrides
+  values:
+    gateways:
+      istio-ingressgateway:
+        # Enable gateway injection
+        injectionTemplate: gateway
+    # https://istio.io/v1.5/docs/reference/config/installation-options/#global-options
+    global:
+      # Required for connecting VirtualMachines to the mesh
+      network: $CLUSTER_NAME
+      # Required for annotating Istio metrics with the cluster name.
+      # Must match the trustDomain
+      multiCluster:
+        clusterName: $CLUSTER_NAME
