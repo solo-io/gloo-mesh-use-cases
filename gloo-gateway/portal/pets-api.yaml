@@ -4,7 +4,7 @@ metadata:
   labels:
     app: pets-rest-api
   name: pets-rest-api
-  namespace: default
+  namespace: pets
 spec:
   selector:
     matchLabels:
