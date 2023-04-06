@@ -4,7 +4,7 @@ metadata:
   labels:
     app: users-rest-api
   name: users-rest-api
-  namespace: default
+  namespace: users
 spec:
   selector:
     matchLabels:
