@@ -31,7 +31,7 @@ metadata:
     gloo.solo.io/scrape-openapi-pull-attempts: "3"
     gloo.solo.io/scrape-openapi-use-backoff: "true"
   name: users-rest-api
-  namespace: default
+  namespace: users
   labels:
     app: users-rest-api
 spec:
