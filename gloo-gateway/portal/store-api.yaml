@@ -4,7 +4,7 @@ metadata:
   labels:
     app: store-rest-api
   name: store-rest-api
-  namespace: default
+  namespace: store
 spec:
   selector:
     matchLabels:
