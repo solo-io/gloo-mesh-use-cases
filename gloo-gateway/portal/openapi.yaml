@@ -1,35 +1,11 @@
 info:
   title: 'Gloo Platform Portal API'
   version: 1.0.0
-  description: Review the following reference documentation for the Gloo Platform portal APIs. Use these endpoints to manage user access to both the developer portal and the API resources exposed by the portal.
+  description: Review the following reference documentation for the Gloo Platform portal APIs, which contains the endpoint specifications for managing user access to both the developer portal and resources exposed by the portal.
 openapi: 3.0.0
 servers:
   - url: https://api.gloo-platform-portal.com/v1
 paths:
-  /login:
-    get:
-      description: Logs user into the developer portal. This is the path that should be used as the callbackPath in the ExtAuthPolicy's OIDC configuration.
-      operationId: login
-      security:
-        - identityToken: []
-      responses:
-        '200':
-          description: Successfully logged in
-      summary: Logs user into the developer portal
-      tags:
-        - User
-  /logout:
-    get:
-      description: Logs user out of the developer portal. This is the path that should be used as the logoutPath in the ExtAuthPolicy's OIDC configuration.
-      operationId: logout
-      security:
-        - identityToken: []
-      responses:
-        '200':
-          description: Successfully logged out
-      summary: Logs user out of the developer portal
-      tags:
-        - User
   /me:
     get:
       description: Looks up the user for the current session. Returns your user information if the user session exists and is not expired. You might use this endpoint to confirm your identity before performing other actions for the developer portal, like issuing an API key.
@@ -45,6 +21,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: Successfully got user information.
+        '401':
+            description: Unauthorized. The user's identity token is invalid.
+        '403':
+            description: Forbidden. The user's identity token is valid, but the user has missing claims required by this method.
         '500':
           description: Internal server error. Try again in a few moments.
       tags:
@@ -176,9 +156,9 @@ paths:
                   }
                 }
               }
-          description: Successfully fetched schema for API.
+          description: successfully fetched schema for API
         '400':
-          description: Bad request. Include an API ID and try again
+          description: Bad request. Please supply an API Id
         '404':
           description: Resource not found - returns the error message `API schema not found`
         '500':
@@ -214,14 +194,6 @@ paths:
         - identityToken: []
       parameters:
         - in: query
-          name: "apis"
-          description: Optionally filter API keys by API ID. To get the ID, use the GET /apis endpoint.
-          schema:
-            type: array
-            items:
-              type: string
-              example: petstoreAPI-petstoreNamespace-cluster1
-        - in: query
           name: "usagePlans"
           description: Optionally filter API keys by usage plan. To get the usage plan, use the GET /usage-plans endpoint.
           schema:
@@ -236,16 +208,14 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    usagePlan:
-                      type: string
-                      example: bronze-plan
-                    apiKeys:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/APIKey'
+                  $ref: '#/components/schemas/UsagePlanKeys'
           description: Successfully listed API keys.
+        '400':
+            description: Bad request. Please supply usage plan Ids
+        '401':
+          description: Unauthorized. The user's identity token is invalid.
+        '403':
+          description: Forbidden. The user's identity token is valid, but the user has missing claims required by this method.
         '500':
           description: Unexpected error fetching API keys. Try again in a few moments.
       summary: Lists API keys for the current user, filterable by usage plans or API IDs.
@@ -267,16 +237,22 @@ paths:
                 usagePlan:
                   type: string
                   example: bronze plan
-                apiId:
+                apiKeyName:
                   type: string
-                  example: petstoreAPI-petstoreNamespace-cluster1
+                  example: api-key-name-1
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/APIKey'
           description: Successfully created API key.
+        '400':
+          description: Bad request. Please supply an API Key Name
+        '401':
+          description: Unauthorized. The user's identity token is invalid.
+        '403':
+          description: Forbidden. The user's identity token is valid, but the user has missing claims required by this method.
         '500':
           description: Unexpected error creating API key. Try again in a few moments.
       summary: Creates an API key for the current user for a specific API ID and usage plan.
@@ -284,34 +260,27 @@ paths:
         - APIs
   /api-keys/{id}:
     delete:
-      description: Deletes the current user's API key(s) for a specified API ID. To check the current user, use the GET /me endpoint.
+      description: Deletes the current user's API key by API Key ID (UUID). To check the current user, use the GET /me endpoint.
       operationId: DeleteAPIKey
       security:
         - identityToken: []
       parameters:
         - in: path
           name: id
-          description: The API ID to delete the API keys for. To get the API ID, use the GET /apis endpoint.
+          description: The API Key ID (UUID) of key to be deleted. To get the API KEY ID (UUID), use the GET /api-keys endpoint.
           schema:
             type: string
-            example: petstoreAPI-petstoreNamespace-cluster1
+            example: bfbf98eb-732d-428f-b948-770629802231
           required: true
       responses:
         '200':
           description: Successfully deleted API keys.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    usagePlan:
-                      type: string
-                      example: bronze-plan
-                    apiKey:
-                      example: 3be5a92cb7598f4f48c6d68688b10e5bfa3cbbc2a512c7ba9fcfe22c3eab971a
-                      type: string
+        '401':
+          description: Unauthorized. The user's identity token is invalid.
+        '403':
+          description: Forbidden. The user's identity token is valid, but the user has missing claims required by this method.
+        '404':
+          description: API Key with the specified UUID was not found.
         '500':
           description: Unexpected error deleting API keys. Try again in a few moments.
       summary: Deletes the current user's API key(s) for a specified API ID.
@@ -330,22 +299,7 @@ components:
         username:
           example: exampleUser
           type: string
-        groups:
-          $ref: '#/components/schemas/Group'
       type: object
-    Group:
-      type: object
-      additionalProperties:
-        type: array
-        items:
-          type: string
-      example:
-        customers:
-          - customer1
-          - customer2
-        regions:
-          - us-east
-          - us-west
     UsagePlan:
       properties:
         name:
@@ -362,6 +316,16 @@ components:
           items:
             type: string
             example: petstoreAPI-petstoreNamespace-cluster-1
+      type: object
+    UsagePlanKeys:
+      properties:
+        usagePlan:
+          type: string
+          example: bronze plan
+        apiKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIKey'
       type: object
     AuthPolicy:
       properties:
@@ -380,12 +344,21 @@ components:
       type: object
     APIKey:
       properties:
-        apiId:
-          type: string
-          example: petstoreAPI-petstoreNamespace-cluster1
         apiKey:
-          example: 3be5a92cb7598f4f48c6d68688b10e5bfa3cbbc2a512c7ba9fcfe22c3eab971a
+          description: Is returned only once when the API key is created
+          example: 4f357f4f-cd56-41d2-aca8-301c999bb8a4
           type: string
+        id:
+          example: ae8261d2-4e16-4a06-b1f3-1af71464a8dd
+          type: string
+        name:
+          example: api-key-name-1
+          type: string
+        metadata:
+          type: object
+          example: {
+            "key": "value"
+          }
     API:
       properties:
         apiId:
@@ -413,13 +386,16 @@ components:
           example: ["bronze plan", "silver plan", "gold plan"]
         customMetadata:
           type: object
+          additionalProperties:
+            type: string
           example: {
-            "category": ["orders", "customers"],
+            "type": "customers",
+            "region": "us-east-1",
           }
       type: object
   securitySchemes:
     identityToken:
       type: apiKey
       in: cookie
-      name: identityToken
-      description: Identity token JWT
+      name: id_token
+      description: id token cookie from the identity provider used to authenticate the user
