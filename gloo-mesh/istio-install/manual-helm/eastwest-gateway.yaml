@@ -76,3 +76,4 @@ affinity:
           operator: In
           values:
           - istio-eastwestgateway-${REVISION}
+      topologyKey: kubernetes.io/hostname

@@ -72,3 +72,4 @@ affinity:
           operator: In
           values:
           - istio-ingressgateway-${REVISION}
+      topologyKey: kubernetes.io/hostname
