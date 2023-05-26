@@ -121,3 +121,4 @@ pilot:
             operator: In
             values:
             - istiod-${REVISION}
+        topologyKey: kubernetes.io/hostname
