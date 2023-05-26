@@ -36,8 +36,30 @@ spec:
     spec:
       serviceAccountName: not-in-mesh
       containers:
-      - image: docker.io/kennethreitz/httpbin
-        imagePullPolicy: IfNotPresent
-        name: not-in-mesh
-        ports:
-        - containerPort: 80
+        - image: docker.io/mccutchen/go-httpbin:v2.6.0
+          imagePullPolicy: IfNotPresent
+          name: httpbin
+          command: [ go-httpbin ]
+          args:
+            - "-port"
+            - "8080"
+            - "-max-duration"
+            - "600s" # override default 10s
+          ports:
+            - containerPort: 8080
+        # Include curl container for e2e testing, allows sending traffic mediated by the proxy sidecar
+        - name: curl
+          image: curlimages/curl:7.83.1
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "200m"
+          imagePullPolicy: IfNotPresent
+          command:
+            - "tail"
+            - "-f"
+            - "/dev/null"
+        - name: hey
+          image: gcr.io/solo-public/docs/hey:0.1.4
+          imagePullPolicy: IfNotPresent
