@@ -1,0 +1,96 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: GatewayLifecycleManager
+metadata:
+  name: istio-egressgateway
+  namespace: gloo-mesh
+spec:
+  installations:
+      # The revision for this installation, such as 1-17
+    - gatewayRevision: $REVISION
+      # List all workload clusters to install Istio into
+      clusters:
+      - name: $REMOTE_CLUSTER1
+        # If set to true, the spec for this revision is applied in the cluster
+        activeGateway: true
+      - name: $REMOTE_CLUSTER2
+        activeGateway: true
+      istioOperatorSpec:
+        # No control plane components are installed
+        profile: minimal
+        # Solo.io Istio distribution repository; required for Gloo Istio.
+        # You get the repo key from your Solo Account Representative.
+        hub: $REPO
+        # The Solo.io Gloo Istio version
+        tag: $ISTIO_IMAGE
+        meshConfig:
+          outboundTrafficPolicy:
+            mode: REGISTRY_ONLY
+            # enable accesslogs
+          accessLogFile: /dev/stdout
+          defaultConfig:
+            # enable Gloo Mesh accesslog service (equired for Gloo Mesh Access Log forwarding)
+            envoyAccessLogService:
+              address: gloo-mesh-agent.gloo-mesh:9977
+            proxyMetadata:
+              # Enable Istio agent to handle DNS requests for known hosts
+              # Unknown hosts will automatically be resolved using upstream dns servers in resolv.conf
+              ISTIO_META_DNS_CAPTURE: "true"
+              # Enable automatic address allocation
+              ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+        components:
+          egressGateways:
+          # Enable the egress gateway
+            - name: istio-egressgateway
+              # Deployed to gloo-mesh-gateways by default
+              namespace: gloo-mesh-gateways
+              enabled: true
+              label:
+                # Set a unique label for the gateway. This is required to
+                # ensure Gateways can select this workload.
+                istio: egressgateway
+                app: istio-egressgateway
+                traffic: egress
+              k8s:
+                affinity:
+                   nodeAffinity:
+                     requiredDuringSchedulingIgnoredDuringExecution:
+                       nodeSelectorTerms:
+                         - matchExpressions:
+                             - key: kubernetes.io/arch
+                               operator: In
+                               values:
+                                 - arm64
+                                 - amd64
+                env:
+                  # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
+                  # Required by Gloo for egress routing
+                  - name: ISTIO_META_ROUTER_MODE
+                    value: "sni-dnat"
+                  - name: AUTO_RELOAD_PLUGIN_CERTS
+                    value: "true"
+                podAnnotations:
+                  proxy.istio.io/config: |
+                    proxyStatsMatcher:
+                      inclusionRegexps:
+                      - .*ext_authz.*
+                service:
+                  type: LoadBalancer
+                  selector:
+                    istio: egressgateway
+                  # Default ports
+                  ports:
+                    # Port for health checks on path /healthz/ready.
+                    # For AWS ELBs, this port must be listed first.
+                    - port: 15021
+                      targetPort: 15021
+                      name: status-port
+                    # Port for multicluster mTLS passthrough
+                    # Required for Gloo egress routing
+                    - port: 15443
+                      targetPort: 15443
+                      # Gloo looks for this default name 'tls' on a gateway
+                      name: tls
+                    # Required for Istio mutual TLS
+                    - port: 443
+                      targetPort: 8443
+                      name: https
