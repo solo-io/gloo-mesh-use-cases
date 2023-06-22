@@ -32,10 +32,12 @@ spec:
             envoyAccessLogService:
               address: gloo-mesh-agent.gloo-mesh:9977
             proxyMetadata:
-              # Enable Istio agent to handle DNS requests for known hosts
-              # Unknown hosts will automatically be resolved using upstream dns servers in resolv.conf
+              # For known hosts, enable Istio agent to handle DNS requests for any custom ServiceEntry, such as non-Kubernetes services.
+              # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)
               ISTIO_META_DNS_CAPTURE: "true"
-              # Enable automatic address allocation
+              # Enable automatic address allocation within envoy to route to non-Kubernetes services.
+              # Useful for external services where the IP address may change by creating an internal stable IP address that represents the external host.
+              # For more info, see https://istio.io/latest/docs/ops/configuration/traffic-management/dns-proxy/
               ISTIO_META_DNS_AUTO_ALLOCATE: "true"
         components:
           egressGateways:
@@ -62,8 +64,9 @@ spec:
                                  - arm64
                                  - amd64
                 env:
-                  # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
-                  # Required by Gloo for egress routing
+                  # 'sni-dnat' enables AUTO_PASSTHROUGH mode for east-west communication through the gateway.
+                  # The default value ('standard') does not set up a passthrough cluster.
+                  # Required for multi-cluster communication and to preserve SNI.
                   - name: ISTIO_META_ROUTER_MODE
                     value: "sni-dnat"
                   - name: AUTO_RELOAD_PLUGIN_CERTS

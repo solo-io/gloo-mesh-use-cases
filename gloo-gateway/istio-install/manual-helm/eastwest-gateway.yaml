@@ -43,8 +43,9 @@ service:
       # Required for VM onboarding discovery address
       #name: tls-istiod
 env:
-  # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
-  # Required by Gloo Mesh for multicluster routing
+  # 'sni-dnat' enables AUTO_PASSTHROUGH mode for east-west communication through the gateway.
+  # The default value ('standard') does not set up a passthrough cluster.
+  # Required for multi-cluster communication and to preserve SNI.
   ISTIO_META_ROUTER_MODE: "sni-dnat"
 
 # Gateway pod resources
