@@ -43,11 +43,12 @@ spec:
             envoyAccessLogService:
               address: gloo-mesh-agent.gloo-mesh:9977
             proxyMetadata:
-              # Enable Istio agent to handle DNS requests for known hosts
-              # Unknown hosts are automatically resolved using upstream DNS servers
-              # in resolv.conf (for proxy-dns)
+              # For known hosts, enable the Istio agent to handle DNS requests for any custom ServiceEntry, such as non-Kubernetes services.
+              # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)
               ISTIO_META_DNS_CAPTURE: "true"
-              # Enable automatic address allocation (for proxy-dns)
+              # Enable automatic address allocation within Envoy to route to non-Kubernetes services.
+              # Useful for external services where the IP address may change by creating an internal stable IP address that represents the external host.
+              # For more info, see https://istio.io/latest/docs/ops/configuration/traffic-management/dns-proxy/
               ISTIO_META_DNS_AUTO_ALLOCATE: "true"
           # Set the default behavior of the sidecar for handling outbound traffic
           # from the application
@@ -80,8 +81,10 @@ spec:
           pilot:
             k8s:
               env:
-                # Disable selecting workload entries for local service routing.
-                # Required for Gloo VirtualDestinaton functionality.
+                # Disable selecting workload entries for local service routing, so that Kubernetes 
+                # will not automatically match services to workload entries with matching selector labels.
+                # Required for Gloo Mesh VirtualDestination functionality.
+                # For more info, see https://istio.io/latest/docs/reference/commands/pilot-discovery/
                 - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
                   value: "false"
         # Helm values overrides
