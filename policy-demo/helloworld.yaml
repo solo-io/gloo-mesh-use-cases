@@ -60,7 +60,7 @@ spec:
               - |
                 if [ $FAIL_READINESS = "True" ]; then exit 1;
                 elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
-                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
+                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.1 200"; fi
       - name: curl
         image: curlimages/curl:7.83.1
         imagePullPolicy: IfNotPresent
@@ -120,7 +120,7 @@ spec:
               - |
                 if [ $FAIL_READINESS = "True" ]; then exit 1;
                 elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
-                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
+                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.1 200"; fi
       - name: curl
         image: curlimages/curl:7.83.1
         imagePullPolicy: IfNotPresent
@@ -180,7 +180,7 @@ spec:
               - |
                 if [ $FAIL_READINESS = "True" ]; then exit 1;
                 elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
-                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
+                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.1 200"; fi
       - name: curl
         image: curlimages/curl:7.83.1
         imagePullPolicy: IfNotPresent
@@ -240,7 +240,7 @@ spec:
               - |
                 if [ $FAIL_READINESS = "True" ]; then exit 1;
                 elif [ $DISABLE_CONTAINER = "True" ]; then exit 0;
-                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.0 200"; fi
+                else curl http://localhost:5000/health -I -X GET | grep "HTTP/1.1 200"; fi
       - name: curl
         image: curlimages/curl:7.83.1
         imagePullPolicy: IfNotPresent
