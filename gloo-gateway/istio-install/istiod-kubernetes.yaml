@@ -32,7 +32,7 @@ spec:
       envoyAccessLogService:
         address: gloo-mesh-agent.gloo-mesh:9977
       proxyMetadata:
-        # For known hosts, enable Istio agent to handle DNS requests for any custom ServiceEntry, such as non-Kubernetes services.
+        # For known hosts, enable the Istio agent to handle DNS requests for any custom ServiceEntry, such as non-Kubernetes services.
         # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)
         ISTIO_META_DNS_CAPTURE: "true"
         # Enable automatic address allocation within Envoy to route to non-Kubernetes services.
