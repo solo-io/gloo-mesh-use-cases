@@ -1,0 +1,167 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: ingress
+spec:
+  profile: minimal
+  components:
+    pilot:
+      k8s:
+        env:
+        # Disable selecting workload entries for local service routing, so that Kubernetes 
+        # will not automatically match services to workload entries with matching selector labels.
+        # Required for Gloo Mesh VirtualDestination functionality.
+        # For more info, see https://istio.io/latest/docs/reference/commands/pilot-discovery/
+        - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
+          value: "false"
+        # Autoregistration allows the istiod control plane to create the workload 
+        # entries associated with your VM automatically after the VM is onboarded.
+        - name: PILOT_ENABLE_WORKLOAD_ENTRY_AUTOREGISTRATION
+          value: "true"
+        # Enable automatic health checks for the VM workload entry
+        - name: PILOT_ENABLE_WORKLOAD_ENTRY_HEALTHCHECKS
+          value: "true"
+        - name: TELEMETRY_USE_NATIVE_STATS
+          value: "true"
+    ingressGateways:
+      # Enable the default ingress gateway
+      - name: istio-ingressgateway
+        # Deploy to the ingress gateway namespace.
+        namespace: istio-ingress
+        enabled: true
+        label:
+          # Set a unique label for the gateway.
+          # Required to ensure gateways can select this workload
+          istio: ingressgateway
+          app: istio-ingressgateway
+          # Matches spec.values.global.network in the istiod deployment
+          topology.istio.io/network: $CLUSTER_NAME
+        k8s:
+          serviceAnnotations:
+            service.beta.kubernetes.io/aws-load-balancer-type: external
+            service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+            service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: instance
+            service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+          strategy:
+            rollingUpdate:
+              maxSurge: 100%
+              maxUnavailable: 25%
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 1024Mi
+            requests:
+              cpu: 100m
+              memory: 40Mi
+          service:
+            type: LoadBalancer
+            # Default ports
+            ports:
+              # Port for health checks on path /healthz/ready.
+              # For AWS ELBs, this port must be listed first.
+              - name: status-port
+                port: 15021
+                targetPort: 15021
+              # Main HTTP ingress port
+              - port: 80
+                targetPort: 8080
+                name: http2
+              # Main HTTPS ingress port
+              - port: 443
+                targetPort: 8443
+                name: https
+      - name: istio-eastwestgateway
+        # Deploy to the east-west gateway namespace.
+        namespace: istio-eastwest
+        enabled: true
+        label:
+          # Set a unique label for the gateway.
+          # Required to ensure gateways can select this workload.
+          istio: eastwestgateway
+          app: istio-eastwestgateway
+          # Matches spec.values.global.network in the istiod deployment
+          topology.istio.io/network: $CLUSTER_NAME
+        k8s:
+          serviceAnnotations:
+            service.beta.kubernetes.io/aws-load-balancer-type: external
+            service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+            service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: instance
+            service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+          strategy:
+            rollingUpdate:
+              maxSurge: 100%
+              maxUnavailable: 25%
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 1024Mi
+            requests:
+              cpu: 100m
+              memory: 40Mi
+          env:
+            # 'sni-dnat' enables AUTO_PASSTHROUGH mode for east-west communication through the gateway.
+            # The default value ('standard') does not set up a passthrough cluster.
+            # Required for multi-cluster communication and to preserve SNI.
+            - name: ISTIO_META_ROUTER_MODE
+              value: "sni-dnat"
+          service:
+            # Required to onboard VMs
+            type: LoadBalancer
+            # Default ports
+            ports:
+              # Port for health checks on path /healthz/ready.
+              # For AWS ELBs, this port must be listed first.
+              - port: 15021
+                targetPort: 15021
+                name: status-port
+              # Main HTTPS port for east-west ISTIO_MUTUAL connection.
+              - port: 443
+                targetPort: 8443
+                name: https
+              # Port for multicluster mTLS passthrough.
+              # Required for Gloo Mesh east-west routing.
+              - port: 15443
+                targetPort: 15443
+                # Gloo Mesh looks for this default name 'tls' on a gateway
+                name: tls
+              # SPIRE server port
+              - name: tls-spire
+                port: 8081
+                protocol: TCP
+                targetPort: 8081
+              # Istiod port
+              - name: tls-istiod
+                port: 15012
+                protocol: TCP
+                targetPort: 15012
+  values:
+    telemetry:
+      enabled: false
+    gateways:
+      istio-ingressgateway:
+        # Enable gatewayy injection
+        injectionTemplate: gateway
+      istio-egressgateway:
+        # Enable gateway injection
+        injectionTemplate: gateway
+    global:
+      # Required for connecting VirtualMachines to the mesh
+      network: $CLUSTER_NAME
+      # Required for annotating Istio metrics with the cluster name.
+      # Must match the trustDomain
+      multiCluster:
+        clusterName: $CLUSTER_NAME
+  meshConfig:
+    defaultConfig:
+      proxyStatsMatcher:
+        inclusionRegexps:
+          - ".*"
+      proxyMetadata:
+        # For known hosts, enable the Istio agent to handle DNS requests 
+        # for any custom ServiceEntry, such as non-Kubernetes services.
+        # Unknown hosts are automatically resolved using upstream DNS servers
+        # in resolv.conf (for proxy-dns)
+        ISTIO_META_DNS_CAPTURE: "true"
+        # Used for Gloo Mesh metrics aggregation. Required for Gloo Mesh UI.
+        # Must match the trustDomain.
+        GLOO_MESH_CLUSTER_NAME: $CLUSTER_NAME
