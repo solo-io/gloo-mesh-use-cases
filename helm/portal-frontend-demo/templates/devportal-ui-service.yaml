@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: portal-frontend
+#   namespace: gloo-mesh-addons
+  labels:
+    app: portal-frontend
+    service: portal-frontend
+spec:
+  ports:
+    - name: http
+      port: 4000
+      targetPort: 4000
+  selector:
+    app: portal-frontend

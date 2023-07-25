@@ -1,0 +1,22 @@
+## Gloo Platform Portal demo frontend app
+portal_server:
+  # The URL of the Gloo Platform Portal REST server.
+  # Format this variable as: "<portal-server-url>/v1".
+  url:  http://developer.example.com/v1/
+oauth:
+  # The OAuth identity provider's Client ID.
+  # In Keycloak, open the $KEYCLOAK_URL UI, click Clients, 
+  # and from the Settings tab, find the Client ID.
+  client_id: portal-client
+  # The endpoint to get the OAuth token.
+  # In Keycloak, you can find the `token_endpoint` property at:
+  # $KEYCLOAK_URL/auth/realms/<your-realm>/.well-known/openid-configuration
+  token_endpoint: http://keycloak.example.com/realms/master/protocol/openid-connect/token
+  # The endpoint to get the PKCE authorization code.
+  # In Keycloak, you can find the `authorization_endpoint` property at:
+  # $KEYCLOAK_URL/auth/realms/<your-realm>/.well-known/openid-configuration
+  auth_endpoint: http://keycloak.example.com/realms/master/protocol/openid-connect/auth
+  # The endpoint to end the session.
+  # In Keycloak, you can find the `end_session_endpoint` property at:
+  # $KEYCLOAK_URL/auth/realms/<your-realm>/.well-known/openid-configuration
+  logout_endpoint: http://keycloak.example.com/realms/master/protocol/openid-connect/logout

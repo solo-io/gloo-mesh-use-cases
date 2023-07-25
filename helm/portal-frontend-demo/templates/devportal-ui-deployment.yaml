@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portal-frontend
+  namespace: gloo-mesh-addons
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portal-frontend
+  template:
+    metadata:
+      labels:
+        app: portal-frontend
+    spec:
+      serviceAccountName: portal-frontend
+      containers:
+        - image: gcr.io/solo-public/docs/portal-frontend:latest
+          args: ["--host", "0.0.0.0"]
+          #imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
+          name: portal-frontend
+          ports:
+            - containerPort: 4000
+          env:
+          - name: "VITE_PORTAL_SERVER_URL"
+            value: "{{ .Values.portal_server.url }}"
+          - name: "VITE_CLIENT_ID"
+            value: "{{ .Values.oauth.client_id }}"
+          - name: "VITE_TOKEN_ENDPOINT"
+            value: "{{ .Values.oauth.token_endpoint }}"
+          - name: "VITE_AUTH_ENDPOINT"
+            value: "{{ .Values.oauth.auth_endpoint }}"
+          - name: "VITE_LOGOUT_ENDPOINT"
+            value: "{{ .Values.oauth.logout_endpoint }}"
