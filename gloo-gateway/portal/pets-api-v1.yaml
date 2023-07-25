@@ -2,18 +2,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: pets-rest-api
+    app: pets-versioned
   name: pets-rest-api-v1
   namespace: pets
 spec:
   selector:
     matchLabels:
-      app: pets-rest-api
+      app: pets-versioned
   replicas: 1
   template:
     metadata:
       labels:
-        app: pets-rest-api
+        app: pets-versioned
     spec:
       containers:
       - image: gcr.io/solo-public/docs/pets-rest-api:latest
@@ -33,10 +33,10 @@ metadata:
   name: pets-rest-api-v1
   namespace: pets
   labels:
-    app: pets-rest-api
+    app: pets-versioned
 spec:
   ports:
   - port: 5000
     protocol: TCP
   selector:
-    app: pets-rest-api
+    app: pets-versioned
