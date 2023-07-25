@@ -4,7 +4,7 @@ metadata:
   labels:
     app: pets-versioned
   name: pets-rest-api-v1
-  namespace: pets
+  namespace: default
 spec:
   selector:
     matchLabels:
@@ -31,7 +31,7 @@ metadata:
     gloo.solo.io/scrape-openapi-pull-attempts: "3"
     gloo.solo.io/scrape-openapi-use-backoff: "true"
   name: pets-rest-api-v1
-  namespace: pets
+  namespace: default
   labels:
     app: pets-versioned
 spec:
