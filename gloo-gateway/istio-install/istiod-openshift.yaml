@@ -25,19 +25,17 @@ spec:
     defaultConfig:
       # Wait for the istio-proxy to start before starting application pods
       holdApplicationUntilProxyStarts: true
-      # Enable Gloo Mesh metrics service. Required for Gloo Mesh UI
+      # Legacy metrics pipeline only, in Gloo Istio 1.17 and earlier:
+      # Enable the legacy Gloo metrics service. For more info, see https://docs.solo.io/gloo-mesh/latest/observability/pipeline/.
       envoyMetricsService:
         address: gloo-mesh-agent.gloo-mesh:9977
-      # Enable Gloo Mesh accesslog service. Required for Gloo Mesh Access Logging
+      # Legacy metrics pipeline only, in Gloo Istio 1.17 and earlier: Enable Gloo access logging.
       envoyAccessLogService:
         address: gloo-mesh-agent.gloo-mesh:9977
       proxyMetadata:
         # For known hosts, enable the Istio agent to handle DNS requests for any custom ServiceEntry, such as non-Kubernetes services.
         # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)
         ISTIO_META_DNS_CAPTURE: "true"
-        # Used for Gloo Mesh metrics aggregation. Required for Gloo Mesh UI.
-        # Must match the trustDomain.
-        GLOO_MESH_CLUSTER_NAME: $CLUSTER_NAME
 
     # Set the default behavior of the sidecar for handling outbound traffic from the application
     outboundTrafficPolicy:
