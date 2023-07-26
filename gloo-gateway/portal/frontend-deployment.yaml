@@ -14,9 +14,9 @@ metadata:
     service: portal-frontend
 spec:
   ports:
-  - name: http
-    port: 4000
-    targetPort: 4000
+    - name: http
+      port: 4000
+      targetPort: 4000
   selector:
     app: portal-frontend
 ---
@@ -37,9 +37,34 @@ spec:
     spec:
       serviceAccountName: portal-frontend
       containers:
-      - image: gcr.io/solo-public/docs/portal-frontend:latest
-        args: ["--host", "0.0.0.0"]
-        imagePullPolicy: Always
-        name: portal-frontend
-        ports:
-        - containerPort: 4000
+        - image: gcr.io/solo-public/docs/portal-frontend:v0.0.13
+          args: ["--host", "0.0.0.0"]
+          env:
+            # The URL of the Gloo Platform Portal REST server.
+            # Format this variable as: "<portal-server-url>/v1".
+            - name: VITE_PORTAL_SERVER_URL
+              value: $PORTAL_URL
+            # The OAuth identity provider's Client ID.
+            # In Keycloak, open the $KEYCLOAK_URL UI, click Clients, 
+            # and from the Settings tab, find the Client ID.
+            - name: VITE_CLIENT_ID
+              value: $KEYCLOAK_CLIENT
+            # The endpoint to get the OAuth token.
+            # In Keycloak, you can find the `token_endpoint` property at:
+            # $KEYCLOAK_URL/auth/realms/<your-realm>/.well-known/openid-configuration
+            - name: VITE_TOKEN_ENDPOINT
+              value: $KEYCLOAK_TOKEN_ENDPOINT
+            # The endpoint to get the PKCE authorization code.
+            # In Keycloak, you can find the `authorization_endpoint` property at:
+            # $KEYCLOAK_URL/auth/realms/<your-realm>/.well-known/openid-configuration
+            - name: VITE_AUTH_ENDPOINT
+              value: $KEYCLOAK_AUTH_ENDPOINT
+            # The endpoint to end the session.
+            # In Keycloak, you can find the `end_session_endpoint` property at:
+            # $KEYCLOAK_URL/auth/realms/<your-realm>/.well-known/openid-configuration
+            - name: VITE_LOGOUT_ENDPOINT
+              value: $KEYCLOAK_LOGOUT_ENDPOINT
+          imagePullPolicy: Always
+          name: portal-frontend
+          ports:
+            - containerPort: 4000
