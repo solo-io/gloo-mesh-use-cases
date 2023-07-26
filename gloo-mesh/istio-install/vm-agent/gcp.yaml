@@ -155,6 +155,3 @@ spec:
         # Unknown hosts are automatically resolved using upstream DNS servers
         # in resolv.conf (for proxy-dns)
         ISTIO_META_DNS_CAPTURE: "true"
-        # Used for Gloo Mesh metrics aggregation. Required for Gloo Mesh UI.
-        # Must match the trustDomain.
-        GLOO_MESH_CLUSTER_NAME: $CLUSTER_NAME

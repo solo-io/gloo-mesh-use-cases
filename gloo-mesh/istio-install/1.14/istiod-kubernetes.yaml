@@ -25,12 +25,11 @@ spec:
     defaultConfig:
       # Wait for the istio-proxy to start before starting application pods
       holdApplicationUntilProxyStarts: true
-      # Enable Gloo Mesh metrics service. Required for Gloo Mesh UI
-      # For Gloo Mesh Enterprise version 1.2, change to enterprise-agent.gloo-mesh:9977
+      # Legacy metrics pipeline only, in Gloo Istio 1.17 and earlier:
+      # Enable the legacy Gloo metrics service. For more info, see https://docs.solo.io/gloo-mesh/latest/observability/pipeline/.
       envoyMetricsService:
         address: gloo-mesh-agent.gloo-mesh:9977
-      # Enable Gloo Mesh accesslog service. Required for Gloo Mesh Access Logging
-      # For Gloo Mesh Enterprise version 1.2, change to enterprise-agent.gloo-mesh:9977
+      # Legacy metrics pipeline only, in Gloo Istio 1.17 and earlier: Enable Gloo access logging.
       envoyAccessLogService:
         address: gloo-mesh-agent.gloo-mesh:9977
       proxyMetadata:
