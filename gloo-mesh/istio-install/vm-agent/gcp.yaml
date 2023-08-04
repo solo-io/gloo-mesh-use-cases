@@ -127,6 +127,11 @@ spec:
                 port: 15012
                 protocol: TCP
                 targetPort: 15012
+              # Gloo OpenTelemetry port
+              - name: tls-otel
+                port: 4317
+                protocol: TCP
+                targetPort: 4317
   values:
     telemetry:
       enabled: false
