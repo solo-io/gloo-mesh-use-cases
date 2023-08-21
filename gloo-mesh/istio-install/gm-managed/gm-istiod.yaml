@@ -5,7 +5,7 @@ metadata:
   namespace: gloo-mesh
 spec:
   installations:
-  # The revision for this installation, such as 1-17-3
+  # The revision for this installation, such as 1-18-2
   - revision: $REVISION
     # List all workload clusters to install Istio into
     clusters:
@@ -52,6 +52,8 @@ spec:
           mode: ALLOW_ANY
         # The administrative root namespace for Istio configuration
         rootNamespace: istio-system
+        # Set to the cluster name by default.
+        trustDomain: ${CLUSTER_NAME}
       # Traffic management
       components:
         pilot:
@@ -68,3 +70,9 @@ spec:
             # but is useful for PoCs or demos in which you use self-signed certificates.
             - name: PILOT_SKIP_VALIDATE_TRUST_DOMAIN
               value: "true"
+      # Helm values overrides
+      values:
+        global:
+          multiCluster:
+            # Set to the cluster name by default.
+            clusterName: $CLUSTER_NAME
