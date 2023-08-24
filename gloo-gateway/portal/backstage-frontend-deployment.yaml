@@ -39,47 +39,11 @@ spec:
       containers:
         - image: gcr.io/solo-public/docs/portal-backstage-frontend:latest
           #args: ["--host", "0.0.0.0"]
-          env:
-            # The URL of the Gloo Platform Portal REST server.
-            # This URL matches the host in the route table for the gloo-mesh-portal-server.
-            # Format this variable as: "<portal-server-url>/v1".
-            - name: PORTAL_SERVER_URL
-              value: '$PORTAL_URL'
-            # The OAuth identity provider's Client ID.
-            # In Keycloak, open the $KEYCLOAK_URL UI, click Clients, and from the Settings tab, find the Client ID.
-            # In Okta, open your $OKTA_URL and from the Applications section, find your app's Client ID.
-            - name: CLIENT_ID
-              value: '$CLIENT_ID'
-            #
-            # In Okta or Keycloak, you can find the following endpoints
-            # the well-known OpenID config path for your authorization server, such as:
-            # $KEYCLOAK_URL/auth/realms/<your-realm>/.well-known/openid-configuration
-            # $OKTA_URL/oauth2/default/.well-known/openid-configuration
-            #
-            # The `token_endpoint` is where to get the OAuth token.
-            - name: TOKEN_ENDPOINT
-              value: '$TOKEN_ENDPOINT'
-            # The `authorization_endpoint` is where to get the PKCE authorization code.
-            - name: AUTH_ENDPOINT
-              value: '$AUTH_ENDPOINT'
-            # The `end_session_endpoint` is where to end the session.
-            - name: LOGOUT_ENDPOINT
-              value: '$LOGOUT_ENDPOINT'
-            # A common default username is 'postgres'. 
-            # If your username differs, update this value.
-            - name: 'POSTGRES_USER'
-              value: '$POSTGRES_USER'
-            # Replace with the password for the username to your Postgres instance.
-            - name: 'POSTGRES_PASSWORD'
-              value: '$POSTGRES_PASSWORD'
-            # Replace with the hostname to your Postgres instance. 
-            # Note that this host must be accessible from your cluster.
-            # If you deployed Postgres in your cluster, this value is the name of the service in the same namespace as your Backstage app, such as 'postgres'.
-            - name: 'POSTGRES_HOST'
-              value: '$POSTGRES_HOST'
-            # The default port is 5432. If your port is different, update this value.
-            - name: 'POSTGRES_PORT'
-              value: '$POSTGRES_PORT'
+          envFrom:
+          - secretRef:
+            name: postgres-secrets
+          - secretRef:
+            name: backstage-secrets
           imagePullPolicy: Always
           name: backstage-frontend
           ports:
