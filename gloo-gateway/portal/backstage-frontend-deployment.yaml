@@ -38,14 +38,13 @@ spec:
       serviceAccountName: backstage-frontend
       containers:
         - image: gcr.io/solo-public/docs/portal-backstage-frontend:latest
-          #args: ["--host", "0.0.0.0"]
-          envFrom:
-           - secretRef:
-               name: postgres-secrets
-           - secretRef:
-               name: backstage-secrets
           imagePullPolicy: Always
           name: backstage-frontend
+          envFrom:
+          - secretRef:
+              name: postgres-secrets
+          - secretRef:
+              name: backstage-secrets
           ports:
           - name: http
             containerPort: 7007
