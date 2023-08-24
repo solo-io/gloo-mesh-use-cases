@@ -41,9 +41,9 @@ spec:
           #args: ["--host", "0.0.0.0"]
           envFrom:
           - secretRef:
-            name: postgres-secrets
+              name: postgres-secrets
           - secretRef:
-            name: backstage-secrets
+              name: backstage-secrets
           imagePullPolicy: Always
           name: backstage-frontend
           ports:
