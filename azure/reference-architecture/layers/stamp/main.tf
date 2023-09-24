@@ -4,14 +4,14 @@ resource "azurerm_virtual_network" "stamp" {
   resource_group_name = var.resource_group_name
   location            = var.location
   name                = "stamp-${var.cardinal}"
-  address_space       = ["172.0.0.1/16"]
+  address_space       = ["172.${var.cardinal}.0.0/16"]
 }
 
 resource "azurerm_subnet" "stamp" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.stamp.name
   name                 = "stamp-${var.cardinal}"
-  address_prefixes     = ["172.0.0.1/24"]
+  address_prefixes     = ["172.${var.cardinal}.1.0/24"]
 }
 
 resource "azurerm_virtual_network_peering" "stamp-to-hub" {
