@@ -1,3 +1,6 @@
+variable "client_secret" {
+}
+
 variable "location" {
   description = "location of the resource group"
 }

@@ -56,6 +56,7 @@ resource "azurerm_kubernetes_cluster" "hub" {
 }
 
 resource "azurerm_role_assignment" "aksnetwork" {
+  provider             = azurerm.networksp
   scope                = azurerm_virtual_network.hub.id
   role_definition_name = "Network Contributor"
   principal_id         = azurerm_kubernetes_cluster.hub.kubelet_identity[0].object_id
@@ -97,7 +98,7 @@ resource "helm_release" "gloo-crds" {
 
 resource "helm_release" "gloo-mesh" {
 
-  depends_on = [helm_release.gloo-crds]
+  depends_on = [helm_release.gloo-crds, azurerm_role_assignment.aksnetwork]
 
   name = "gloo-platform"
 

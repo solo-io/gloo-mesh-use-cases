@@ -1,3 +1,6 @@
+variable "client_secret" {
+}
+
 variable "resource_group_name" {
   description = "value of the license key"
   default     = "azure-gloo-refarch-hub"

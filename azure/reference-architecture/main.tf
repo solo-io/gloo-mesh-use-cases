@@ -8,9 +8,7 @@ module "hub" {
   resource_group_name   = data.azurerm_resource_group.azure-gloo-refarch.name
   gloo_mesh_license_key = var.gloo_mesh_license_key
   aks_version           = var.aks_version
-  providers = {
-    azurerm = azurerm.networksp
-  }
+  client_secret         = var.client_secret
 }
 
 module "stamp0" {
