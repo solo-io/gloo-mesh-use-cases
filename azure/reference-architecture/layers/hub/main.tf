@@ -100,36 +100,31 @@ resource "helm_release" "gloo-mesh" {
   namespace  = "gloo-mesh"
   wait       = false
 
-  set {
-    name  = "common.cluster"
-    value = "hub"
-  }
-  set {
-    name  = "glooMgmtServer.enabled"
-    value = true
-  }
-  set {
-    name  = "glooUi.enabled"
-    value = true
-  }
-  set {
-    name  = "glooUi.auth.enabled"
-    value = false
-  }
-  set {
-    name  = "prometheus.enabled"
-    value = true
-  }
-  set {
-    name  = "redis.deployment.enabled"
-    value = true
-  }
-  set {
-    name  = "telemetryGateway.enabled"
-    value = true
-  }
-  set {
-    name  = "licensing.glooMeshLicenseKey"
-    value = var.gloo_mesh_license_key
-  }
+  values = [
+    <<EOT
+licensing:
+  glooMeshLicenseKey: ${var.gloo_mesh_license_key}
+common:
+  cluster: mgmt-cluster
+glooMgmtServer:
+  enabled: true
+  serviceOverrides:
+    metadata:
+      annotations:
+        service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+glooUi:
+  enabled: true
+  auth:
+    enabled: false
+  serviceType: LoadBalancer
+prometheus:
+  enabled: true
+redis:
+  deployment:
+    enabled: true
+telemetryGateway:
+  enabled: true
+EOT
+  ]
+
 }
