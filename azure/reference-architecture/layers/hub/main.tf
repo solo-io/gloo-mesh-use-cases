@@ -55,6 +55,12 @@ resource "azurerm_kubernetes_cluster" "hub" {
   }
 }
 
+resource "azurerm_role_assignment" "aksnetwork" {
+  scope                = azurerm_virtual_network.hub.id
+  role_definition_name = "Network Contributor"
+  principal_id         = azurerm_kubernetes_cluster.hub.kubelet_identity[0].object_id
+}
+
 resource "kubernetes_namespace" "cert-manager" {
   metadata {
     name = "cert-manager"
