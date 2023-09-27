@@ -59,7 +59,7 @@ resource "azurerm_role_assignment" "aksnetwork" {
   provider             = azurerm.networksp
   scope                = azurerm_virtual_network.hub.id
   role_definition_name = "Network Contributor"
-  principal_id         = azurerm_kubernetes_cluster.hub.kubelet_identity[0].object_id
+  principal_id         = azurerm_kubernetes_cluster.hub.identity[0].principal_id
 }
 
 resource "kubernetes_namespace" "cert-manager" {
