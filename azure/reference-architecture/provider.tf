@@ -4,6 +4,12 @@ terraform {
       source = "hashicorp/azurerm"
     }
   }
+  backend "azurerm" {
+    resource_group_name  = "dev-baseline"
+    storage_account_name = "devbill"
+    container_name       = "tfstate"
+    key                  = "azurerefarch.terraform.tfstate"
+  }
 }
 
 # Configure the Microsoft Azure Provider
