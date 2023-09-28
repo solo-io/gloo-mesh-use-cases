@@ -2,6 +2,12 @@ data "azurerm_resource_group" "azure-gloo-refarch" {
   name = "azure-gloo-refarch-hub"
 }
 
+module "pki" {
+  source              = "./layers/pki"
+  location            = data.azurerm_resource_group.azure-gloo-refarch.location
+  resource_group_name = data.azurerm_resource_group.azure-gloo-refarch.name
+}
+
 module "hub" {
   source                = "./layers/hub"
   location              = data.azurerm_resource_group.azure-gloo-refarch.location
