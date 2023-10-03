@@ -1,0 +1,57 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: GatewayLifecycleManager
+metadata:
+  name: istio-ingressgateway
+  namespace: gloo-mesh
+spec:
+  installations:
+    # List all workload clusters to install Istio into
+  - clusters:
+        # If set to true, the spec for this revision is applied in the cluster
+      - activeGateway: true
+        # Name of workload cluster that you used during cluster registration
+        name: $REMOTE_CLUSTER1
+      - activeGateway: true
+        name: $REMOTE_CLUSTER2
+    # The revision for this installation, such as 1-18-3
+    gatewayRevision: $REVISION
+    istioOperatorSpec:
+      components:
+        ingressGateways:
+          # Enable the default ingress gateway
+        - enabled: true
+          k8s:
+            service:
+              # Default ports
+              ports:
+                # Port for health checks on path /healthz/ready.
+                # For AWS ELBs, must be listed as the first port
+                - name: status-port
+                  port: 15021
+                  targetPort: 15021
+                - name: http2
+                  port: 80
+                  targetPort: 8080
+                - name: https
+                  port: 443
+                  targetPort: 8443
+                - name: tls
+                  port: 15443
+                  targetPort: 15443
+              selector:
+                istio: ingressgateway
+              type: LoadBalancer
+          label:
+            app: istio-ingressgateway
+            # Required to ensure Gateways can select this workload
+            istio: ingressgateway
+          name: istio-ingressgateway
+          # Deployed to gloo-mesh-gateways by default
+          namespace: gloo-mesh-gateways
+      # Solo.io Istio distribution repository; required for Solo Istio.
+      # You get the repo key from your Solo Account Representative.
+      hub: $REPO
+      # No control plane components are installed
+      profile: empty
+      # The Solo Istio version tag
+      tag: $ISTIO_IMAGE

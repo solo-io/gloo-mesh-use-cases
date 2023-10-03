@@ -1,0 +1,51 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: IstioLifecycleManager
+metadata:
+  name: istiod-control-plane
+  namespace: gloo-mesh
+spec:
+  installations:
+  - clusters:
+        # Initially set to false so that this managed control plane
+        # is not the active control plane at deployment time.
+      - defaultRevision: true
+        # Name of cluster that you used during Gloo Mesh Core installation
+        name: $CLUSTER_NAME
+    istioOperatorSpec:
+      components:
+        pilot:
+          k8s:
+            env:
+            # Skip the validation step for mTLS within the cluster.
+            # This approach is not recommended if you integrate Istio
+            # with your own CA, but is useful for PoCs or demos
+            # in which you use self-signed certificates.
+            - name: PILOT_SKIP_VALIDATE_TRUST_DOMAIN
+              value: "true"
+      # Solo.io Istio distribution repository; required for Solo Istio.
+      # You get the repo key from your Solo Account Representative.
+      hub: $REPO
+      meshConfig:
+        # Enable access logging.
+        accessLogFile: /dev/stdout
+        defaultConfig:
+          # Wait for the istio-proxy to start before starting application pods
+          holdApplicationUntilProxyStarts: true
+          proxyMetadata:
+            # For known hosts, enable the Istio agent to handle DNS requests
+            # for any custom ServiceEntry, such as non-Kubernetes services.
+            # Unknown hosts are automatically resolved using upstream DNS
+            # servers in resolv.conf (for proxy-dns)
+            ISTIO_META_DNS_CAPTURE: "true"
+        # Set the default behavior of the sidecar for handling outbound
+        # traffic from the application
+        outboundTrafficPolicy:
+          mode: ALLOW_ANY
+      namespace: istio-system
+      # Only the control plane components are installed
+      # (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
+      profile: minimal
+      # The Solo Istio version tag
+      tag: $ISTIO_IMAGE
+    # The revision for this installation, such as 1-18-3
+    revision: $REVISION
