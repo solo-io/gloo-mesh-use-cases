@@ -53,13 +53,6 @@ meshConfig:
   defaultConfig:
     # Wait for the istio-proxy to start before starting application pods
     holdApplicationUntilProxyStarts: true
-    # Legacy metrics pipeline only, in Gloo Istio 1.17 and earlier:
-    # Enable the legacy Gloo metrics service. For more info, see https://docs.solo.io/gloo-mesh/latest/observability/pipeline/.
-    envoyMetricsService:
-      address: gloo-mesh-agent.gloo-mesh:9977
-    # Legacy metrics pipeline only, in Gloo Istio 1.17 and earlier: Enable Gloo access logging.
-    envoyAccessLogService:
-      address: gloo-mesh-agent.gloo-mesh:9977
     # The amount of time allowed for connections to complete upon proxy shutdown.
     # When istio-agent receives SIGTERM or SIGINT, it tells the active Envoy instance 
     # to start draining, which prevents any new connections but allows existing

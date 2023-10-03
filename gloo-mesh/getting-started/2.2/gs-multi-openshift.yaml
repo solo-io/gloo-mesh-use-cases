@@ -6,10 +6,10 @@ managedInstallations:
   defaultRevision: true
   enabled: true
   images:
-    # Solo.io Istio distribution repository; required for Gloo Istio.
+    # Solo.io Istio distribution repository; required for Solo Istio.
     # You get the repo key from your Solo Account Representative.
     hub: $REPO
-    # The Solo.io Gloo Istio version
+    # The Solo Istio version
     tag: $ISTIO_IMAGE
   northSouthGateways:
   - enabled: true

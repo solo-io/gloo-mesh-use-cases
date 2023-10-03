@@ -5,7 +5,7 @@ metadata:
   namespace: gloo-mesh
 spec:
   installations:
-      # The revision for this installation, such as 1-18-2.
+      # The revision for this installation, such as 1-18-3.
       # This MUST be different than the revision that your existing Istio installation uses.
     - revision: $REVISION
       # List all workload clusters to install Istio into
@@ -19,10 +19,10 @@ spec:
         # Openshift-specific installation
         # (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
         profile: openshift
-        # Solo.io Istio distribution repository; required for Gloo Istio.
+        # Solo.io Istio distribution repository; required for Solo Istio.
         # You get the repo key from your Solo Account Representative.
         hub: $REPO
-        # Any Solo.io Gloo Istio tag
+        # Any Solo Istio tag
         tag: $ISTIO_IMAGE
         namespace: istio-system
         # Mesh configuration
@@ -36,13 +36,6 @@ spec:
           defaultConfig:
             # Wait for the istio-proxy to start before starting application pods
             holdApplicationUntilProxyStarts: true
-            # Legacy metrics pipeline only, in Gloo Istio 1.17 and earlier:
-            # Enable the legacy Gloo metrics service. For more info, see https://docs.solo.io/gloo-mesh/latest/observability/pipeline/.
-            envoyMetricsService:
-              address: gloo-mesh-agent.gloo-mesh:9977
-            # Legacy metrics pipeline only, in Gloo Istio 1.17 and earlier: Enable Gloo access logging.
-            envoyAccessLogService:
-              address: gloo-mesh-agent.gloo-mesh:9977
             proxyMetadata:
               # For known hosts, enable the Istio agent to handle DNS requests for any custom ServiceEntry, such as non-Kubernetes services.
               # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)

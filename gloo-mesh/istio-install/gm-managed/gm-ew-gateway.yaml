@@ -5,7 +5,7 @@ metadata:
   namespace: gloo-mesh
 spec:
   installations:
-  # The revision for this installation, such as 1-18-2
+  # The revision for this installation, such as 1-18-3
   - gatewayRevision: $REVISION
     # List all workload clusters to install Istio into
     clusters:
@@ -17,10 +17,10 @@ spec:
     istioOperatorSpec:
       # No control plane components are installed
       profile: empty
-      # Solo.io Istio distribution repository; required for Gloo Istio.
+      # Solo.io Istio distribution repository; required for Solo Istio.
       # You get the repo key from your Solo Account Representative.
       hub: $REPO
-      # The Solo.io Gloo Istio version
+      # The Solo Istio version
       tag: $ISTIO_IMAGE
       components:
         ingressGateways:
