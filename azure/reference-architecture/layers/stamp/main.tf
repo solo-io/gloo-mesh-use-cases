@@ -27,3 +27,44 @@ resource "azurerm_virtual_network_peering" "hub-to-stamp" {
   virtual_network_name      = var.hub_vnet_name
   remote_virtual_network_id = azurerm_virtual_network.stamp.id
 }
+
+resource "azurerm_kubernetes_cluster" "workload" {
+  name                = "workload-${var.cardinal}"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  dns_prefix          = "workload-${var.cardinal}"
+  kubernetes_version  = var.aks_version
+
+  default_node_pool {
+    name           = "default"
+    node_count     = 2
+    vm_size        = "Standard_B4ms"
+    vnet_subnet_id = azurerm_subnet.stamp.id
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  network_profile {
+    network_plugin      = "azure"
+    network_plugin_mode = "overlay"
+
+  }
+  tags = {
+    Role = "Workload"
+  }
+}
+
+resource "azurerm_role_assignment" "aksnetwork" {
+  provider             = azurerm.networksp
+  scope                = azurerm_virtual_network.stamp.id
+  role_definition_name = "Network Contributor"
+  principal_id         = azurerm_kubernetes_cluster.workload.identity[0].principal_id
+}
+
+resource "kubernetes_namespace" "gloo-mesh" {
+  metadata {
+    name = "gloo-mesh"
+  }
+}

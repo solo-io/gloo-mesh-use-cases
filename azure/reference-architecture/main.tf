@@ -25,6 +25,15 @@ module "stamp0" {
   hub_vnet_name       = module.hub.hub_vnet_name
   aks_version         = var.aks_version
   cardinal            = 0
+  client_secret       = var.client_secret
+
+  gloo_mngmt_ip = module.hub.gloo_mgmnt_ip
+
+  hub_kubeconfig_host                   = module.hub.hub_kubeconfig_host
+  hub_kubeconfig_client_certificate     = module.hub.hub_kubeconfig_client_certificate
+  hub_kubeconfig_client_key             = module.hub.hub_kubeconfig_client_key
+  hub_kubeconfig_cluster_ca_certificate = module.hub.hub_kubeconfig_cluster_ca_certificate
+
 }
 
 module "stamp1" {
@@ -34,6 +43,14 @@ module "stamp1" {
   hub_vnet_id         = module.hub.hub_vnet_id
   hub_vnet_name       = module.hub.hub_vnet_name
   aks_version         = var.aks_version
+  cardinal            = 1
+  client_secret       = var.client_secret
 
-  cardinal = 1
+  gloo_mngmt_ip = module.hub.gloo_mgmnt_ip
+
+  hub_kubeconfig_host                   = module.hub.hub_kubeconfig_host
+  hub_kubeconfig_client_certificate     = module.hub.hub_kubeconfig_client_certificate
+  hub_kubeconfig_client_key             = module.hub.hub_kubeconfig_client_key
+  hub_kubeconfig_cluster_ca_certificate = module.hub.hub_kubeconfig_cluster_ca_certificate
+
 }

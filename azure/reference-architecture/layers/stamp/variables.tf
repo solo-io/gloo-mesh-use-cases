@@ -1,3 +1,6 @@
+variable "client_secret" {
+}
+
 variable "location" {
 }
 variable "resource_group_name" {
@@ -23,4 +26,24 @@ variable "cardinal" {
 variable "aks_version" {
   description = "The Kubernetes version"
   default     = "1.28.0"
+}
+
+variable "gloo_mngmt_ip" {
+  description = "The IP address of the Gloo Mesh management plane"
+}
+
+variable "hub_kubeconfig_host" {
+  description = "The kubeconfig for the hub cluster"
+}
+
+variable "hub_kubeconfig_client_certificate" {
+  description = "The kubeconfig for the hub cluster"
+}
+
+variable "hub_kubeconfig_client_key" {
+  description = "The kubeconfig for the hub cluster"
+}
+
+variable "hub_kubeconfig_cluster_ca_certificate" {
+  description = "The kubeconfig for the hub cluster"
 }

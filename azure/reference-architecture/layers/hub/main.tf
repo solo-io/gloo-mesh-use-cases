@@ -120,3 +120,17 @@ EOT
   ]
 
 }
+
+data "kubernetes_service" "gloo-mesh" {
+  metadata {
+    name      = "gloo-mesh-mgmt-server"
+    namespace = "gloo-mesh"
+  }
+}
+
+data "kubernetes_service" "gloo-mesh-telemetry" {
+  metadata {
+    name      = "gloo-mesh-mgmt-server"
+    namespace = "gloo-mesh"
+  }
+}
