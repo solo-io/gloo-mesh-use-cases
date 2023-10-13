@@ -27,7 +27,8 @@ module "stamp0" {
   cardinal            = 0
   client_secret       = var.client_secret
 
-  gloo_mngmt_ip = module.hub.gloo_mgmnt_ip
+  gloo_mngmt_ip           = module.hub.gloo_mgmnt_ip
+  gloo_mngmt_telemetry_ip = module.hub.gloo_mgmnt_telemetry_ip
 
   hub_kubeconfig_host                   = module.hub.hub_kubeconfig_host
   hub_kubeconfig_client_certificate     = module.hub.hub_kubeconfig_client_certificate
@@ -46,8 +47,8 @@ module "stamp1" {
   cardinal            = 1
   client_secret       = var.client_secret
 
-  gloo_mngmt_ip = module.hub.gloo_mgmnt_ip
-
+  gloo_mngmt_ip                         = module.hub.gloo_mgmnt_ip
+  gloo_mngmt_telemetry_ip               = module.hub.gloo_mgmnt_telemetry_ip
   hub_kubeconfig_host                   = module.hub.hub_kubeconfig_host
   hub_kubeconfig_client_certificate     = module.hub.hub_kubeconfig_client_certificate
   hub_kubeconfig_client_key             = module.hub.hub_kubeconfig_client_key

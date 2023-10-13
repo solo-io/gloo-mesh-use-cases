@@ -32,6 +32,10 @@ variable "gloo_mngmt_ip" {
   description = "The IP address of the Gloo Mesh management plane"
 }
 
+variable "gloo_mngmt_telemetry_ip" {
+  description = "The IP address of the Gloo Mesh management telemetry plane"
+}
+
 variable "hub_kubeconfig_host" {
   description = "The kubeconfig for the hub cluster"
 }

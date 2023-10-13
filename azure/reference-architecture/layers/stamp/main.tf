@@ -175,13 +175,12 @@ common:
 glooAgent:
   relayServerAddress: ${var.gloo_mngmt_ip}:9900
 telemetryCollector:
+  enabled: true
   config:
     exporters:
       otlp:
         endpoint: ${var.gloo_mngmt_telemetry_ip}:4317
 glooAgent:
-  enabled: true
-telemetryCollector:
   enabled: true
 EOT
   ]
