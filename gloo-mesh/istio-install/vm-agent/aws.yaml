@@ -24,52 +24,6 @@ spec:
         - name: TELEMETRY_USE_NATIVE_STATS
           value: "true"
     ingressGateways:
-      # Enable the default ingress gateway
-      - name: istio-ingressgateway
-        # Deploy to the ingress gateway namespace.
-        namespace: istio-ingress
-        enabled: true
-        label:
-          # Set a unique label for the gateway.
-          # Required to ensure gateways can select this workload
-          istio: ingressgateway
-          app: istio-ingressgateway
-          # Matches spec.values.global.network in the istiod deployment
-          topology.istio.io/network: $CLUSTER_NAME
-        k8s:
-          serviceAnnotations:
-            service.beta.kubernetes.io/aws-load-balancer-type: external
-            service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
-            service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: instance
-            service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-          strategy:
-            rollingUpdate:
-              maxSurge: 100%
-              maxUnavailable: 25%
-          resources:
-            limits:
-              cpu: 2000m
-              memory: 1024Mi
-            requests:
-              cpu: 100m
-              memory: 40Mi
-          service:
-            type: LoadBalancer
-            # Default ports
-            ports:
-              # Port for health checks on path /healthz/ready.
-              # For AWS ELBs, this port must be listed first.
-              - name: status-port
-                port: 15021
-                targetPort: 15021
-              # Main HTTP ingress port
-              - port: 80
-                targetPort: 8080
-                name: http2
-              # Main HTTPS ingress port
-              - port: 443
-                targetPort: 8443
-                name: https
       - name: istio-eastwestgateway
         # Deploy to the east-west gateway namespace.
         namespace: istio-eastwest
@@ -139,12 +93,33 @@ spec:
                 port: 4317
                 protocol: TCP
                 targetPort: 4317
+              - name: grpc-cacert
+                port: 31338
+                protocol: TCP
+                targetPort: 31338
+              - name: grpc-ew-bootstrap
+                port: 31339
+                protocol: TCP
+                targetPort: 31339
   values:
     telemetry:
       enabled: false
+      v2:
+        enabled: true
+        metadataExchange:
+          wasmEnabled: false
+        prometheus:
+          enabled: true
+          wasmEnabled: false
+        stackdriver:
+          configOverride: {}
+          enabled: false
+          logging: false
+          monitoring: false
+          topology: false
     gateways:
       istio-ingressgateway:
-        # Enable gatewayy injection
+        # Enable gateway injection
         injectionTemplate: gateway
       istio-egressgateway:
         # Enable gateway injection
@@ -167,3 +142,5 @@ spec:
         # Unknown hosts are automatically resolved using upstream DNS servers
         # in resolv.conf (for proxy-dns)
         ISTIO_META_DNS_CAPTURE: "true"
+        # Enable automatic address allocation
+        ISTIO_META_DNS_AUTO_ALLOCATE: "true"
