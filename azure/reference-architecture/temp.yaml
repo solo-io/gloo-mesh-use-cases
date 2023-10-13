@@ -1,0 +1,9 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: KubernetesCluster
+metadata:
+  name: ${REMOTE_CLUSTER}
+  namespace: gloo-mesh
+  labels:
+    env: prod
+spec:
+  clusterDomain: cluster.local

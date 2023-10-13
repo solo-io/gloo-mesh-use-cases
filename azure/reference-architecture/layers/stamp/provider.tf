@@ -5,13 +5,13 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.workload.kube_config.0.cluster_ca_certificate)
 }
 
-# provider "kubernetes" {
-#   alias                  = "hub"
-#   host                   = var.hub_kubeconfig_host
-#   client_certificate     = base64decode(var.hub_kubeconfig_client_certificate)
-#   client_key             = base64decode(var.hub_kubeconfig_client_key)
-#   cluster_ca_certificate = base64decode(var.hub_kubeconfig_cluster_ca_certificate)
-# }
+provider "kubernetes" {
+  alias                  = "hub"
+  host                   = var.hub_kubeconfig_host
+  client_certificate     = base64decode(var.hub_kubeconfig_client_certificate)
+  client_key             = base64decode(var.hub_kubeconfig_client_key)
+  cluster_ca_certificate = base64decode(var.hub_kubeconfig_cluster_ca_certificate)
+}
 
 provider "helm" {
   kubernetes {

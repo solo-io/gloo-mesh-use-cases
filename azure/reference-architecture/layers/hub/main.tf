@@ -72,6 +72,11 @@ resource "kubernetes_namespace" "gloo-mesh" {
   }
 }
 
+resource "kubernetes_namespace" "gloo-mesh-config" {
+  metadata {
+    name = "gloo-mesh-config"
+  }
+}
 resource "helm_release" "gloo-crds" {
   name = "gloo-crds"
 
@@ -116,12 +121,17 @@ redis:
     enabled: true
 telemetryGateway:
   enabled: true
+  service:
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
 EOT
   ]
 
 }
 
 data "kubernetes_service" "gloo-mesh" {
+
+  depends_on = [helm_release.gloo-mesh]
   metadata {
     name      = "gloo-mesh-mgmt-server"
     namespace = "gloo-mesh"
@@ -129,6 +139,9 @@ data "kubernetes_service" "gloo-mesh" {
 }
 
 data "kubernetes_service" "gloo-mesh-telemetry" {
+
+  depends_on = [helm_release.gloo-mesh]
+
   metadata {
     name      = "gloo-mesh-mgmt-server"
     namespace = "gloo-mesh"

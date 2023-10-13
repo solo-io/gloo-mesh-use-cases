@@ -68,3 +68,122 @@ resource "kubernetes_namespace" "gloo-mesh" {
     name = "gloo-mesh"
   }
 }
+
+resource "helm_release" "gloo-crds" {
+  name = "gloo-crds"
+
+  repository = "https://storage.googleapis.com/gloo-platform/helm-charts"
+  chart      = "gloo-platform-crds"
+  namespace  = "gloo-mesh"
+
+}
+resource "kubernetes_manifest" "workspace_gloo_mesh_mgmt_cluster" {
+
+  provider = kubernetes.hub
+
+  manifest = {
+    "apiVersion" = "admin.gloo.solo.io/v2"
+    "kind"       = "Workspace"
+    "metadata" = {
+      "name"      = "hub"
+      "namespace" = "gloo-mesh"
+    }
+    "spec" = {
+      "workloadClusters" = [
+        {
+          "name" = "*"
+          "namespaces" = [
+            {
+              "name" = "*"
+            },
+          ]
+        },
+      ]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "workspacesettings_gloo_mesh_config_mgmt_cluster" {
+
+  provider = kubernetes.hub
+  manifest = {
+    "apiVersion" = "admin.gloo.solo.io/v2"
+    "kind"       = "WorkspaceSettings"
+    "metadata" = {
+      "name"      = "hub"
+      "namespace" = "gloo-mesh-config"
+    }
+    "spec" = {
+      "options" = {
+        "eastWestGateways" = [
+          {
+            "selector" = {
+              "labels" = {
+                "istio" = "eastwestgateway"
+              }
+            }
+          },
+        ]
+        "federation" = {
+          "enabled" = false
+          "serviceSelector" = [
+            {},
+          ]
+        }
+        "serviceIsolation" = {
+          "enabled" = false
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_manifest" "kubernetescluster_gloo_mesh___remote_cluster_" {
+
+  provider = kubernetes.hub
+  manifest = {
+    "apiVersion" = "admin.gloo.solo.io/v2"
+    "kind"       = "KubernetesCluster"
+    "metadata" = {
+      "labels" = {
+        "env" = "prod"
+      }
+      "name"      = "workload-${var.cardinal}"
+      "namespace" = "gloo-mesh"
+    }
+    "spec" = {
+      "clusterDomain" = "cluster.local"
+    }
+  }
+}
+
+resource "helm_release" "gloo-mesh" {
+
+  depends_on = [helm_release.gloo-crds, azurerm_role_assignment.aksnetwork]
+
+  name = "gloo-platform"
+
+  repository = "https://storage.googleapis.com/gloo-platform/helm-charts"
+  chart      = "gloo-platform"
+  namespace  = "gloo-mesh"
+  wait       = false
+
+  values = [
+    <<EOT
+common:
+  cluster: mgmt-cluster
+glooAgent:
+  relayServerAddress: ${var.gloo_mngmt_ip}:9900
+telemetryCollector:
+  config:
+    exporters:
+      otlp:
+        endpoint: ${var.gloo_mngmt_telemetry_ip}:4317
+glooAgent:
+  enabled: true
+telemetryCollector:
+  enabled: true
+EOT
+  ]
+
+}
