@@ -38,6 +38,14 @@ resource "azurerm_kubernetes_cluster" "hub" {
   tags = {
     Role = "Hub"
   }
+
+  #ignore tag applied by AzPolicy
+  lifecycle {
+    ignore_changes = [
+      tags["expiry-timestamp-utc"]
+    ]
+  }
+
 }
 
 resource "azurerm_role_assignment" "aksnetwork" {

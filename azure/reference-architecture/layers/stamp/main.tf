@@ -54,6 +54,14 @@ resource "azurerm_kubernetes_cluster" "workload" {
   tags = {
     Role = "Workload"
   }
+
+  #ignore tag applied by AzPolicy
+  lifecycle {
+    ignore_changes = [
+      tags["expiry-timestamp-utc"]
+    ]
+  }
+
 }
 
 resource "azurerm_role_assignment" "aksnetwork" {
