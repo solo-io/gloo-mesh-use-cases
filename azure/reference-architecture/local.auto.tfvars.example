@@ -1,2 +1,5 @@
 gloo_mesh_license_key = ""
 client_secret         = ""
+
+dns_resource_group_name = ""
+dns_zone                = ""

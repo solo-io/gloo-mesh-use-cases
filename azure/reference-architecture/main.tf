@@ -15,6 +15,9 @@ module "hub" {
   gloo_mesh_license_key = var.gloo_mesh_license_key
   aks_version           = var.aks_version
   client_secret         = var.client_secret
+
+  dns_zone                = var.dns_zone
+  dns_resource_group_name = var.dns_resource_group_name
 }
 
 module "stamp0" {
