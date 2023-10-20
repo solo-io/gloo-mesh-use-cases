@@ -68,9 +68,9 @@ spec:
                 # For more info, see https://istio.io/latest/docs/reference/commands/pilot-discovery/
                 - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
                   value: "false"
-      # Helm values overrides
-      values:
-        global:
-          multiCluster:
-            # Set to the cluster name by default.
-            clusterName: $CLUSTER_NAME
+        # Helm values overrides
+        values:
+          global:
+            multiCluster:
+              # Set to the cluster name by default.
+              clusterName: $CLUSTER_NAME
