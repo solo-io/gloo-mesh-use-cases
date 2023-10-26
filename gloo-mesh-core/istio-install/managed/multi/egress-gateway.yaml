@@ -16,6 +16,19 @@ spec:
       # The revision for this installation, such as 1-18-3
     gatewayRevision: $REVISION
     istioOperatorSpec:
+      meshConfig:
+        # Allow outbound traffic to any external endpoint
+        outboundTrafficPolicy:
+          mode: ALLOW_ANY
+          # Enable access logs
+        accessLogFile: /dev/stdout
+        defaultConfig:
+          proxyMetadata:
+            # For known hosts, enable the Istio agent to handle DNS requests
+            # for any custom ServiceEntry, such as non-Kubernetes services.
+            # Unknown hosts are automatically resolved using upstream DNS
+            # servers in resolv.conf (for proxy-dns)
+            ISTIO_META_DNS_CAPTURE: "true"
       components:
         egressGateways:
           # Enable the default egress gateway
@@ -45,19 +58,6 @@ spec:
             # Required to ensure Gateways can select this workload
             istio: egressgateway
             traffic: egress
-          meshConfig:
-            # Allow outbound traffic to any external endpoint
-            outboundTrafficPolicy:
-              mode: ALLOW_ANY
-              # Enable access logs
-            accessLogFile: /dev/stdout
-            defaultConfig:
-              proxyMetadata:
-                # For known hosts, enable the Istio agent to handle DNS requests
-                # for any custom ServiceEntry, such as non-Kubernetes services.
-                # Unknown hosts are automatically resolved using upstream DNS
-                # servers in resolv.conf (for proxy-dns)
-                ISTIO_META_DNS_CAPTURE: "true"
           name: istio-egressgateway
           # Deployed to gloo-mesh-gateways by default
           namespace: gloo-mesh-gateways
