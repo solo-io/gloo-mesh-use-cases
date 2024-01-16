@@ -16,7 +16,7 @@ spec:
         activeGateway: true
       istioOperatorSpec:
         # No control plane components are installed
-        profile: minimal
+        profile: empty
         # Solo.io Istio distribution repository; required for Solo Istio.
         # You get the repo key from your Solo Account Representative.
         hub: $REPO
@@ -62,8 +62,6 @@ spec:
                   # Required for multi-cluster communication and to preserve SNI.
                   - name: ISTIO_META_ROUTER_MODE
                     value: "sni-dnat"
-                  - name: AUTO_RELOAD_PLUGIN_CERTS
-                    value: "true"
                 podAnnotations:
                   proxy.istio.io/config: |
                     proxyStatsMatcher:
