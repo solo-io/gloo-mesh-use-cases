@@ -1,0 +1,36 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: GatewayLifecycleManager
+metadata:
+  name: istio-ingressgateway
+  namespace: gloo-mesh
+  annotations:
+    argocd.argoproj.io/sync-wave: "-7"
+spec:
+  installations:
+      # The revision for this installation, such as 1-20
+    - gatewayRevision: $REVISION
+      # List all workload clusters to install Istio into
+      clusters:
+      - name: $CLUSTER_NAME
+        # If set to true, the spec for this revision is applied in the cluster
+        activeGateway: true
+      istioOperatorSpec:
+        # No control plane components are installed
+        profile: empty
+        # Solo.io Istio distribution repository; required for Gloo Istio.
+        # You get the repo key from your Solo Account Representative.
+        hub: $REPO
+        # The Solo.io Gloo Istio tag
+        tag: $ISTIO_IMAGE
+        values:
+          gateways:
+            istio-ingressgateway:
+              customService: true
+        components:
+          ingressGateways:
+            - name: istio-ingressgateway
+              namespace: gloo-mesh-gateways
+              enabled: true
+              label:
+                istio: ingressgateway
+                app: istio-ingressgateway
