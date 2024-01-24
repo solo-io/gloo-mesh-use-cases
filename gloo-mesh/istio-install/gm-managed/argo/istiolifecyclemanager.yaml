@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "-8"
 spec:
   installations:
-      # The revision for this installation, such as 1-20
+      # The revision for this installation, such as <major>-<minor>
     - revision: $REVISION
       # List all workload clusters to install Istio into
       clusters:
@@ -66,6 +66,3 @@ spec:
               # Required for Gloo VirtualDestinaton functionality.
               - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
                 value: "false"
-              # Reload cacerts when cert-manager changes it
-              - name: AUTO_RELOAD_PLUGIN_CERTS
-                value: "true"
