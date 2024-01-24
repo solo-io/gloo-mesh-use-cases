@@ -53,6 +53,8 @@ spec:
         # Traffic management
         values:
           global:
+            meshID: gloo-mesh
+            network: ${CLUSTER_NAME}
             multiCluster:
               clusterName: ${CLUSTER_NAME}
         # Traffic management
