@@ -17,7 +17,7 @@ spec:
       istioOperatorSpec:
         # No control plane components are installed
         profile: empty
-        # Solo.io Istio distribution repository; required for Gloo Istio.
+        # Repository for the Solo distribution of Istio images
         # You get the repo key from your Solo Account Representative.
         hub: $REPO
         # The version of the Solo distribution of Istio
