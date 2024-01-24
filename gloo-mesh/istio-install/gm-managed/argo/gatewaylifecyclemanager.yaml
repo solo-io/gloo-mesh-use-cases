@@ -20,7 +20,8 @@ spec:
         # Solo.io Istio distribution repository; required for Gloo Istio.
         # You get the repo key from your Solo Account Representative.
         hub: $REPO
-        # The Solo.io Gloo Istio tag
+        # The version of the Solo distribution of Istio
+        # Include any tags, such as `<major><minor>.<patch>-solo`
         tag: $ISTIO_IMAGE
         values:
           gateways:
