@@ -1,0 +1,71 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: IstioLifecycleManager
+metadata:
+  name: istiod-control-plane
+  namespace: gloo-mesh
+spec:
+  installations:
+  - clusters:
+    - defaultRevision: true
+      name: $CLUSTER_NAME
+    istioOperatorSpec:
+      components:
+        pilot:
+          k8s:
+            env:
+            - name: PILOT_SKIP_VALIDATE_TRUST_DOMAIN
+              value: "true"
+      meshConfig:
+        accessLogFile: /dev/stdout
+        defaultConfig:
+          holdApplicationUntilProxyStarts: true
+          proxyMetadata:
+            ISTIO_META_DNS_CAPTURE: "true"
+        outboundTrafficPolicy:
+          mode: ALLOW_ANY
+      namespace: istio-system
+      profile: minimal
+    revision: auto
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: GatewayLifecycleManager
+metadata:
+  name: istio-ingressgateway
+  namespace: gloo-mesh
+spec:
+  installations:
+  - clusters:
+    - activeGateway: true
+      name: $CLUSTER_NAME
+    gatewayRevision: auto
+    istioOperatorSpec:
+      components:
+        ingressGateways:
+        - enabled: true
+          k8s:
+            service:
+              ports:
+              # For AWS ELBs, must be listed as the first port
+              - name: status-port
+                port: 15021
+                targetPort: 15021
+              - name: http2
+                port: 80
+                targetPort: 8080
+              - name: https
+                port: 443
+                targetPort: 8443
+              - name: tls
+                port: 15443
+                targetPort: 15443
+              selector:
+                istio: ingressgateway
+              type: LoadBalancer
+          label:
+            app: istio-ingressgateway
+            istio: ingressgateway
+          name: istio-ingressgateway
+          namespace: gloo-mesh-gateways
+      meshConfig:
+        accessLogFile: /dev/stdout
+      profile: empty
