@@ -10,10 +10,8 @@ spec:
     - revision: $REVISION
       # List all workload clusters to install Istio into
       clusters:
-      - name: $REMOTE_CLUSTER1
+      - name: $CLUSTER_NAME
         # Set to false to ensure the spec for this revision is not yet the active control pane in the cluster
-        defaultRevision: false
-      - name: $REMOTE_CLUSTER2
         defaultRevision: false
       istioOperatorSpec:
         # Only the control plane components are installed

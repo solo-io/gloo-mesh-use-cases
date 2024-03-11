@@ -10,15 +10,13 @@ spec:
     - revision: $REVISION
       # List all workload clusters to install Istio into
       clusters:
-      - name: $REMOTE_CLUSTER1
+      - name: $CLUSTER_NAME
         # Set to false to ensure the spec for this revision is not yet the active control pane in the cluster
         defaultRevision: false
-      - name: $REMOTE_CLUSTER2
-        defaultRevision: false
       istioOperatorSpec:
-        # Only the control plane components are installed
+        # Openshift-specific installation
         # (https://istio.io/latest/docs/setup/additional-setup/config-profiles/)
-        profile: minimal
+        profile: openshift
         # Solo.io Istio distribution repository; required for Solo Istio.
         # You get the repo key from your Solo Account Representative.
         hub: $REPO
@@ -48,6 +46,17 @@ spec:
           rootNamespace: istio-system
         # Traffic management
         components:
+          # Openshift requires the Istio CNI feature to be enabled
+          cni:
+            enabled: true
+            namespace: kube-system
+            k8s:
+              overlays:
+                - kind: DaemonSet
+                  name: istio-cni-node
+                  patches:
+                    - path: spec.template.spec.containers[0].securityContext.privileged
+                      value: true
           # Disable gateways deployments, which are deployed in separate resources
           ingressGateways:
           - name: istio-ingressgateway
@@ -66,3 +75,18 @@ spec:
                 # For more info, see https://istio.io/latest/docs/reference/commands/pilot-discovery/
                 - name: PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES
                   value: "false"
+        # Helm values overrides
+        values:
+          # CNI options for OpenShift
+          cni:
+            cniBinDir: /var/lib/cni/bin
+            cniConfDir: /etc/cni/multus/net.d
+            chained: false
+            cniConfFileName: "istio-cni.conf"
+            excludeNamespaces:
+            - istio-system
+            - kube-system
+            logLevel: info
+          sidecarInjectorWebhook:
+            injectedAnnotations:
+              k8s.v1.cni.cncf.io/networks: istio-cni

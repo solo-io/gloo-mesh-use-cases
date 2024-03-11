@@ -50,5 +50,5 @@ spec:
       profile: minimal
       # The Solo Istio version tag
       tag: $ISTIO_IMAGE
-    # The revision for this installation, such as 1-18-3
+    # The revision for this installation
     revision: $REVISION

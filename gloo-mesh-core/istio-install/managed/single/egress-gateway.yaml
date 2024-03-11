@@ -10,7 +10,7 @@ spec:
       - activeGateway: true
         # Name of cluster that you used during Gloo Mesh Core installation
         name: $CLUSTER_NAME
-      # The revision for this installation, such as 1-18-3
+      # The revision for this installation
     gatewayRevision: $REVISION
     istioOperatorSpec:
       meshConfig:

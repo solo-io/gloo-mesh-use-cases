@@ -13,7 +13,7 @@ spec:
         name: $REMOTE_CLUSTER1
       - activeGateway: true
         name: $REMOTE_CLUSTER2
-      # The revision for this installation, such as 1-18-3
+      # The revision for this installation
     gatewayRevision: $REVISION
     istioOperatorSpec:
       meshConfig:

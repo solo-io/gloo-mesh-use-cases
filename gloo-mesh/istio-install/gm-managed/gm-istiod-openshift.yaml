@@ -5,7 +5,7 @@ metadata:
   namespace: gloo-mesh
 spec:
   installations:
-  # The revision for this installation, such as 1-18-3
+  # The revision for this installation
   - revision: $REVISION
     # List all workload clusters to install Istio into
     clusters:
@@ -45,8 +45,6 @@ spec:
           mode: ALLOW_ANY
         # The administrative root namespace for Istio configuration
         rootNamespace: istio-system
-        # Set to the cluster name by default.
-        trustDomain: ${CLUSTER_NAME}
       # Traffic management
       components:
         # Openshift requires the Istio CNI feature to be enabled
@@ -86,10 +84,6 @@ spec:
           - istio-system
           - kube-system
           logLevel: info
-        global:
-          multiCluster:
-            # Set to the cluster name by default.
-            clusterName: $CLUSTER_NAME
         sidecarInjectorWebhook:
           injectedAnnotations:
             k8s.v1.cni.cncf.io/networks: istio-cni
