@@ -52,12 +52,6 @@ spec:
             requests:
               cpu: 100m
               memory: 40Mi
-          env:
-            # 'sni-dnat' enables AUTO_PASSTHROUGH mode for east-west communication through the gateway.
-            # The default value ('standard') does not set up a passthrough cluster.
-            # Required for multi-cluster communication and to preserve SNI.
-            - name: ISTIO_META_ROUTER_MODE
-              value: "sni-dnat"
           service:
             # Required to onboard VMs
             type: LoadBalancer
