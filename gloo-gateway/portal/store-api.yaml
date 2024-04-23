@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   labels:
     app: store-rest-api
+    demo: portal
   name: store-rest-api
   namespace: store
 spec:
@@ -34,6 +35,7 @@ metadata:
   namespace: store
   labels:
     app: store-rest-api
+    demo: portal
 spec:
   ports:
   - port: 5000

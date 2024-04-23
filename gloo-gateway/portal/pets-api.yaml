@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   labels:
     app: pets-rest-api
+    demo: portal
   name: pets-rest-api
   namespace: pets
 spec:
@@ -34,6 +35,7 @@ metadata:
   namespace: pets
   labels:
     app: pets-rest-api
+    demo: portal
 spec:
   ports:
   - port: 5000

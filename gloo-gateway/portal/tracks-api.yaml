@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   labels:
     app: tracks-rest-api
+    demo: portal
   name: tracks-rest-api
   namespace: tracks
 spec:
@@ -34,6 +35,7 @@ metadata:
   namespace: tracks
   labels:
     app: tracks-rest-api
+    demo: portal
 spec:
   ports:
   - port: 5000
