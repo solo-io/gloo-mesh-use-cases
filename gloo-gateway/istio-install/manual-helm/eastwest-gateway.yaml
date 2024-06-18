@@ -42,11 +42,7 @@ service:
       #targetPort: 15012
       # Required for VM onboarding discovery address
       #name: tls-istiod
-env:
-  # 'sni-dnat' enables AUTO_PASSTHROUGH mode for east-west communication through the gateway.
-  # The default value ('standard') does not set up a passthrough cluster.
-  # Required for multi-cluster communication and to preserve SNI.
-  ISTIO_META_ROUTER_MODE: "sni-dnat"
+      #name: tls-istiod
 
 # Gateway pod resources
 resources:
