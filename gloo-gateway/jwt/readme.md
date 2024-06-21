@@ -1,6 +1,6 @@
 # JWT notes
 
-This directory has example YAMLs and JWT tokens that are used in several guides for Gloo Gateway JWT policies. The JWT tokens were made with [jwt.io](jwt.io) by using the following payloads and public keys. For more information, [see the Gloo Gateway docs](https://docs.solo.io/gloo-gateway/main/policies/jwt/).
+This directory has example YAMLs and JWT tokens that are used in several guides for Gloo Gateway JWT policies. The JWT tokens were made with [jwt.io](jwt.io) by using the following payloads and public keys. For more information, [see the Gloo Gateway docs](https://docs.solo.io/gloo-mesh-gateway/main/security/jwt/).
 
 ## dev-example JWT
 
