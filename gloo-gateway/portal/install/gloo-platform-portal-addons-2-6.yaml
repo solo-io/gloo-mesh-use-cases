@@ -1,0 +1,17 @@
+common:
+  addonNamespace: gloo-mesh-addons
+extAuthService:
+  enabled: true
+glooPortalServer:
+  enabled: true
+rateLimiter:
+  enabled: true
+redisStore:
+  extAuthService:
+    deployment:
+      enabled: true
+    client:
+      secretKey: "ThisIsSecret"
+  rateLimiter:
+    deployment:
+      enabled: true

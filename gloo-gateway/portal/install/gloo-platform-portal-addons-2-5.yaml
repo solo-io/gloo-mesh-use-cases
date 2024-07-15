@@ -1,0 +1,22 @@
+common:
+  addonNamespace: gloo-mesh-addons
+extAuthService:
+  enabled: true
+  extAuth:
+    apiKeyStorage:
+      name: redis
+      enabled: true
+      config:
+        host: "redis.gloo-mesh-addons:6379"
+        db: 0
+      secretKey: "ThisIsSecret"
+glooPortalServer:
+  enabled: true
+  apiKeyStorage:
+    redis:
+      enabled: true
+      address: redis.gloo-mesh-addons:6379
+    configPath: /etc/redis-client-config/config.yaml
+    secretKey: "ThisIsSecret"
+rateLimiter:
+  enabled: true

@@ -1,0 +1,129 @@
+common:
+  cluster: $CLUSTER_NAME
+clickhouse:
+  enabled: true
+glooAgent:
+  enabled: true
+  relay:
+    serverAddress: gloo-mesh-mgmt-server.gloo-mesh:9900
+glooMgmtServer:
+  serviceType: ClusterIP
+  registerCluster: true
+  enabled: true
+  createGlobalWorkspace: true
+glooUi:
+  enabled: true
+istioInstallations:
+  controlPlane:
+    enabled: true
+    installations:
+      - istioOperatorSpec:
+          meshConfig:
+            # Enable access logging to /dev/stdout
+            accessLogFile: /dev/stdout
+            # Encoding for the access log (TEXT or JSON). Default value is TEXT.
+            accessLogEncoding: JSON
+            # If empty, the default log format is used.
+            # See the default log format at https://istio.io/latest/docs/tasks/observability/logs/access-log/#default-access-log-format
+            # To change the format, see https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#format-rules
+            accessLogFormat: |
+              {
+                "timestamp": "%START_TIME%",
+                "server_name": "%REQ(:AUTHORITY)%",
+                "response_duration": "%DURATION%",
+                "request_command": "%REQ(:METHOD)%",
+                "request_uri": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+                "request_protocol": "%PROTOCOL%",
+                "status_code": "%RESPONSE_CODE%",
+                "client_address": "%DOWNSTREAM_REMOTE_ADDRESS_WITHOUT_PORT%",
+                "x_forwarded_for": "%REQ(X-FORWARDED-FOR)%",
+                "bytes_sent": "%BYTES_SENT%",
+                "bytes_received": "%BYTES_RECEIVED%",
+                "user_agent": "%REQ(USER-AGENT)%",
+                "downstream_local_address": "%DOWNSTREAM_LOCAL_ADDRESS%",
+                "requested_server_name": "%REQUESTED_SERVER_NAME%",
+                "request_id": "%REQ(X-REQUEST-ID)%",
+                "response_flags": "%RESPONSE_FLAGS%",
+                "route_name": "%ROUTE_NAME%",
+                "upstream_cluster": "%UPSTREAM_CLUSTER%",
+                "upstream_host": "%UPSTREAM_HOST%",
+                "upstream_local_address": "%UPSTREAM_LOCAL_ADDRESS%",
+                "upstream_service_time": "%REQ(x-envoy-upstream-service-time)%",
+                "upstream_transport_failure_reason": "%UPSTREAM_TRANSPORT_FAILURE_REASON%",
+                "correlation_id": "%REQ(X-CORRELATION-ID)%",
+                "user_id": "%DYNAMIC_METADATA(envoy.filters.http.ext_authz:userId)%",
+                "api_id": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:api_id)%",
+                "api_product_id": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:api_product_id)%",
+                "api_product_name": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement:api_product_name)%",
+                "usage_plan": "%DYNAMIC_METADATA(envoy.filters.http.ext_authz:usagePlan)%",
+                "custom_metadata": "%DYNAMIC_METADATA(io.solo.gloo.apimanagement.custom_metadata)%"
+              }
+        revision: auto
+  enabled: true
+  northSouthGateways:
+    - enabled: true
+      installations:
+        - gatewayRevision: auto
+          istioOperatorSpec: {}
+      name: istio-ingressgateway
+telemetryCollector:
+  presets:
+    logsCollection:
+      enabled: true
+      storeCheckpoints: true
+  enabled: true
+telemetryCollectorCustomization:
+  pipelines:
+    logs/istio_access_logs:
+      enabled: true
+  extraExporters:
+    clickhouse:
+      password: "${env:CLICKHOUSE_PASSWORD}"
+prometheus:
+  enabled: true
+redis:
+  deployment:
+    enabled: true
+telemetryGateway:
+  enabled: true
+  service:
+    type: ClusterIP
+  extraEnvs:
+  - name: CLICKHOUSE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        key: password
+        name: clickhouse-auth
+telemetryGatewayCustomization:
+  pipelines:
+    logs/clickhouse:
+      enabled: true
+  extraExporters:
+    clickhouse:
+      password: "${env:CLICKHOUSE_PASSWORD}"
+extAuthService:
+  enabled: true
+  extAuth:
+    apiKeyStorage:
+      # Use the local gloo-mesh-addons Redis for backing storage
+      name: redis
+      enabled: true
+      config:
+        host: "redis.gloo-mesh-addons:6379"
+        # Set to 0 to match the default database for the 'glooPortalServer.apiKeyStorage' configuration
+        db: 0
+      # Replace with a random string to use to generate hash values for other keys
+      secretKey: "ThisIsSecret"
+glooPortalServer:
+  enabled: true
+  apiKeyStorage:
+    # Use the local gloo-mesh-addons Redis for backing storage
+    redis:
+      enabled: true
+      address: redis.gloo-mesh-addons:6379
+    # Path for API key storage config file in the gloo-mesh-addons backing Redis
+    configPath: /etc/redis-client-config/config.yaml
+    # Replace with a random string to use to generate hash values for other keys
+    secretKey: "ThisIsSecret"
+rateLimiter:
+  enabled: true
