@@ -43,11 +43,11 @@ affinity:
         - key: app
           operator: In
           values:
-          - istiod-gloo
+          - istiod
       topologyKey: kubernetes.io/hostname
 
-# Gloo revision to create resources with
-revision: gloo
+# Main revision to create resources with
+revision: main
 
 # Mesh configuration options
 meshConfig:
