@@ -1,7 +1,6 @@
-# Main revision to create resources with.
-# If you used the Gloo Operator to install Istio with a
-# ServiceMeshController, change 'main' to 'gloo'
-revision: main
+# Revision to create resources with
+# (typically 'main' or 'gloo')
+revision: ${REVISION}
 name: istio-ingressgateway
 
 global:
@@ -23,11 +22,9 @@ labels:
   # can select this workload.
   app: istio-ingressgateway
   istio: ingressgateway
-  # If you used the Gloo Operator to install Istio with a
-  # ServiceMeshController, change 'main' to 'gloo'
-  revision: main
+  revision: ${REVISION}
   # Matches spec.values.global.network in the istiod deployment
-  topology.istio.io/network: $CLUSTER_NAME
+  topology.istio.io/network: ${CLUSTER_NAME}
 
 service:
   type: LoadBalancer
