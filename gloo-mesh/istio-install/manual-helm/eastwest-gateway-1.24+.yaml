@@ -1,0 +1,77 @@
+# Revision to create resources with
+# (typically 'main' or 'gloo')
+revision: ${REVISION}
+name: istio-eastwestgateway
+
+global:
+  # Solo.io distribution of Istio repository.
+  # Required for Gloo Mesh Enterprise features.
+  # You get the repo key from your Solo Account Representative.
+  hub: ${REPO}
+  # Any Solo distribution of Istio version and tags
+  tag: ${ISTIO_IMAGE}
+  # Required for connecting VMs to the mesh
+  network: ${CLUSTER_NAME}
+  # Required for annotating Istio metrics with the cluster name.
+  # Must match the trustDomain
+  multiCluster:
+    clusterName: ${CLUSTER_NAME}
+
+labels:
+  # Set a unique label for the gateway so that virtual gateways
+  # can select this workload.
+  app: istio-eastwestgateway
+  istio: eastwestgateway
+  revision: ${REVISION}
+  # Matches spec.values.global.network in the istiod deployment
+  topology.istio.io/network: ${CLUSTER_NAME}
+
+service:
+  type: LoadBalancer
+  ports:
+    # Port for health checks on path /healthz/ready.
+    # For AWS ELBs, this port must be listed first.
+    - port: 15021
+      targetPort: 15021
+      name: status-port
+    # Port for multicluster mTLS passthrough; required for Gloo Mesh east/west routing
+    - port: 15443
+      targetPort: 15443
+      # Gloo Mesh looks for this default name 'tls' on a gateway
+      name: tls
+    # Port required for VM onboarding
+    - port: 15012
+      targetPort: 15012
+       Required for VM onboarding discovery address
+      name: tls-istiod
+
+# Gateway pod resources
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 2000m
+    memory: 1024Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+tolerations: []
+
+nodeSelector: {}
+
+# Schedule pods on separate nodes if possible
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - istio-eastwestgateway-${REVISION}
+      topologyKey: kubernetes.io/hostname
