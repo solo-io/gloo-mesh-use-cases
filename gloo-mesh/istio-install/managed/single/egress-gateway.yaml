@@ -8,7 +8,7 @@ spec:
   - clusters:
         # If set to true, the spec for this revision is applied in the cluster
       - activeGateway: true
-        # Name of cluster that you used during Gloo Mesh Core installation
+        # Name of cluster that you used during Gloo Mesh installation
         name: $CLUSTER_NAME
       # The revision for this installation
     gatewayRevision: $REVISION

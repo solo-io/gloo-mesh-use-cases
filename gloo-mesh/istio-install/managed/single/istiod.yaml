@@ -6,10 +6,9 @@ metadata:
 spec:
   installations:
   - clusters:
-        # Initially set to false so that this managed control plane
-        # is not the active control plane at deployment time.
+        # If set to true, the spec for this revision is applied in the cluster
       - defaultRevision: true
-        # Name of cluster that you used during Gloo Mesh Core installation
+        # Name of cluster that you used during Gloo Mesh installation
         name: $CLUSTER_NAME
     istioOperatorSpec:
       components:
