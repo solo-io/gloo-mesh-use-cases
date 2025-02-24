@@ -42,7 +42,7 @@ service:
     # Port required for VM onboarding
     - port: 15012
       targetPort: 15012
-       Required for VM onboarding discovery address
+      # Required for VM onboarding discovery address
       name: tls-istiod
 
 # Gateway pod resources
