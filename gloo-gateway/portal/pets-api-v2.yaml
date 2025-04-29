@@ -16,7 +16,7 @@ spec:
         app: pets-versioned
     spec:
       containers:
-      - image: gcr.io/solo-public/docs/pets-rest-api:latest
+      - image: gcr.io/solo-public/docs/pets-rest-api:1.1
         name: pets-rest-api
         ports:
         - containerPort: 5000

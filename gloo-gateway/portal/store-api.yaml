@@ -17,7 +17,7 @@ spec:
         app: store-rest-api
     spec:
       containers:
-      - image: gcr.io/solo-public/docs/store-rest-api:latest
+      - image: gcr.io/solo-public/docs/store-rest-api:1.1
         name: store-rest-api
         ports:
         - containerPort: 5000
