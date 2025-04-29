@@ -17,7 +17,7 @@ spec:
         app: users-rest-api
     spec:
       containers:
-      - image: gcr.io/solo-public/docs/users-rest-api:latest
+      - image: gcr.io/solo-public/docs/users-rest-api:1.1
         name: users-rest-api
         ports:
         - containerPort: 5000
