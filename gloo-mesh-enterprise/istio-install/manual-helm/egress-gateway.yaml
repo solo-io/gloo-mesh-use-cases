@@ -1,0 +1,74 @@
+# Revision to create resources with
+# (typically 'main' or 'gloo')
+revision: ${REVISION}
+name: istio-egressgateway
+
+global:
+  # Solo.io distribution of Istio repository
+  hub: ${REPO}
+  # Any Solo distribution of Istio version and tags
+  tag: ${ISTIO_IMAGE}
+  # Required for connecting VMs to the mesh
+  network: ${CLUSTER_NAME}
+  # Required for annotating Istio metrics with the cluster name.
+  # Must match the trustDomain
+  multiCluster:
+    clusterName: ${CLUSTER_NAME}
+
+labels:
+  app: istio-egressgateway
+  istio: egressgateway
+  revision: ${REVISION}
+  # Matches spec.values.global.network in the istiod deployment
+  topology.istio.io/network: ${CLUSTER_NAME}
+  traffic: egress
+
+meshConfig:
+  outboundTrafficPolicy:
+    mode: REGISTRY_ONLY
+  # enable accesslogs
+  accessLogFile: /dev/stdout
+  defaultConfig:
+    proxyMetadata:
+      # For known hosts, enable the Istio agent to handle DNS requests for any custom ServiceEntry, such as non-Kubernetes services.
+      # Unknown hosts are automatically resolved using upstream DNS servers in resolv.conf (for proxy-dns)
+      ISTIO_META_DNS_CAPTURE: "true"
+
+service:
+  type: ClusterIP
+
+# Gateway pod resources
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 2000m
+    memory: 1024Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+tolerations: []
+
+nodeSelector: {}
+
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/arch
+              operator: In
+              values:
+                - arm64
+                - amd64
+
+podAnnotations:
+  proxy.istio.io/config: |
+    proxyStatsMatcher:
+      inclusionRegexps:
+      - .*ext_authz.*
