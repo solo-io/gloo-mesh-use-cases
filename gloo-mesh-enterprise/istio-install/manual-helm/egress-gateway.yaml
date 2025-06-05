@@ -56,17 +56,6 @@ tolerations: []
 
 nodeSelector: {}
 
-affinity:
-  podAntiAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/arch
-              operator: In
-              values:
-                - arm64
-                - amd64
-
 podAnnotations:
   proxy.istio.io/config: |
     proxyStatsMatcher:
