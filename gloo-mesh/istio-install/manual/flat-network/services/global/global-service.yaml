@@ -1,0 +1,43 @@
+# Global Service - Accessible across all clusters with load balancing
+# The label "solo.io/service-scope: global" makes this service discoverable from other clusters
+# Traffic will load balance across all instances in all clusters
+# Deploy with v1 to cluster-1 and v2 to cluster-2 to see cross-cluster load balancing
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: global-service
+  labels:
+    app: global-service
+    solo.io/service-scope: global  # KEY: This label exposes the service globally
+spec:
+  ports:
+  - port: 5000
+    name: http
+  selector:
+    app: global-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: global-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: global-service
+  template:
+    metadata:
+      labels:
+        app: global-service
+        version: VERSION_PLACEHOLDER  # Will be replaced with v1 or v2
+    spec:
+      containers:
+      - name: helloworld
+        image: docker.io/istio/examples-helloworld-VERSION_PLACEHOLDER  # v1 for cluster-1, v2 for cluster-2
+        resources:
+          requests:
+            cpu: "100m"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
