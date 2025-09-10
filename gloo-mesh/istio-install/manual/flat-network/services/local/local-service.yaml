@@ -1,0 +1,43 @@
+# Local Service - Only accessible within its own cluster
+# This service does NOT have the solo.io/service-scope label, so it remains local
+# Pods in cluster-1 can only reach cluster-1's instances
+# Pods in cluster-2 can only reach cluster-2's instances
+# Deploy the same YAML to both clusters - they'll use different versions based on the image
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: local-service
+  labels:
+    app: local-service
+spec:
+  ports:
+  - port: 5000
+    name: http
+  selector:
+    app: local-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: local-service
+  template:
+    metadata:
+      labels:
+        app: local-service
+        version: VERSION_PLACEHOLDER  # Will be replaced with v1 or v2
+    spec:
+      containers:
+      - name: helloworld
+        image: docker.io/istio/examples-helloworld-VERSION_PLACEHOLDER  # v1 for cluster-1, v2 for cluster-2
+        resources:
+          requests:
+            cpu: "100m"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
