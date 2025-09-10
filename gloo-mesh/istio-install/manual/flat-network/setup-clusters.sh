@@ -1,9 +1,9 @@
-CLUSTER1_NAME="cluster-1"
-CLUSTER2_NAME="cluster-2"
-CTX1="kind-${CLUSTER1_NAME}"
-CTX2="kind-${CLUSTER2_NAME}"
+REMOTE_CLUSTER1="cluster-1"
+REMOTE_CLUSTER2="cluster-2"
+REMOTE_CONTEXT1="kind-${REMOTE_CLUSTER1}"
+REMOTE_CONTEXT2="kind-${REMOTE_CLUSTER2}"
 
-cat <<EOF | kind create cluster --name ${CLUSTER1_NAME} --config -
+cat <<EOF | kind create cluster --name ${REMOTE_CLUSTER1} --config -
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
@@ -13,7 +13,7 @@ nodes:
 - role: control-plane
 EOF
 
-cat <<EOF | kind create cluster --name ${CLUSTER2_NAME} --config -
+cat <<EOF | kind create cluster --name ${REMOTE_CLUSTER2} --config -
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
@@ -29,8 +29,8 @@ echo "Setting up flat network connectivity between clusters..."
 DOCKER_NETWORK="kind"
 
 # Get container names for both clusters
-CLUSTER1_CONTROL_PLANE="${CLUSTER1_NAME}-control-plane"
-CLUSTER2_CONTROL_PLANE="${CLUSTER2_NAME}-control-plane"
+CLUSTER1_CONTROL_PLANE="${REMOTE_CLUSTER1}-control-plane"
+CLUSTER2_CONTROL_PLANE="${REMOTE_CLUSTER2}-control-plane"
 
 setup_routes() {
  local from_container=$1
