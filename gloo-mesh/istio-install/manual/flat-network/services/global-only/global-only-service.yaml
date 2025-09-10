@@ -1,0 +1,44 @@
+# Global-Only Service - Accessible via standard Kubernetes hostnames
+# The label "solo.io/service-scope: global-only" means:
+# - This service is accessible using standard K8s names (takeover-service, takeover-service.demo, etc.)
+# - Unlike regular global services, no .mesh.internal suffix needed
+# - Deploy to BOTH clusters - v1 on cluster-1, v2 on cluster-2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: takeover-service
+  labels:
+    app: takeover-service
+    solo.io/service-scope: global-only  # KEY: This takes over the name globally
+spec:
+  ports:
+  - port: 5000
+    name: http
+  selector:
+    app: takeover-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: takeover-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: takeover-service
+  template:
+    metadata:
+      labels:
+        app: takeover-service
+        version: VERSION_PLACEHOLDER  # Will be replaced with v1 or v2
+    spec:
+      containers:
+      - name: helloworld
+        image: docker.io/istio/examples-helloworld-VERSION_PLACEHOLDER  # v1 for cluster-1, v2 for cluster-2
+        resources:
+          requests:
+            cpu: "100m"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
