@@ -1,0 +1,43 @@
+# Sidecar Service - Service with Istio sidecar injection
+# This demonstrates how sidecar-injected services work with flat network peering
+# The sidecar proxy handles the cross-cluster communication
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sidecar
+  labels:
+    app: sidecar
+    solo.io/service-scope: global  # Make it global to test cross-cluster with sidecars
+spec:
+  ports:
+  - port: 5000
+    name: http
+  selector:
+    app: sidecar
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidecar
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sidecar
+  template:
+    metadata:
+      labels:
+        app: sidecar
+        version: VERSION_PLACEHOLDER  # Will be replaced with v1 or v2
+        sidecar.istio.io/inject: "true"  # Enable sidecar injection at pod level
+    spec:
+      containers:
+      - name: helloworld
+        image: docker.io/istio/examples-helloworld-VERSION_PLACEHOLDER  # v1 for cluster-1, v2 for cluster-2
+        resources:
+          requests:
+            cpu: "100m"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
