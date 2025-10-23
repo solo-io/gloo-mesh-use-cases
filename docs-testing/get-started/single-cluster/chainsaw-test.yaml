@@ -1,0 +1,40 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: get-started-single-cluster-test
+spec:
+  concurrent: false
+  timeouts:
+    exec: 60s
+  steps:
+  - try:
+    - assert:
+        resource:
+          ($values.glooMeshLicense != null): true
+    - assert:
+        resource:
+          ($values.glooOperatorVersion != null): true
+    - assert:
+        resource:
+          ($values.istioVersion != null): true
+  - try:
+    - script:
+        env:
+        - name: SOLO_LICENSE_KEY
+          value: ($values.glooMeshLicense)
+        - name: GLOO_OPERATOR_VERSION
+          value: ($values.glooOperatorVersion)
+        - name: ISTIO_VERSION
+          value: ($values.istioVersion)
+        content: |
+          bash scripts/setup.sh
+  - try:
+    - assert:
+        resource:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: istiod-gloo
+            namespace: istio-system
+          status:
+            readyReplicas: 2
