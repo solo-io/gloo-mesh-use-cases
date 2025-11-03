@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: client-in-ambient
+  namespace: httpbin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-in-ambient
+  namespace: httpbin
+  labels:
+    app: client-in-ambient
+    service: client-in-ambient
+spec:
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 80
+  selector:
+    app: client-in-ambient
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-in-ambient
+  namespace: httpbin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client-in-ambient
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: client-in-ambient
+        version: v1
+        istio.io/dataplane-mode: ambient
+        sidecar.istio.io/inject: "false"
+        istio-injection: disabled
+    spec:
+      serviceAccountName: client-in-ambient
+      containers:
+      - image: nicolaka/netshoot:latest
+        imagePullPolicy: IfNotPresent
+        name: netshoot
+        command: ["/bin/bash"]
+        args: ["-c", "while true; do ping localhost; sleep 60;done"]
