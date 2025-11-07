@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: httpbin
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: in-ambient
+  namespace: httpbin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: in-ambient
+  namespace: httpbin
+  labels:
+    app: in-ambient
+    service: in-ambient
+spec:
+  ports:
+  - name: http
+    port: 8000
+    targetPort: http
+    protocol: TCP
+    appProtocol: http
+  selector:
+    app: in-ambient
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: in-ambient
+  namespace: httpbin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: in-ambient
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: in-ambient
+        version: v1
+        istio.io/dataplane-mode: ambient
+        sidecar.istio.io/inject: "false"
+        istio-injection: disabled
+    spec:
+      serviceAccountName: in-ambient
+      containers:
+      - image: ghcr.io/mccutchen/go-httpbin:2.18.3
+        command: [ go-httpbin ]
+        imagePullPolicy: IfNotPresent
+        name: in-ambient
+        args:
+        - "-max-duration"
+        - "600s"
+        - -use-real-hostname
+        ports:
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /status/200
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /status/200
+            port: http
+        env:
+        - name: K8S_MEM_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              divisor: "1"
+              resource: limits.memory
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              divisor: "1"
+              resource: limits.cpu
