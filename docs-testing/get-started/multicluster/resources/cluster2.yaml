@@ -1,0 +1,18 @@
+apiVersion: k3d.io/v1alpha3
+kind: Simple
+name: cluster2
+image: rancher/k3s:v1.34.1-k3s1
+network: k3d-cluster-network
+options:
+  k3d:
+    wait: true
+    timeout: "60s"
+    disableLoadbalancer: false
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: false
