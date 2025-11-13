@@ -63,7 +63,7 @@ for CLUSTER in ${CLUSTER1} ${CLUSTER2}; do
 done
 
 for cluster in ${CLUSTER1} ${CLUSTER2}; do
-    kubectl apply -f --context ${cluster} https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
+    kubectl --context ${cluster} apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
 done
 
 # Deploy Ambient

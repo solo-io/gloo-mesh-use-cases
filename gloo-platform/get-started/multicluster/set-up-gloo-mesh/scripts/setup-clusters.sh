@@ -30,6 +30,11 @@ if [[ -z "$GLOO_OPERATOR_VERSION" ]]; then
   exit 1
 fi
 
+if [[ -z "$ISTIO_VERSION" ]]; then
+  echo "ISTIO_VERSION is not set. Please set it to the desired Istio version."
+  exit 1
+fi
+
 # Assume management cluster context is current
 kubectl config use-context "$MGMT"
 
