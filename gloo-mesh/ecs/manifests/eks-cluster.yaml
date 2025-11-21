@@ -1,0 +1,29 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: ${CLUSTER_NAME}
+  region: ${AWS_REGION}
+  version: "${EKS_VERSION}"
+  tags:
+    owner: ${OWNER_NAME}
+
+addons:
+  - name: vpc-cni
+  - name: eks-pod-identity-agent
+
+iam:
+  withOIDC: true
+  podIdentityAssociations:
+    - namespace: istio-system
+      serviceAccountName: istiod
+      roleArn: arn:aws:iam::${AWS_ACCOUNT}:role/istiod
+
+managedNodeGroups:
+  - name: managed-nodes
+    instanceType: ${NODE_TYPE}
+    desiredCapacity: ${NUMBER_NODES}
+    privateNetworking: true
+    updateConfig:
+      maxUnavailable: 2
+

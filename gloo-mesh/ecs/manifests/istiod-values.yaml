@@ -1,0 +1,46 @@
+env:
+  # Assigns IP addresses to multicluster services
+  PILOT_ENABLE_IP_AUTOALLOCATE: "true"
+  # Disable selecting workload entries for local service routing
+  PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES: "false"
+  # Required for gateway features
+  PILOT_ENABLE_ALPHA_GATEWAY_API: "true"
+  # Required when meshConfig.trustDomain is set
+  PILOT_SKIP_VALIDATE_TRUST_DOMAIN: "true"
+  # Required for authentication to istiod
+  REQUIRE_3P_TOKEN: "false"
+global:
+  hub: ${REPO}
+  multiCluster:
+    clusterName: ${CLUSTER_NAME}
+  network: ${CLUSTER_NAME}
+  proxy:
+    clusterDomain: cluster.local
+  tag: ${ISTIO_IMAGE}
+meshConfig:
+  accessLogFile: /dev/stdout
+  defaultConfig:
+    proxyMetadata:
+      ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+      ISTIO_META_DNS_CAPTURE: "true"
+  # Assign each cluster a unique trust domain to apply policies to specific clusters
+  trustDomain: "${CLUSTER_NAME}.local"
+pilot:
+  cni:
+    namespace: istio-system
+    enabled: true
+platforms:
+  # Required to enable multicluster support
+  peering:
+    enabled: true
+  # Configure istiod to perform automatic discovery of ECS resources in the AWS account
+  ecs:
+    accounts:
+        # Custom domain to give to your ECS services in the mesh
+      - domain: ${ECS_DOMAIN}
+        # ECS read role created in previous section
+        role: arn:aws:iam::${AWS_ACCOUNT}:role/istiod-ecs
+profile: ambient
+license:
+  value: ${GLOO_MESH_LICENSE_KEY}
+

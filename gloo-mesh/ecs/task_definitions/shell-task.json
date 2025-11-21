@@ -1,0 +1,26 @@
+{
+    "family": "shell-task-definition",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+      "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "taskRoleArn": "ROLE_PLACEHOLDER",
+    "executionRoleArn": "ROLE_PLACEHOLDER", 
+    "containerDefinitions": [
+      {
+        "name": "shell-task",
+        "image": "curlimages/curl:latest",
+        "memory": 512,
+        "cpu": 256,
+        "command": ["sleep", "infinity"],
+        "environment": [
+          {
+            "name": "ALL_PROXY",
+            "value": "socks5h://127.0.0.1:15080"
+          }
+        ]
+      }
+    ]
+  }
