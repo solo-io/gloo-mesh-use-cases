@@ -1,0 +1,19 @@
+configValidation: true
+enabled: true
+env:
+  L7_ENABLED: "true"
+  # Required when a unique trust domain is set for each cluster
+  SKIP_VALIDATE_TRUST_DOMAIN: "true"
+hub: ${REPO}
+istioNamespace: istio-system
+multiCluster:
+  clusterName: ${CLUSTER_NAME}
+namespace: istio-system
+network: ${CLUSTER_NAME}
+profile: ambient
+proxy:
+  clusterDomain: cluster.local
+tag: ${ISTIO_IMAGE}
+terminationGracePeriodSeconds: 29
+variant: distroless
+

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eks-shell
+  namespace: default
+  labels:
+    app: eks-shell
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eks-shell
+  template:
+    metadata:
+      labels:
+        app: eks-shell
+    spec:
+      containers:
+      - name: eks-shell
+        image: curlimages/curl:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+        - sleep 3600;  # Keeps the container running
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
