@@ -20,6 +20,20 @@ echo "========================================="
 echo ""
 echo "Istio Version: $ISTIO_IMAGE"
 
+# Check if istioctl is already installed with the correct version
+if command -v istioctl &> /dev/null; then
+  CURRENT_VERSION=$(istioctl version --remote=false 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-solo' | head -1)
+  if [ "$CURRENT_VERSION" = "$ISTIO_IMAGE" ]; then
+    echo "✓ istioctl $ISTIO_IMAGE is already installed"
+    echo ""
+    echo "Installation complete!"
+    exit 0
+  else
+    echo "Found istioctl $CURRENT_VERSION, but need $ISTIO_IMAGE. Updating..."
+    echo ""
+  fi
+fi
+
 # Auto-detect OS and architecture
 echo "Detecting OS and architecture..."
 OS=$(uname | tr '[:upper:]' '[:lower:]' | sed -E 's/darwin/osx/')
