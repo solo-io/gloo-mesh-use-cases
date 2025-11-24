@@ -27,6 +27,20 @@ if aws eks describe-cluster --name "$CLUSTER_NAME" --region "$AWS_REGION" > /dev
     fi
 else
     echo "EKS cluster '$CLUSTER_NAME' does not exist in region '$AWS_REGION'."
+    
+    # Check for orphaned CloudFormation stacks
+    echo "Checking for orphaned CloudFormation stacks..."
+    STACK_NAME="eksctl-${CLUSTER_NAME}-cluster"
+    
+    if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$AWS_REGION" > /dev/null 2>&1; then
+        echo "Found orphaned CloudFormation stack '$STACK_NAME'. Deleting..."
+        aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$AWS_REGION"
+        echo "Waiting for stack deletion to complete..."
+        aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$AWS_REGION" 2>/dev/null || true
+        echo "CloudFormation stack '$STACK_NAME' deleted."
+    else
+        echo "No orphaned CloudFormation stacks found."
+    fi
 fi
 
 echo "EKS cluster cleanup completed successfully."

@@ -20,16 +20,30 @@ echo "========================================="
 echo ""
 echo "Istio Version: $ISTIO_IMAGE"
 
-# Check if istioctl is already installed with the correct version
-if command -v istioctl &> /dev/null; then
-  CURRENT_VERSION=$(istioctl version --remote=false 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-solo' | head -1)
-  if [ "$CURRENT_VERSION" = "$ISTIO_IMAGE" ]; then
-    echo "✓ istioctl $ISTIO_IMAGE is already installed"
+# Check if istioctl is already installed at our specific location with the correct version
+ISTIOCTL_PATH="$HOME/.istioctl/bin/istioctl"
+if [ -f "$ISTIOCTL_PATH" ]; then
+  # Get the full version output and extract version
+  VERSION_OUTPUT=$("$ISTIOCTL_PATH" version --remote=false 2>&1)
+  
+  # Try multiple patterns to extract version
+  CURRENT_VERSION=$(echo "$VERSION_OUTPUT" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-solo' | head -1)
+  
+  if [ -z "$CURRENT_VERSION" ]; then
+    # Try without -solo suffix
+    CURRENT_VERSION=$(echo "$VERSION_OUTPUT" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  fi
+  
+  if [ -z "$CURRENT_VERSION" ]; then
+    echo "Found istioctl at $ISTIOCTL_PATH (unknown version), but need $ISTIO_IMAGE. Updating..."
+    echo ""
+  elif [ "$CURRENT_VERSION" = "$ISTIO_IMAGE" ]; then
+    echo "✓ istioctl $ISTIO_IMAGE is already installed at $ISTIOCTL_PATH"
     echo ""
     echo "Installation complete!"
     exit 0
   else
-    echo "Found istioctl $CURRENT_VERSION, but need $ISTIO_IMAGE. Updating..."
+    echo "Found istioctl $CURRENT_VERSION at $ISTIOCTL_PATH, but need $ISTIO_IMAGE. Updating..."
     echo ""
   fi
 fi

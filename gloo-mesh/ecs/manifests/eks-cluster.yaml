@@ -17,7 +17,7 @@ iam:
   podIdentityAssociations:
     - namespace: istio-system
       serviceAccountName: istiod
-      roleArn: arn:aws:iam::${AWS_ACCOUNT}:role/istiod
+      roleARN: arn:aws:iam::${AWS_ACCOUNT}:role/istiod
 
 managedNodeGroups:
   - name: managed-nodes

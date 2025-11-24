@@ -40,6 +40,10 @@ EOF
     
     rm istiod.json
     echo "Successfully created istiod role."
+    
+    # Wait for IAM eventual consistency
+    echo "Waiting for IAM role to propagate..."
+    sleep 10
 fi
 
 # Create istiod-ecs role
