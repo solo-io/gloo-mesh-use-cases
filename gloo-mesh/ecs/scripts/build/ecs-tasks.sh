@@ -24,7 +24,7 @@ register_task_definition() {
   jq_filter='.taskRoleArn = $taskRole |
              .executionRoleArn = $taskRole |
              .tags = [{"key": "ecs.solo.io/service-account", "value": $svcAcct}, {"key": "environment", "value": "ecs-demo"}] |
-             .containerDefinitions[0].logConfiguration |= { "logDriver": "awslogs", "options": { "awslogs-group": "/ecs/ecs-demo", "awslogs-region": $awsRegion, "awslogs-stream-prefix": $logPrefix } }'
+             .containerDefinitions[0].logConfiguration |= { "logDriver": "awslogs", "options": { "awslogs-group": $logGroup, "awslogs-region": $awsRegion, "awslogs-stream-prefix": $logPrefix } }'
 
   # Register the ECS task definition
   aws ecs register-task-definition \
@@ -32,6 +32,7 @@ register_task_definition() {
                              --arg svcAcct "$ECS_SERVICE_ACCOUNT_NAME" \
                              --arg awsRegion "$AWS_REGION" \
                              --arg logPrefix "$log_prefix" \
+                             --arg logGroup "/ecs/ecs-${CLUSTER_NAME}" \
                              "$jq_filter" \
                              task_definitions/$task_def)" > /dev/null
 
@@ -139,15 +140,16 @@ if [ $? -ne 0 ]; then
 fi
 
 # Create CloudWatch log group
-aws logs create-log-group --log-group-name "/ecs/ecs-demo" --region $AWS_REGION > /dev/null 2>&1
+LOG_GROUP_NAME="/ecs/ecs-${CLUSTER_NAME}"
+aws logs create-log-group --log-group-name "$LOG_GROUP_NAME" --region $AWS_REGION > /dev/null 2>&1
 
 # Check if log group creation was successful or already exists
 if [ $? -eq 0 ]; then
-  echo "CloudWatch log group '/ecs/ecs-demo' created successfully."
+  echo "CloudWatch log group '$LOG_GROUP_NAME' created successfully."
 else
   # Check if it already exists
-  if aws logs describe-log-groups --log-group-name-prefix "/ecs/ecs-demo" --region $AWS_REGION | grep -q "/ecs/ecs-demo"; then
-    echo "CloudWatch log group '/ecs/ecs-demo' already exists."
+  if aws logs describe-log-groups --log-group-name-prefix "$LOG_GROUP_NAME" --region $AWS_REGION | grep -q "$LOG_GROUP_NAME"; then
+    echo "CloudWatch log group '$LOG_GROUP_NAME' already exists."
   else
     echo "Error: Failed to create log group."
     exit 1
