@@ -135,7 +135,7 @@ echo "✓ Namespace labeled successfully"
 echo ""
 
 echo "========================================="
-echo "Installation Complete!"
+echo "Installation complete!"
 echo "========================================="
 echo ""
 echo "Istio ambient mesh has been successfully installed and configured."

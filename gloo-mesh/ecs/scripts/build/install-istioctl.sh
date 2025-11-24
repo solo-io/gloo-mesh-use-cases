@@ -108,7 +108,7 @@ fi
 
 echo ""
 echo "========================================="
-echo "Verifying istioctl Installation"
+echo "Verifying istioctl installation"
 echo "========================================="
 echo ""
 
