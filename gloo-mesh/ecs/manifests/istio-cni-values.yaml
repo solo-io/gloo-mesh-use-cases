@@ -1,0 +1,11 @@
+# Assigns IP addresses to multicluster services
+ambient:
+  dnsCapture: true
+excludeNamespaces:
+  - istio-system
+  - kube-system
+global:
+  hub: ${REPO}
+  tag: ${ISTIO_IMAGE}
+profile: ambient
+

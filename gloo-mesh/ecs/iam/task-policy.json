@@ -1,0 +1,26 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "ECSExec",
+        "Action": [
+          "ssmmessages:OpenDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:CreateControlChannel"
+        ],
+        "Effect": "Allow",
+        "Resource": "*"
+      },
+      {
+        "Sid": "CloudWatchLogs",
+        "Effect": "Allow",
+        "Action": [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Resource": "arn:aws:logs:*:*:log-group:/ecs/*"
+      }
+    ]
+  }

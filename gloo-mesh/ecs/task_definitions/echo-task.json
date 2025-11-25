@@ -1,0 +1,26 @@
+{
+    "family": "echo-service-definition",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+      "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "taskRoleArn": "ROLE_PLACEHOLDER",
+    "executionRoleArn": "ROLE_PLACEHOLDER",
+    "containerDefinitions": [
+      {
+        "name": "echo-service",
+        "image": "gcr.io/istio-testing/app",
+        "memory": 512,
+        "cpu": 256,
+        "portMappings": [
+          {
+            "containerPort": 8080,
+            "hostPort": 8080,
+            "protocol": "tcp"
+          }
+        ]
+      }
+    ]
+  }
