@@ -2,7 +2,7 @@
 
 This directory contains scripts and manifests to help you integrate Amazon Elastic Container Service (ECS) workloads into an Istio ambient mesh running on Amazon Elastic Kubernetes Service (EKS).
 
-This integration allows you to extend your Istio ambient mesh to include workloads running in Amazon ECS. The ztunnel sidecar uses IAM roles to authenticate with istiod, enabling ECS workloads to communicate securely with services in your Kubernetes cluster over mTLS.
+This integration allows you to extend your Istio ambient mesh to include workloads running in Amazon ECS by leveraging a ztunnel sidecar. The ztunnel sidecar uses IAM roles to authenticate with istiod, enabling ECS workloads to communicate securely with ambient mesh services in your Kubernetes cluster over mTLS.
 
 **Note**: ECS integration into an ambient mesh is an alpha feature in the Solo distribution of Istio version 1.28 and later, and requires an Enterprise-level license for Gloo Mesh.
 
