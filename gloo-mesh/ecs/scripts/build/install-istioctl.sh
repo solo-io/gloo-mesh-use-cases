@@ -27,7 +27,7 @@ if [ -f "$ISTIOCTL_PATH" ]; then
   VERSION_OUTPUT=$("$ISTIOCTL_PATH" version --remote=false 2>&1)
   
   # Try multiple patterns to extract version
-  CURRENT_VERSION=$(echo "$VERSION_OUTPUT" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-solo' | head -1)
+  CURRENT_VERSION=$(echo "$VERSION_OUTPUT" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(-patch[0-9]+)?-solo' | head -1)
   
   if [ -z "$CURRENT_VERSION" ]; then
     # Try without -solo suffix
@@ -97,6 +97,14 @@ fi
 # Make executable
 chmod +x ~/.istioctl/bin/istioctl
 
+# Check if there are other istioctl binaries in PATH that might conflict (before we modify PATH)
+OTHER_ISTIOCTL=$(which istioctl 2>/dev/null)
+if [ -n "$OTHER_ISTIOCTL" ] && [ "$OTHER_ISTIOCTL" != "$HOME/.istioctl/bin/istioctl" ]; then
+  OTHER_VERSION=$(istioctl version --remote=false 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?' | head -1)
+  CONFLICTING_ISTIOCTL="$OTHER_ISTIOCTL"
+  CONFLICTING_VERSION="$OTHER_VERSION"
+fi
+
 # Add to PATH if not already there
 if [[ ":$PATH:" != *":$HOME/.istioctl/bin:"* ]]; then
   export PATH=${HOME}/.istioctl/bin:${PATH}
@@ -112,10 +120,10 @@ echo "Verifying istioctl installation"
 echo "========================================="
 echo ""
 
-# Verify installation
-if istioctl version --remote=false > /dev/null 2>&1; then
-  INSTALLED_VERSION=$(istioctl version --remote=false 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-solo' | head -1)
-  echo "✓ istioctl installed successfully"
+# Verify installation using the specific path
+if ~/.istioctl/bin/istioctl version --remote=false > /dev/null 2>&1; then
+  INSTALLED_VERSION=$(~/.istioctl/bin/istioctl version --remote=false 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(-patch[0-9]+)?-solo' | head -1)
+  echo "✓ istioctl installed successfully at ~/.istioctl/bin/istioctl"
   echo "Client version: $INSTALLED_VERSION"
   echo ""
   
@@ -127,5 +135,21 @@ else
   exit 1
 fi
 
+# Warn about conflicting istioctl binaries found earlier
+if [ -n "$CONFLICTING_ISTIOCTL" ]; then
+  echo ""
+  echo "⚠ WARNING: Another istioctl binary found in your PATH!"
+  echo "   Location: $CONFLICTING_ISTIOCTL"
+  echo "   Version: $CONFLICTING_VERSION"
+  echo ""
+  echo "To use the newly installed version ($ISTIO_IMAGE), you must:"
+  echo "  1. Add the following to your shell profile (~/.zshrc or ~/.bashrc):"
+  echo "       export PATH=\$HOME/.istioctl/bin:\$PATH"
+  echo "  2. Reload your shell: source ~/.zshrc (or source ~/.bashrc)"
+  echo ""
+  echo "Otherwise, the old version at $CONFLICTING_ISTIOCTL will be used."
+fi
+
+echo ""
 echo "Installation complete!"
 
