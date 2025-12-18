@@ -41,7 +41,7 @@ case "$OS_NORMALIZED" in
   darwin*) OS="osx" ;;
   *) echo "Error: unsupported OS '$OS_RAW'. Expected Linux or macOS." && exit 1 ;;
 esac
-ARCH=$(uname -m | sed -E 's/aarch/arm/; s/x86_64/amd64/; s/armv71/armv7/')
+ARCH=$(uname -m | sed -E 's/aarch/arm/; s/x86_64/amd64/; s/armv7[1l]/armv7/')
 echo "Detected OS: $OS, ARCH: $ARCH"
 
 mkdir -p ~/.istioctl/bin
