@@ -50,8 +50,14 @@ fi
 
 # Auto-detect OS and architecture
 echo "Detecting OS and architecture..."
-OS=$(uname | tr '[:upper:]' '[:lower:]' | sed -E 's/darwin/osx/')
-ARCH=$(uname -m | sed -E 's/aarch/arm/; s/x86_64/amd64/; s/armv7l/armv7/')
+OS_RAW=${OS:-$(uname -s)}
+OS_NORMALIZED=$(echo "$OS_RAW" | tr '[:upper:]' '[:lower:]')
+case "$OS_NORMALIZED" in
+  linux*) OS="linux" ;;
+  darwin*) OS="osx" ;;
+  *) echo "Error: unsupported OS '$OS_RAW'. Expected Linux or macOS." && exit 1 ;;
+esac
+ARCH=$(uname -m | sed -E 's/aarch/arm/; s/x86_64/amd64/; s/armv7[1l]/armv7/')
 echo "OS: $OS"
 echo "ARCH: $ARCH"
 echo ""
@@ -68,8 +74,12 @@ if [ "$(printf '%s\n' "1.29" "$ISTIO_MAJOR_MINOR" | sort -V | head -n1)" = "1.29
   DOWNLOAD_URL="https://storage.googleapis.com/soloio-istio-binaries/release/$ISTIO_IMAGE/istio-$ISTIO_IMAGE-$OS-$ARCH.tar.gz"
   
   echo "Downloading istioctl from: $DOWNLOAD_URL"
+  if ! curl -fIsL "$DOWNLOAD_URL" >/dev/null 2>&1; then
+    echo "Error: download URL not accessible: $DOWNLOAD_URL"
+    exit 1
+  fi
   mkdir -p ~/.istioctl/bin
-  curl -sSL $DOWNLOAD_URL | tar xzf - -C ~/.istioctl/bin
+  curl -sSL "$DOWNLOAD_URL" | tar xzf - -C ~/.istioctl/bin
   
   # Move from extracted directory structure
   if [ -d ~/.istioctl/bin/istio-$ISTIO_IMAGE/bin ]; then
@@ -90,8 +100,12 @@ else
   DOWNLOAD_URL="https://storage.googleapis.com/istio-binaries-$REPO_KEY/$ISTIO_IMAGE/istioctl-$ISTIO_IMAGE-$OS-$ARCH.tar.gz"
   
   echo "Downloading istioctl from: $DOWNLOAD_URL"
+  if ! curl -fIsL "$DOWNLOAD_URL" >/dev/null 2>&1; then
+    echo "Error: download URL not accessible: $DOWNLOAD_URL"
+    exit 1
+  fi
   mkdir -p ~/.istioctl/bin
-  curl -sSL $DOWNLOAD_URL | tar xzf - -C ~/.istioctl/bin
+  curl -sSL "$DOWNLOAD_URL" | tar xzf - -C ~/.istioctl/bin
 fi
 
 # Make executable
