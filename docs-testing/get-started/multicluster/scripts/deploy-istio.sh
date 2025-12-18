@@ -34,12 +34,23 @@ fi
 
 ISTIO_IMAGE=${ISTIO_VERSION}-solo
 
-OS=$(uname | tr '[:upper:]' '[:lower:]' | sed -E 's/darwin/osx/')
+OS_RAW=${OS:-$(uname -s)}
+OS_NORMALIZED=$(echo "$OS_RAW" | tr '[:upper:]' '[:lower:]')
+case "$OS_NORMALIZED" in
+  linux*) OS="linux" ;;
+  darwin*) OS="osx" ;;
+  *) echo "Error: unsupported OS '$OS_RAW'. Expected Linux or macOS." && exit 1 ;;
+esac
 ARCH=$(uname -m | sed -E 's/aarch/arm/; s/x86_64/amd64/; s/armv71/armv7/')
 echo "Detected OS: $OS, ARCH: $ARCH"
 
 mkdir -p ~/.istioctl/bin
-curl -sSL https://storage.googleapis.com/istio-binaries-$REPO_KEY/$ISTIO_IMAGE/istioctl-$ISTIO_IMAGE-$OS-$ARCH.tar.gz | tar xzf - -C ~/.istioctl/bin
+DOWNLOAD_URL="https://storage.googleapis.com/istio-binaries-$REPO_KEY/$ISTIO_IMAGE/istioctl-$ISTIO_IMAGE-$OS-$ARCH.tar.gz"
+if ! curl -fIsL "$DOWNLOAD_URL" >/dev/null 2>&1; then
+  echo "Error: download URL not accessible: $DOWNLOAD_URL"
+  exit 1
+fi
+curl -sSL "$DOWNLOAD_URL" | tar xzf - -C ~/.istioctl/bin
 chmod +x ~/.istioctl/bin/istioctl
 ISTIOCTL=~/.istioctl/bin/istioctl
 
