@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check if required environment variables are defined
-required_vars=("TASK_ROLE_ARN" "ECS_SERVICE_ACCOUNT_NAME" "AWS_REGION" "CLUSTER_NAME" "OWNER_NAME")
+required_vars=("TASK_ROLE_ARN" "AWS_REGION" "CLUSTER_NAME" "OWNER_NAME")
 for var in "${required_vars[@]}"; do
   if [ -z "${!var}" ]; then
     echo "Error: $var is not defined."
@@ -23,13 +23,12 @@ register_task_definition() {
   # Define jq filter for task definition
   jq_filter='.taskRoleArn = $taskRole |
              .executionRoleArn = $taskRole |
-             .tags = [{"key": "ecs.solo.io/service-account", "value": $svcAcct}, {"key": "environment", "value": "ecs-demo"}] |
+             .tags = [{"key": "environment", "value": "ecs-demo"}] |
              .containerDefinitions[0].logConfiguration |= { "logDriver": "awslogs", "options": { "awslogs-group": $logGroup, "awslogs-region": $awsRegion, "awslogs-stream-prefix": $logPrefix } }'
 
   # Register the ECS task definition
   aws ecs register-task-definition \
     --cli-input-json "$(jq --arg taskRole "$TASK_ROLE_ARN" \
-                             --arg svcAcct "$ECS_SERVICE_ACCOUNT_NAME" \
                              --arg awsRegion "$AWS_REGION" \
                              --arg logPrefix "$log_prefix" \
                              --arg logGroup "/ecs/ecs-${CLUSTER_NAME}" \
