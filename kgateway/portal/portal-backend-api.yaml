@@ -1,0 +1,1719 @@
+openapi: 3.0.3
+info:
+  title: Portal Backend API
+  description: API for the gateway developer portal backend server
+  version: 1.0.0
+
+servers:
+  - url: /v1
+    description: API v1 base path
+
+tags:
+  - name: health
+    description: Health check endpoints
+  - name: api-products
+    description: API product catalog endpoints
+  - name: users
+    description: User management endpoints
+  - name: teams
+    description: Team management endpoints
+  - name: apps
+    description: Application management endpoints
+  - name: subscriptions
+    description: Subscription management endpoints
+  - name: api-keys
+    description: API key management endpoints
+  - name: oauth-credentials
+    description: OAuth credential management endpoints
+  - name: metadata
+    description: Internal credential metadata endpoints
+  - name: auth
+    description: Authentication redirect endpoints
+
+paths:
+  /healthz:
+    servers:
+      - url: /
+        description: Root path (health endpoints are not under /v1)
+    get:
+      summary: Health check
+      description: Returns OK if the server is healthy
+      operationId: HealthCheck
+      tags:
+        - health
+      responses:
+        "200":
+          description: Server is healthy
+
+  /readyz:
+    servers:
+      - url: /
+        description: Root path (health endpoints are not under /v1)
+    get:
+      summary: Readiness check
+      description: Returns OK if the server is ready to accept requests
+      operationId: ReadinessCheck
+      tags:
+        - health
+      responses:
+        "200":
+          description: Server is ready
+
+  /api-products:
+    get:
+      summary: List API products
+      description: Retrieve a list of all API products accessible by the user
+      operationId: ListApiProducts
+      tags:
+        - api-products
+      responses:
+        "200":
+          description: List of API products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiProductSummary"
+        "503":
+          description: API products not loaded
+
+  /api-products/{productID}:
+    get:
+      summary: Get API product details
+      description: Returns detailed information about a specific API product
+      operationId: GetApiProduct
+      tags:
+        - api-products
+      parameters:
+        - name: productID
+          in: path
+          description: API Product ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: API product details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiProductDetails"
+        "404":
+          description: Product not found
+        "503":
+          description: API products not loaded
+
+  /api-products/{productID}/versions:
+    get:
+      summary: List API product versions
+      description: Returns all versions of a specific API product including OpenAPI specs
+      operationId: ListApiProductVersions
+      tags:
+        - api-products
+      parameters:
+        - name: productID
+          in: path
+          description: API Product ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of API product versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiProductVersion"
+        "503":
+          description: API products not loaded
+
+  /me:
+    get:
+      summary: Get current user
+      description: Returns the authenticated user's information. Creates a new user record if this is the first access.
+      operationId: GetCurrentUser
+      tags:
+        - users
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      responses:
+        "200":
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+    put:
+      summary: Update current user
+      description: Updates the authenticated user's information
+      operationId: UpdateCurrentUser
+      tags:
+        - users
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      responses:
+        "200":
+          description: Updated user information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+
+  /users:
+    get:
+      summary: List users
+      description: Returns a list of all registered users
+      operationId: ListUsers
+      tags:
+        - users
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+
+  /teams:
+    get:
+      summary: List teams
+      description: Returns a list of all teams
+      operationId: ListTeams
+      tags:
+        - teams
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      responses:
+        "200":
+          description: List of teams
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeamSummary"
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+    post:
+      summary: Create team
+      description: Creates a new team. The creator is automatically added as a member.
+      operationId: CreateTeam
+      tags:
+        - teams
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTeamRequest"
+      responses:
+        "201":
+          description: Team created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamSummary"
+        "400":
+          description: Invalid request
+        "401":
+          description: Authentication required
+        "409":
+          description: Team already exists
+        "500":
+          description: Internal server error
+
+  /teams/{teamID}:
+    get:
+      summary: Get team details
+      description: Returns detailed information about a team including its members
+      operationId: GetTeam
+      tags:
+        - teams
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: teamID
+          in: path
+          description: Team ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Team details with members
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamDetails"
+        "401":
+          description: Authentication required
+        "404":
+          description: Team not found
+        "500":
+          description: Internal server error
+    put:
+      summary: Update team
+      description: Updates a team's name and description
+      operationId: UpdateTeam
+      tags:
+        - teams
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: teamID
+          in: path
+          description: Team ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTeamRequest"
+      responses:
+        "200":
+          description: Team updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamSummary"
+        "400":
+          description: Invalid request
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+    delete:
+      summary: Delete team
+      description: Deletes a team and removes all member associations
+      operationId: DeleteTeam
+      tags:
+        - teams
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: teamID
+          in: path
+          description: Team ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Team deleted
+        "401":
+          description: Authentication required
+        "409":
+          description: Team has apps or members that must be removed first
+        "500":
+          description: Internal server error
+
+  /teams/{teamID}/apps:
+    get:
+      summary: List team apps
+      description: Returns all applications belonging to a team
+      operationId: ListTeamApps
+      tags:
+        - teams
+        - apps
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: teamID
+          in: path
+          description: Team ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of team applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/App"
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+    post:
+      summary: Create team app
+      description: Creates a new application for a team
+      operationId: CreateTeamApp
+      tags:
+        - teams
+        - apps
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: teamID
+          in: path
+          description: Team ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppRequest"
+      responses:
+        "201":
+          description: Application created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/App"
+        "400":
+          description: Invalid request
+        "401":
+          description: Authentication required
+        "409":
+          description: App already exists
+        "500":
+          description: Internal server error
+
+  /teams/{teamID}/members:
+    get:
+      summary: List team members
+      description: Returns all members of a team with their user details
+      operationId: ListTeamMembers
+      tags:
+        - teams
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: teamID
+          in: path
+          description: Team ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of team members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeamMember"
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+    post:
+      summary: Add team member
+      description: Adds a user to a team by userId or email
+      operationId: AddTeamMember
+      tags:
+        - teams
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: teamID
+          in: path
+          description: Team ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddTeamMemberRequest"
+      responses:
+        "201":
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamMember"
+        "400":
+          description: Invalid request - userId or email required
+        "401":
+          description: Authentication required
+        "404":
+          description: Team or user not found
+        "409":
+          description: User already a member
+        "500":
+          description: Internal server error
+
+  /teams/{teamID}/members/{memberID}:
+    delete:
+      summary: Remove team member
+      description: Removes a user from a team
+      operationId: RemoveTeamMember
+      tags:
+        - teams
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: teamID
+          in: path
+          description: Team ID
+          required: true
+          schema:
+            type: string
+        - name: memberID
+          in: path
+          description: Team Member (User) ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Member removed
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+
+  /apps/{appID}:
+    get:
+      summary: Get app details
+      description: Returns detailed information about an application
+      operationId: GetApp
+      tags:
+        - apps
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Application details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/App"
+        "401":
+          description: Authentication required
+        "404":
+          description: App not found
+        "500":
+          description: Internal server error
+    put:
+      summary: Update app
+      description: Updates an application's name and description
+      operationId: UpdateApp
+      tags:
+        - apps
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAppRequest"
+      responses:
+        "200":
+          description: Application updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/App"
+        "400":
+          description: Invalid request
+        "401":
+          description: Authentication required
+        "404":
+          description: App not found
+        "500":
+          description: Internal server error
+    delete:
+      summary: Delete app
+      description: Deletes an application and all associated resources (subscriptions, API keys, OAuth credentials)
+      operationId: DeleteApp
+      tags:
+        - apps
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Application deleted
+        "401":
+          description: Authentication required
+        "409":
+          description: App has API keys or OAuth credentials that must be removed first
+        "500":
+          description: Internal server error
+
+  /apps/{appID}/metadata:
+    post:
+      summary: Set app metadata (Admin)
+      description: Sets rate limit and custom metadata on an application. Requires admin privileges.
+      operationId: SetAppMetadata
+      tags:
+        - apps
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetMetadataRequest"
+      responses:
+        "200":
+          description: App metadata updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/App"
+        "400":
+          description: Invalid request or rate limit unit
+        "401":
+          description: Authentication required
+        "403":
+          description: Admin access required
+        "404":
+          description: App not found
+        "500":
+          description: Internal server error
+
+  /apps/{appID}/subscriptions:
+    get:
+      summary: List app subscriptions
+      description: Returns all subscriptions for an application
+      operationId: ListAppSubscriptions
+      tags:
+        - apps
+        - subscriptions
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subscription"
+        "401":
+          description: Authentication required
+        "404":
+          description: App not found
+        "500":
+          description: Internal server error
+    post:
+      summary: Create app subscription
+      description: Creates a new subscription for an application to an API product. The subscription starts in pending status.
+      operationId: CreateAppSubscription
+      tags:
+        - apps
+        - subscriptions
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubscriptionRequest"
+      responses:
+        "201":
+          description: Subscription created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "400":
+          description: Invalid request - apiProductId required
+        "401":
+          description: Authentication required
+        "404":
+          description: App not found
+        "409":
+          description: Subscription already exists
+        "500":
+          description: Internal server error
+
+  /apps/{appID}/subscriptions/{subscriptionID}:
+    delete:
+      summary: Delete app subscription
+      description: Deletes a subscription from an application
+      operationId: DeleteAppSubscription
+      tags:
+        - apps
+        - subscriptions
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+        - name: subscriptionID
+          in: path
+          description: Subscription ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Subscription deleted
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+
+  /apps/{appID}/api-keys:
+    get:
+      summary: List app API keys
+      description: Returns all API keys for an application (without the actual key values)
+      operationId: ListAppApiKeys
+      tags:
+        - apps
+        - api-keys
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of API keys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApiKey"
+        "401":
+          description: Authentication required
+        "404":
+          description: App not found
+        "500":
+          description: Internal server error
+    post:
+      summary: Create app API key
+      description: Creates a new API key for an application. The raw API key value is only returned once at creation time.
+      operationId: CreateAppApiKey
+      tags:
+        - apps
+        - api-keys
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApiKeyRequest"
+      responses:
+        "201":
+          description: API key created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKeyWithSecret"
+        "400":
+          description: Invalid request - apiKeyName required
+        "401":
+          description: Authentication required
+        "404":
+          description: App not found
+        "409":
+          description: API key already exists
+        "500":
+          description: Internal server error
+
+  /apps/{appID}/api-keys/{keyID}:
+    delete:
+      summary: Delete app API key
+      description: Deletes an API key from an application
+      operationId: DeleteAppApiKey
+      tags:
+        - apps
+        - api-keys
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+        - name: keyID
+          in: path
+          description: API Key ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: API key deleted
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+
+  /apps/{appID}/oauth-credentials:
+    get:
+      summary: Get app OAuth credential
+      description: Returns the OAuth credential for an application (without the client secret)
+      operationId: GetAppOAuthCredential
+      tags:
+        - apps
+        - oauth-credentials
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OAuth credential (without secret)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OAuthCredential"
+        "401":
+          description: Authentication required
+        "404":
+          description: App or credential not found
+        "500":
+          description: Internal server error
+    post:
+      summary: Create app OAuth credential
+      description: Creates a new OAuth credential for an application. The client secret is only returned once at creation time.
+      operationId: CreateAppOAuthCredential
+      tags:
+        - apps
+        - oauth-credentials
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: appID
+          in: path
+          description: Application ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: OAuth credential created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OAuthCredentialWithSecret"
+        "401":
+          description: Authentication required
+        "404":
+          description: App not found
+        "409":
+          description: Credential already exists (one per app)
+        "500":
+          description: Internal server error
+
+  /oauth-credentials/{credentialID}:
+    delete:
+      summary: Delete OAuth credential
+      description: Deletes an OAuth credential by ID
+      operationId: DeleteOAuthCredential
+      tags:
+        - oauth-credentials
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: credentialID
+          in: path
+          description: OAuth Credential ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: OAuth credential deleted
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+
+  /subscriptions:
+    get:
+      summary: List all subscriptions
+      description: Returns all subscriptions across all apps. Optionally filtered by status.
+      operationId: ListSubscriptions
+      tags:
+        - subscriptions
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter subscriptions by status
+          schema:
+            $ref: "#/components/schemas/SubscriptionStatus"
+      responses:
+        "200":
+          description: List of subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subscription"
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+
+  /subscriptions/{subscriptionID}:
+    delete:
+      summary: Delete subscription
+      description: Deletes a subscription by ID
+      operationId: DeleteSubscription
+      tags:
+        - subscriptions
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: subscriptionID
+          in: path
+          description: Subscription ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Subscription deleted
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+
+  /subscriptions/{subscriptionID}/metadata:
+    post:
+      summary: Set subscription metadata (Admin)
+      description: Sets rate limit and custom metadata on a subscription. Requires admin privileges.
+      operationId: SetSubscriptionMetadata
+      tags:
+        - subscriptions
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: subscriptionID
+          in: path
+          description: Subscription ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetMetadataRequest"
+      responses:
+        "200":
+          description: Subscription metadata updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "400":
+          description: Invalid request or rate limit unit
+        "401":
+          description: Authentication required
+        "403":
+          description: Admin access required
+        "404":
+          description: Subscription not found
+        "500":
+          description: Internal server error
+
+  /subscriptions/{subscriptionID}/{action}:
+    post:
+      summary: Approve or reject subscription (Admin)
+      description: Approves or rejects a pending subscription. Requires admin privileges.
+      operationId: SubscriptionAction
+      tags:
+        - subscriptions
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: subscriptionID
+          in: path
+          description: Subscription ID
+          required: true
+          schema:
+            type: string
+        - name: action
+          in: path
+          description: Action to perform on the subscription
+          required: true
+          schema:
+            type: string
+            enum:
+              - approve
+              - reject
+      responses:
+        "200":
+          description: Subscription updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "400":
+          description: Invalid action
+        "401":
+          description: Authentication required
+        "403":
+          description: Admin access required
+        "404":
+          description: Subscription not found
+        "500":
+          description: Internal server error
+
+  /api-keys/{keyID}:
+    delete:
+      summary: Delete API key
+      description: Deletes an API key by ID
+      operationId: DeleteApiKey
+      tags:
+        - api-keys
+      security:
+        - bearerAuth: []
+        - identityToken: []
+        - accessToken: []
+      parameters:
+        - name: keyID
+          in: path
+          description: API Key ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: API key deleted
+        "401":
+          description: Authentication required
+        "500":
+          description: Internal server error
+
+  /metadata:
+    get:
+      summary: Get credential metadata (Internal)
+      description: >
+        Internal endpoint used by ExtAuth to validate API keys and access tokens.
+        Returns whether the credential is allowed and any associated metadata.
+      operationId: GetCredentialMetadata
+      tags:
+        - metadata
+      parameters:
+        - name: apiKey
+          in: query
+          description: Raw API key value to validate. Exactly one of apiKey or accessToken must be provided.
+          schema:
+            type: string
+        - name: accessToken
+          in: query
+          description: OAuth access token to validate. Exactly one of apiKey or accessToken must be provided.
+          schema:
+            type: string
+        - name: apiProductId
+          in: query
+          description: API product ID to check subscription for
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Credential validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CredentialMetadataResponse"
+        "400":
+          description: Missing required query parameters
+
+  /login:
+    get:
+      summary: Login redirect
+      description: Redirects to the app root after successful OIDC authentication. The actual OIDC flow is handled by extauth.
+      operationId: LoginRedirect
+      tags:
+        - auth
+      responses:
+        "302":
+          description: Redirect to app root
+
+  /logout:
+    get:
+      summary: Logout redirect
+      description: Redirects to the app root after logout. The actual logout flow is handled by extauth.
+      operationId: LogoutRedirect
+      tags:
+        - auth
+      responses:
+        "302":
+          description: Redirect to app root
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token passed in the Authorization header
+    identityToken:
+      type: apiKey
+      in: cookie
+      name: id_token
+      description: id_token cookie set by the identity provider after OIDC login
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: access_token
+      description: access_token cookie set by the identity provider after OIDC login
+
+  schemas:
+    BaseEntity:
+      type: object
+      description: Base entity with common fields
+      required:
+        - id
+        - createdAt
+      properties:
+        id:
+          type: string
+          description: Unique identifier
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the entity was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the entity was last updated
+
+    User:
+      description: User account information
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - email
+            - name
+            - username
+            - isAdmin
+          properties:
+            email:
+              type: string
+              format: email
+              description: User's email address
+            name:
+              type: string
+              description: User's display name
+            username:
+              type: string
+              description: Username
+            isAdmin:
+              type: boolean
+              description: Whether the user has admin privileges
+
+    TeamSummary:
+      description: Team summary information
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              description: Team name
+            description:
+              type: string
+              description: Team description
+
+    TeamDetails:
+      description: Team details including member list
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - name
+            - members
+          properties:
+            name:
+              type: string
+              description: Team name
+            description:
+              type: string
+              description: Team description
+            members:
+              type: array
+              description: List of team members
+              items:
+                $ref: "#/components/schemas/TeamMember"
+
+    TeamMember:
+      description: Team member information
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - email
+            - username
+            - name
+            - synced
+          properties:
+            email:
+              type: string
+              format: email
+              description: User's email address
+            username:
+              type: string
+              description: Username
+            name:
+              type: string
+              description: User's display name
+            synced:
+              type: boolean
+              description: Whether the user is synced from external provider
+
+    CreateTeamRequest:
+      description: Request body for creating a team
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Team name
+        description:
+          type: string
+          description: Team description
+
+    UpdateTeamRequest:
+      description: Request body for updating a team
+      type: object
+      properties:
+        name:
+          type: string
+          description: Team name
+        description:
+          type: string
+          description: Team description
+
+    AddTeamMemberRequest:
+      description: Request body for adding a team member (either userId or email required)
+      type: object
+      properties:
+        userId:
+          type: string
+          description: User ID to add
+        email:
+          type: string
+          format: email
+          description: Email of user to add
+
+    App:
+      description: Application information
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - teamId
+            - name
+          properties:
+            teamId:
+              type: string
+              description: ID of the team that owns this app
+            name:
+              type: string
+              description: Application name
+            description:
+              type: string
+              description: Application description
+            metadata:
+              $ref: "#/components/schemas/ResourceMetadata"
+
+    CreateAppRequest:
+      description: Request body for creating an application
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Application name
+        description:
+          type: string
+          description: Application description
+
+    UpdateAppRequest:
+      type: object
+      description: Request body for updating an application
+      properties:
+        name:
+          type: string
+          description: Application name
+        description:
+          type: string
+          description: Application description
+
+    SubscriptionStatus:
+      type: string
+      description: Subscription status
+      enum:
+        - pending
+        - approved
+        - rejected
+
+    Subscription:
+      description: Subscription to an API product
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - applicationId
+            - apiProductId
+            - approved
+            - rejected
+          properties:
+            applicationId:
+              type: string
+              description: ID of the subscribing application
+            apiProductId:
+              type: string
+              description: ID of the subscribed API product
+            approved:
+              type: boolean
+              description: Whether the subscription is approved
+            rejected:
+              type: boolean
+              description: Whether the subscription is rejected
+            requestedAt:
+              type: string
+              format: date-time
+              description: Timestamp when the subscription was requested
+            metadata:
+              $ref: "#/components/schemas/ResourceMetadata"
+
+    CreateSubscriptionRequest:
+      type: object
+      description: Request body for creating a subscription
+      required:
+        - apiProductId
+      properties:
+        apiProductId:
+          type: string
+          description: ID of the API product to subscribe to
+
+    ApiKey:
+      description: API key information (without the actual key value)
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - appId
+            - name
+          properties:
+            appId:
+              type: string
+              description: ID of the application this key belongs to
+            name:
+              type: string
+              description: Display name for the API key
+            expiresAt:
+              type: string
+              format: date-time
+              description: Timestamp when the key expires
+            metadata:
+              type: object
+              description: Custom metadata for the API key
+              additionalProperties:
+                type: string
+
+    ApiKeyWithSecret:
+      description: API key with the actual key value (only returned at creation time)
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - appId
+            - name
+            - apiKey
+          properties:
+            appId:
+              type: string
+              description: ID of the application this key belongs to
+            name:
+              type: string
+              description: Display name for the API key
+            apiKey:
+              type: string
+              description: The raw API key value (only returned at creation time)
+            metadata:
+              type: object
+              description: Custom metadata for the API key
+              additionalProperties:
+                type: string
+
+    CreateApiKeyRequest:
+      type: object
+      description: Request body for creating an API key
+      required:
+        - apiKeyName
+      properties:
+        apiKeyName:
+          type: string
+          description: Display name for the API key
+        metadata:
+          type: object
+          description: Custom metadata for the API key
+          additionalProperties:
+            type: string
+
+    OAuthCredential:
+      type: object
+      description: OAuth credential information (without the client secret)
+      required:
+        - id
+        - idpClientId
+        - idpClientName
+      properties:
+        id:
+          type: string
+          description: Unique OAuth credential identifier
+        idpClientId:
+          type: string
+          description: OAuth client ID
+        idpClientName:
+          type: string
+          description: OAuth client display name
+
+    OAuthCredentialWithSecret:
+      type: object
+      description: OAuth credential with the client secret (only returned at creation time)
+      required:
+        - id
+        - idpClientId
+        - idpClientSecret
+        - idpClientName
+      properties:
+        id:
+          type: string
+          description: Unique OAuth credential identifier
+        idpClientId:
+          type: string
+          description: OAuth client ID
+        idpClientSecret:
+          type: string
+          description: OAuth client secret (only returned at creation time)
+        idpClientName:
+          type: string
+          description: OAuth client display name
+
+    ApiProductSummary:
+      description: API product summary for listing
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - name
+            - versionsCount
+          properties:
+            name:
+              type: string
+              description: API product display name
+            description:
+              type: string
+              description: API product description
+            apiProductMetadata:
+              type: object
+              description: Custom metadata for the API product
+              additionalProperties:
+                type: string
+            versionsCount:
+              type: integer
+              description: Number of versions available
+
+    ApiProductDetails:
+      description: API product detailed information
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              description: API product display name
+            description:
+              type: string
+              description: API product description
+            apiProductMetadata:
+              type: object
+              description: Custom metadata for the API product
+              additionalProperties:
+                type: string
+            contactEmail:
+              type: string
+              format: email
+              description: Contact email for the API product
+
+    RateLimit:
+      type: object
+      description: Rate limit configuration
+      required:
+        - requestsPerUnit
+        - unit
+      properties:
+        requestsPerUnit:
+          type: string
+          description: Number of requests allowed per unit
+        unit:
+          type: string
+          description: Time unit for rate limiting
+          enum:
+            - SECOND
+            - MINUTE
+            - HOUR
+            - DAY
+            - MONTH
+            - YEAR
+
+    ResourceMetadata:
+      type: object
+      description: Metadata attached to a resource (app or subscription) including rate limits and custom key-value pairs
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: Metadata record ID (resource ID + "-metadata" suffix)
+        customMetadata:
+          type: object
+          description: Custom metadata key-value pairs
+          additionalProperties:
+            type: string
+        rateLimit:
+          $ref: "#/components/schemas/RateLimit"
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the parent resource was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the parent resource was last updated
+
+    SetMetadataRequest:
+      type: object
+      description: Request body for setting metadata (rate limit and/or custom metadata) on a resource
+      properties:
+        rateLimit:
+          $ref: "#/components/schemas/RateLimit"
+        customMetadata:
+          type: object
+          description: Custom metadata key-value pairs
+          additionalProperties:
+            type: string
+
+    CredentialMetadataResponse:
+      type: object
+      description: Response from credential metadata validation (internal endpoint used by ExtAuth)
+      required:
+        - allowed
+      properties:
+        allowed:
+          type: boolean
+          description: Whether the credential is valid and allowed
+        customMetadata:
+          type: object
+          description: Custom metadata associated with the credential
+          additionalProperties:
+            type: string
+        rateLimit:
+          $ref: "#/components/schemas/RateLimit"
+
+    ApiProductVersion:
+      description: API product version with OpenAPI spec
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - apiProductId
+            - name
+            - status
+          properties:
+            apiProductId:
+              type: string
+              description: Parent API product ID
+            name:
+              type: string
+              description: Version name
+            title:
+              type: string
+              description: Version title
+            documentation:
+              type: string
+              description: Version documentation/description
+            status:
+              type: string
+              description: Publication status
+              enum:
+                - published
+                - draft
+                - deprecated
+            apiSpec:
+              type: object
+              description: OpenAPI specification document
+              additionalProperties: true
+            apiSpecError:
+              type: string
+              description: Error message if API spec could not be loaded
