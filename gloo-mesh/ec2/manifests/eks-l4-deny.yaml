@@ -1,0 +1,12 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: eks-echo-deny
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: eks-echo
+  action: DENY
+  rules:
+  - {}
